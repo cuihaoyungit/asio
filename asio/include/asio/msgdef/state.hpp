@@ -1,0 +1,25 @@
+//
+// state.hpp
+// add by [11/21/2022 cuihaoyun]
+// ÍøÂç×´Ì¬
+//
+
+#ifndef __STATE_HPP__
+#define __STATE_HPP__
+
+namespace asio {
+
+//
+// ÍøÂçÁ¬½ÓµÄ×´Ì¬Ã¶¾Ù
+// 
+enum class ConnectState : char
+{
+	ST_STARTING, ST_STARTED, ST_CONNECTING, ST_CONNECTED, ST_STOPPING, ST_STOPPED
+};
+
+
+
+}
+
+
+#endif // __STATE_HPP__

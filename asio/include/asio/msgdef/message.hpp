@@ -16,6 +16,8 @@
 #include <cstring>
 #pragma warning(disable : 26495)
 
+namespace asio {
+
 typedef struct TPkgHeader
 {
 	DWORD seq;
@@ -91,5 +93,7 @@ private:
   MsgHeader msg_header_;
   std::size_t body_length_;
 };
+
+}
 
 #endif // __MESSAGE_HPP__
