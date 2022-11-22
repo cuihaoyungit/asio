@@ -20,7 +20,7 @@ namespace asio {
 	class NetObject
 	{
 	public:
-		NetObject() {}
+		NetObject() ASIO_NOEXCEPT {}
 		virtual ~NetObject() {}
 		virtual void Send(const message& msg) {}
 	};
@@ -36,13 +36,12 @@ namespace asio {
 		virtual void PostMsg(const message& msg) {}
 	};
 
-
 	using asio::ip::tcp;
 	typedef std::deque<message> message_queue;
 	class NetClient : public Worker, public NetObject
 	{
 	public:
-		NetClient(NetClientEvent* handleMessage, const std::string& address, const int port)
+		NetClient(NetClientEvent* handleMessage, const std::string& address, const int port) ASIO_NOEXCEPT
 			: Worker(),
 			handle_message_(handleMessage),
 			is_connect_(false), is_close_(false), connect_state_(ConnectState::ST_STOPPED), socket_(nullptr)
@@ -245,39 +244,39 @@ namespace asio {
 	class NetClientWorkGroup : public NetClientEvent
 	{
 	public:
-		NetClientWorkGroup() {}
+		NetClientWorkGroup() ASIO_NOEXCEPT {}
 		~NetClientWorkGroup() {
-			for (const auto& it : m_vNetClients) {
+			for (const auto& it : net_clients_) {
 				delete it;
 			}
-			m_vNetClients.clear();
+			net_clients_.clear();
 		}
 
 		void Startup(const std::string& address, const int port, int numClients) {
 			for (int i = 0; i < numClients; i++) {
 				NetClient* pNetClient = new NetClient(this, address, port);
-				m_vNetClients.push_back(pNetClient);
+				net_clients_.push_back(pNetClient);
 				pNetClient->Startup();
 			}
 		}
 
 		void WaitStop() {
-			for (const auto it : m_vNetClients) {
+			for (const auto it : net_clients_) {
 				it->disconnect();
 				it->WaitStop();
 			}
 		}
 
 		NetClient* GetNetClient(int index) {
-			if (index < m_vNetClients.size()) {
-				return m_vNetClients[index];
+			if (index < net_clients_.size()) {
+				return net_clients_[index];
 			}
 			return nullptr;
 		}
 
 		void PostMsg(const message& msg) override
 		{
-			NetClient* pClient = m_vNetClients[std::rand() % m_vNetClients.size()];
+			NetClient* pClient = net_clients_[std::rand() % net_clients_.size()];
 			if (pClient)
 			{
 				pClient->Send(msg);
@@ -318,7 +317,7 @@ namespace asio {
 		NetClientWorkGroup(const NetClientWorkGroup&) = delete;
 		NetClientWorkGroup operator = (const NetClientWorkGroup&) = delete;
 	private:
-		std::vector<NetClient*> m_vNetClients;
+		std::vector<NetClient*> net_clients_;
 	};
 
 	using NetClientGroup = NetClientWorkGroup;

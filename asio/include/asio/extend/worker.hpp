@@ -11,7 +11,7 @@ namespace asio {
 	class Worker
 	{
 	public:
-		Worker() {}
+		Worker() ASIO_NOEXCEPT {}
 
 		virtual ~Worker() {
 			this->WaitStop();
