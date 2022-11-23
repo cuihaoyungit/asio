@@ -15,6 +15,7 @@
 #include <asio.hpp>
 #include <queue>
 #include <set>
+#include <mutex>
 #include <asio/extend/worker.hpp>
 #include <asio/msgdef/message.hpp>
 
@@ -52,6 +53,7 @@ namespace asio {
 	public:
 		void join(chat_participant_ptr participant)
 		{
+			std::lock_guard lock(mutex_);
 			participants_.insert(participant);
 			for (const auto& msg : recent_msgs_)
 				participant->deliver(msg);
@@ -59,6 +61,7 @@ namespace asio {
 
 		void leave(chat_participant_ptr participant)
 		{
+			std::lock_guard lock(mutex_);
 			participants_.erase(participant);
 		}
 
@@ -68,11 +71,12 @@ namespace asio {
 			while (recent_msgs_.size() > max_recent_msgs)
 				recent_msgs_.pop_front();
 
-			for (auto participant : participants_)
+			for (auto& participant : participants_)
 				participant->deliver(msg);
 		}
 
 	private:
+		std::mutex mutex_;
 		std::set<chat_participant_ptr> participants_;
 		enum { max_recent_msgs = 100 };
 		message_queue recent_msgs_;
@@ -80,16 +84,17 @@ namespace asio {
 
 	//----------------------------------------------------------------------
 
-	class chat_session
+	class session
 		: public chat_participant,
-		public std::enable_shared_from_this<chat_session>
+		public std::enable_shared_from_this<session>
 	{
 	public:
-		chat_session(tcp::socket socket, chat_room& room, NetServerEvent* event)
+		session(tcp::socket socket, chat_room& room, NetServerEvent* event)
 			: socket_(std::move(socket)),
 			room_(room),
 			net_event_(event)
 		{
+
 		}
 
 		void start()
@@ -216,7 +221,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						std::make_shared<chat_session>(std::move(socket), room_, handle_message_)->start();
+						std::make_shared<session>(std::move(socket), room_, handle_message_)->start();
 					}
 
 					do_accept();
@@ -309,12 +314,13 @@ namespace asio {
 	private:
 		void HandleMessage(const message& msg) override
 		{
-#if 0
+			static std::mutex mtx;
+			std::lock_guard lock(mtx);
 			std::ostringstream oss;
 			oss << std::this_thread::get_id();
 			std::string sspid = oss.str();
 			unsigned long long pid = std::stoull(sspid);
-#endif
+			std::cout << sspid << "\n";
 		}
 
 		void Connect() override
