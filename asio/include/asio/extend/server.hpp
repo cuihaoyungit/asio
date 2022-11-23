@@ -21,48 +21,50 @@
 
 namespace asio {
 
-	class NetServerEvent
-	{
-	public:
-		NetServerEvent() = default;
-		virtual ~NetServerEvent() {}
-		virtual void Connect() {}
-		virtual void Disconnect() {}
-		virtual void HandleMessage(const message& msg) {}
-		virtual void PostMsg(const message& msg) {}
-	};
-
 	using asio::ip::tcp;
 	typedef std::deque<message> message_queue;
 
 	//----------------------------------------------------------------------
 
-	class chat_participant
+	class ConnectObject
 	{
 	public:
-		virtual ~chat_participant() {}
+		virtual ~ConnectObject() {}
 		virtual void deliver(const message& msg) = 0;
 	};
 
-	typedef std::shared_ptr<chat_participant> chat_participant_ptr;
+	typedef std::shared_ptr<ConnectObject> ConnectObjectPtr;
+
+	//---------------------------------------------------------------------
+
+	class NetServerEvent
+	{
+	public:
+		NetServerEvent() = default;
+		virtual ~NetServerEvent() {}
+		virtual void Connect(ConnectObjectPtr pObj) {}
+		virtual void Disconnect(ConnectObjectPtr pObj) {}
+		virtual void HandleMessage(const message& msg) {}
+		virtual void PostMsg(const message& msg) {}
+	};
 
 	//----------------------------------------------------------------------
 
-	class chat_room
+	class Room
 	{
 	public:
-		void join(chat_participant_ptr participant)
+		void join(ConnectObjectPtr obj)
 		{
 			std::lock_guard lock(mutex_);
-			participants_.insert(participant);
+			obj_list_.insert(obj);
 			for (const auto& msg : recent_msgs_)
-				participant->deliver(msg);
+				obj->deliver(msg);
 		}
 
-		void leave(chat_participant_ptr participant)
+		void leave(ConnectObjectPtr obj)
 		{
 			std::lock_guard lock(mutex_);
-			participants_.erase(participant);
+			obj_list_.erase(obj);
 		}
 
 		void deliver(const message& msg)
@@ -71,25 +73,25 @@ namespace asio {
 			while (recent_msgs_.size() > max_recent_msgs)
 				recent_msgs_.pop_front();
 
-			for (auto& participant : participants_)
-				participant->deliver(msg);
+			for (auto& obj : obj_list_)
+				obj->deliver(msg);
 		}
 
 	private:
 		std::mutex mutex_;
-		std::set<chat_participant_ptr> participants_;
+		std::set<ConnectObjectPtr> obj_list_;
 		enum { max_recent_msgs = 100 };
 		message_queue recent_msgs_;
 	};
 
 	//----------------------------------------------------------------------
 
-	class session
-		: public chat_participant,
-		public std::enable_shared_from_this<session>
+	class Session
+		: public ConnectObject,
+		public std::enable_shared_from_this<Session>
 	{
 	public:
-		session(tcp::socket socket, chat_room& room, NetServerEvent* event)
+		Session(tcp::socket socket, Room& room, NetServerEvent* event)
 			: socket_(std::move(socket)),
 			room_(room),
 			net_event_(event)
@@ -100,6 +102,7 @@ namespace asio {
 		void start()
 		{
 			room_.join(shared_from_this());
+			net_event_->Connect(shared_from_this());
 			do_read_header();
 		}
 
@@ -128,6 +131,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
+						net_event_->Disconnect(shared_from_this());
 					}
 				});
 		}
@@ -148,6 +152,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
+						net_event_->Disconnect(shared_from_this());
 					}
 				});
 		}
@@ -171,12 +176,13 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
+						net_event_->Disconnect(shared_from_this());
 					}
 				});
 		}
 
 		tcp::socket socket_;
-		chat_room& room_;
+		Room& room_;
 		message read_msg_;
 		message_queue write_msgs_;
 		NetServerEvent* net_event_;
@@ -221,7 +227,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						std::make_shared<session>(std::move(socket), room_, handle_message_)->start();
+						std::make_shared<Session>(std::move(socket), room_, handle_message_)->start();
 					}
 
 					do_accept();
@@ -232,7 +238,7 @@ namespace asio {
 		NetServerEvent* handle_message_;
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
-		chat_room room_;
+		Room room_;
 	};
 
 	//----------------------------------------------------------------------
@@ -323,12 +329,12 @@ namespace asio {
 			std::cout << sspid << "\n";
 		}
 
-		void Connect() override
+		void Connect(ConnectObjectPtr pObj) override
 		{
 
 		}
 
-		void Disconnect() override
+		void Disconnect(ConnectObjectPtr pObj) override
 		{
 
 		}

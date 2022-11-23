@@ -18,82 +18,81 @@
 
 namespace asio {
 
-typedef struct TPkgHeader
-{
-	DWORD seq;
-	int body_len;
-} MsgHeader;
+	typedef struct TPkgHeader
+	{
+		DWORD seq;
+		int body_len;
+	} MsgHeader;
 
-class message
-{
-public:
-  static constexpr std::size_t header_length = sizeof(MsgHeader);
-  static constexpr std::size_t max_body_length = 512;
+	class message
+	{
+	public:
+	  static constexpr std::size_t header_length = sizeof(MsgHeader);
+	  static constexpr std::size_t max_body_length = 512;
 
-  message()
-    : body_length_(0)
-  {
-  }
-
-  const char* data() const
-  {
-    return data_;
-  }
-
-  char* data()
-  {
-    return data_;
-  }
-
-  std::size_t length() const
-  {
-    return header_length + body_length_;
-  }
-
-  const char* body() const
-  {
-    return data_ + header_length;
-  }
-
-  char* body()
-  {
-    return data_ + header_length;
-  }
-
-  std::size_t body_length() const
-  {
-    return body_length_;
-  }
-
-  void body_length(std::size_t new_length)
-  {
-	  body_length_ = new_length;
-	  if (body_length_ > max_body_length)
-		  body_length_ = max_body_length;
-  }
-
-  bool decode_header()
-  {
-	  MsgHeader* msg = (MsgHeader*)data_;
-	  body_length_ = msg->body_len;
-	  if (body_length_ > max_body_length)
+	  message()
+		: body_length_(0)
 	  {
-		  body_length_ = 0;
-		  return false;
 	  }
-	  return true;
-  }
 
-  void encode_header(MsgHeader& msg) {
-      std::memcpy(data_, &msg, header_length);
-  }
+	  const char* data() const
+	  {
+		return data_;
+	  }
 
-private:
-  char data_[header_length + max_body_length];
-  MsgHeader msg_header_;
-  std::size_t body_length_;
-};
+	  char* data()
+	  {
+		return data_;
+	  }
 
+	  std::size_t length() const
+	  {
+		return header_length + body_length_;
+	  }
+
+	  const char* body() const
+	  {
+		return data_ + header_length;
+	  }
+
+	  char* body()
+	  {
+		return data_ + header_length;
+	  }
+
+	  std::size_t body_length() const
+	  {
+		return body_length_;
+	  }
+
+	  void body_length(std::size_t new_length)
+	  {
+		  body_length_ = new_length;
+		  if (body_length_ > max_body_length)
+			  body_length_ = max_body_length;
+	  }
+
+	  bool decode_header()
+	  {
+		  MsgHeader* msg = (MsgHeader*)data_;
+		  body_length_ = msg->body_len;
+		  if (body_length_ > max_body_length)
+		  {
+			  body_length_ = 0;
+			  return false;
+		  }
+		  return true;
+	  }
+
+	  void encode_header(MsgHeader& msg) {
+		  std::memcpy(data_, &msg, header_length);
+	  }
+
+	private:
+	  char data_[header_length + max_body_length];
+	  MsgHeader msg_header_;
+	  std::size_t body_length_;
+	};
 }
 
 #endif // __MESSAGE_HPP__
