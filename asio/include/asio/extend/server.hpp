@@ -16,9 +16,9 @@
 #include <queue>
 #include <set>
 #include <mutex>
+#include <asio/detail/socket_types.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/msgdef/message.hpp>
-
 namespace asio {
 
 	using asio::ip::tcp;
@@ -29,8 +29,18 @@ namespace asio {
 	class ConnectObject
 	{
 	public:
+		ConnectObject(){}
 		virtual ~ConnectObject() {}
 		virtual void deliver(const message& msg) = 0;
+		virtual void send(const message& msg)    = 0;
+		void     setSocket(const uint64_t fd) {
+			this->fd = fd;
+		}
+		uint64_t getSocket() { 
+			return fd; 
+		}
+	private:
+		asio::detail::socket_type fd;
 	};
 
 	typedef std::shared_ptr<ConnectObject> ConnectObjectPtr;
@@ -44,7 +54,7 @@ namespace asio {
 		virtual ~NetServerEvent() {}
 		virtual void Connect(ConnectObjectPtr pObj) {}
 		virtual void Disconnect(ConnectObjectPtr pObj) {}
-		virtual void HandleMessage(const message& msg) {}
+		virtual void HandleMessage(message& msg) {}
 		virtual void PostMsg(const message& msg) {}
 	};
 
@@ -101,12 +111,13 @@ namespace asio {
 
 		void start()
 		{
+			this->setSocket(socket_.native_handle());
 			room_.join(shared_from_this());
 			net_event_->Connect(shared_from_this());
 			do_read_header();
 		}
 
-		void deliver(const message& msg)
+		void deliver(const message& msg) override
 		{
 			bool write_in_progress = !write_msgs_.empty();
 			write_msgs_.push_back(msg);
@@ -114,6 +125,11 @@ namespace asio {
 			{
 				do_write();
 			}
+		}
+
+		void send(const message& msg) override
+		{
+			deliver(msg);
 		}
 
 	private:
@@ -145,6 +161,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
+						read_msg_.setObject(this);
 						room_.deliver(read_msg_);
 						net_event_->PostMsg(read_msg_);
 						do_read_header();
@@ -308,6 +325,16 @@ namespace asio {
 			return nullptr;
 		}
 
+		NetServer* GetBalanceNetClient()
+		{
+			static int index = 0;
+			index++;
+			if (index > 100) {
+				index = 0;
+			}
+			return m_vNetServers[index % m_vNetServers.size()];
+		}
+
 		void PostMsg(const message& msg) override {
 			std::unique_lock<std::mutex> lock(m_queue_mutex);
 			if (m_stop) {
@@ -318,15 +345,9 @@ namespace asio {
 		}
 
 	private:
-		void HandleMessage(const message& msg) override
+		void HandleMessage(message& msg) override
 		{
-			static std::mutex mtx;
-			std::lock_guard lock(mtx);
-			std::ostringstream oss;
-			oss << std::this_thread::get_id();
-			std::string sspid = oss.str();
-			unsigned long long pid = std::stoull(sspid);
-			std::cout << sspid << "\n";
+
 		}
 
 		void Connect(ConnectObjectPtr pObj) override

@@ -17,6 +17,7 @@
 #pragma warning(disable : 26495)
 
 namespace asio {
+	class ConnectObject;
 
 	typedef struct TPkgHeader
 	{
@@ -27,11 +28,11 @@ namespace asio {
 	class message
 	{
 	public:
-	  static constexpr std::size_t header_length = sizeof(MsgHeader);
+	  static constexpr std::size_t header_length   = sizeof(MsgHeader);
 	  static constexpr std::size_t max_body_length = 512;
 
 	  message()
-		: body_length_(0)
+		: body_length_(0), connect_object_(nullptr)
 	  {
 	  }
 
@@ -88,10 +89,18 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
+	  void setObject(ConnectObject *obj) {
+		  this->connect_object_ = obj;
+	  }
+
+	  ConnectObject* getObject() {
+		  return connect_object_;
+	  }
 	private:
 	  char data_[header_length + max_body_length];
 	  MsgHeader msg_header_;
 	  std::size_t body_length_;
+	  ConnectObject* connect_object_;
 	};
 }
 
