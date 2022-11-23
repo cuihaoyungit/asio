@@ -35,7 +35,7 @@ namespace asio {
 			this->Clear();
 		}
 
-		asio::io_context& GetIoContext() {
+		asio::io_context& GetContext() {
 			return ioc_;
 		}
 

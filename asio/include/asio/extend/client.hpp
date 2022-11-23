@@ -82,6 +82,10 @@ namespace asio {
 		}
 
 	protected:
+		void handle_message(NetObject* pObject, const message& msg) {
+			this->handle_message_->HandleMessage(this, msg);
+		}
+
 		void Run() override
 		{
 			this->io_context_.run();
@@ -175,7 +179,7 @@ namespace asio {
 						std::cout.write(read_msg_.body(), read_msg_.body_length());
 						std::cout << std::this_thread::get_id() << "\n";
 #endif
-						this->handle_message_->HandleMessage(this, read_msg_);
+						this->handle_message(this, read_msg_);
 
 						do_read_header();
 					}
@@ -285,24 +289,7 @@ namespace asio {
 	private:
 		void HandleMessage(NetObject* pObject, const message& msg) override
 		{
-#if 0
-			time_t tm_stamp = time(nullptr);
-			char buf[20] = { 0 };
-			tm* local_time = std::localtime(&tm_stamp);
-			strftime(buf, sizeof(buf), "%F %X", local_time);
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(0));
-			std::string text = buf;
-
-			std::ostringstream sspid;
-			sspid << ">>>" << std::this_thread::get_id();
-			text += sspid.str();
-			chat_message msg;
-			msg.body_length(text.length());
-			std::memcpy(msg.body(), text.c_str(), msg.body_length());
-			msg.encode_header();
-			pObject->Send(msg);
-#endif
 		}
 
 		void Connect() override

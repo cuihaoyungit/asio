@@ -276,9 +276,7 @@ namespace asio {
 									return;
 								auto msg = std::move(this->m_msgQueue.front());
 								this->m_msgQueue.pop();
-#if 0
-								this->HandleMessage(msg); // 这里需要缩小锁的影响时间
-#endif
+								this->HandleMessage(msg);
 							}
 						}
 					});
