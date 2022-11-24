@@ -36,7 +36,7 @@ namespace asio {
 		void     setSocket(const uint64_t fd) {
 			this->fd = fd;
 		}
-		uint64_t getSocket() { 
+		uint64_t getSocketId() { 
 			return fd; 
 		}
 	private:
@@ -161,7 +161,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						read_msg_.setObject(this);
+						read_msg_.setObject(shared_from_this());
 						room_.deliver(read_msg_);
 						net_event_->PostMsg(read_msg_);
 						do_read_header();
@@ -318,14 +318,14 @@ namespace asio {
 			}
 		}
 
-		NetServer* GetNetClient(int index) {
+		auto GetNetClient(int index) -> NetServer* {
 			if (index < m_vNetServers.size()) {
 				return m_vNetServers[index];
 			}
 			return nullptr;
 		}
 
-		NetServer* GetBalanceNetClient()
+		auto GetBalanceNetClient()
 		{
 			static int index = 0;
 			index++;

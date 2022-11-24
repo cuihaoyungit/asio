@@ -19,10 +19,17 @@
 namespace asio {
 	class ConnectObject;
 
+	enum MsgType
+	{
+		NET_MSG    = 1,  // 网络消息
+		THREAD_MSG = 2   // 线程消息-本地消息
+	};
+
 	typedef struct TPkgHeader
 	{
 		DWORD seq;
 		int body_len;
+		//MsgType type = NET_MSG;
 	} MsgHeader;
 
 	class message
@@ -89,18 +96,18 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setObject(ConnectObject *obj) {
+	  void setObject(std::shared_ptr<ConnectObject> obj) {
 		  this->connect_object_ = obj;
 	  }
 
-	  ConnectObject* getObject() {
+	  auto getObject()->std::shared_ptr<ConnectObject> {
 		  return connect_object_;
 	  }
 	private:
 	  char data_[header_length + max_body_length];
 	  MsgHeader msg_header_;
 	  std::size_t body_length_;
-	  ConnectObject* connect_object_;
+	  std::shared_ptr<ConnectObject> connect_object_;
 	};
 }
 
