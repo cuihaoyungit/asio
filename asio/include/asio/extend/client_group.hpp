@@ -14,24 +14,17 @@
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/msgdef/state.hpp>
+#include <asio/extend/object.hpp>
 
 namespace asio {
-
-	class NetObject
-	{
-	public:
-		NetObject() ASIO_NOEXCEPT {}
-		virtual ~NetObject() {}
-		virtual void Send(const message& msg) {}
-	};
 
 	class NetClientEvent
 	{
 	public:
 		NetClientEvent() = default;
 		virtual ~NetClientEvent() {}
-		virtual void Connect() {}
-		virtual void Disconnect() {}
+		virtual void Connect(NetObject* pObject) {}
+		virtual void Disconnect(NetObject* pObject) {}
 		virtual void HandleMessage(NetObject* pObject, const message& msg) {}
 		virtual void PostMsg(const message& msg) {}
 	};
@@ -62,6 +55,10 @@ namespace asio {
 			{
 				delete socket_;
 			}
+		}
+
+		uint64_t SocketId() override {
+			return socket_->native_handle();
 		}
 
 		void disconnect()
@@ -96,7 +93,7 @@ namespace asio {
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
 				socket_->close();
-				this->handle_event_->Disconnect();
+				this->handle_event_->Disconnect(this);
 				this->write_msgs_.clear();
 				this->is_connect_ = false;
 				this->connect_state_ = ConnectState::ST_STOPPED;
@@ -131,7 +128,7 @@ namespace asio {
 						this->connect_state_ = ConnectState::ST_CONNECTED;
 						is_connect_ = true;
 						std::cout << "connection succeeded. " << socket_->native_handle() << std::endl;
-						this->handle_event_->Connect();
+						this->handle_event_->Connect(this);
 						do_read_header();
 					}
 					else {

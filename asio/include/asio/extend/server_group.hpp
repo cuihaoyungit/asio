@@ -19,31 +19,14 @@
 #include <asio/detail/socket_types.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/msgdef/message.hpp>
+#include <asio/extend/object.hpp>
+
 namespace asio {
 
 	using asio::ip::tcp;
 	typedef std::deque<message> message_queue;
 
-	//----------------------------------------------------------------------
-
-	class ConnectObject
-	{
-	public:
-		ConnectObject(){}
-		virtual ~ConnectObject() {}
-		virtual void deliver(const message& msg) = 0;
-		virtual void send(const message& msg)    = 0;
-		void     setSocket(const uint64_t fd) {
-			this->fd = fd;
-		}
-		uint64_t getSocketId() { 
-			return fd; 
-		}
-	private:
-		asio::detail::socket_type fd;
-	};
-
-	typedef std::shared_ptr<ConnectObject> ConnectObjectPtr;
+	typedef std::shared_ptr<NetObject> NetObjectPtr;
 
 	//---------------------------------------------------------------------
 
@@ -52,8 +35,8 @@ namespace asio {
 	public:
 		NetServerEvent() = default;
 		virtual ~NetServerEvent() {}
-		virtual void Connect(ConnectObjectPtr pObj) {}
-		virtual void Disconnect(ConnectObjectPtr pObj) {}
+		virtual void Connect(NetObject *pObj) {}
+		virtual void Disconnect(NetObject *pObj) {}
 		virtual void HandleMessage(message& msg) {}
 		virtual void PostMsg(const message& msg) {}
 	};
@@ -63,7 +46,7 @@ namespace asio {
 	class Room
 	{
 	public:
-		void join(ConnectObjectPtr obj)
+		void join(NetObjectPtr obj)
 		{
 			std::lock_guard lock(mutex_);
 			obj_list_.insert(obj);
@@ -71,7 +54,7 @@ namespace asio {
 				obj->deliver(msg);
 		}
 
-		void leave(ConnectObjectPtr obj)
+		void leave(NetObjectPtr obj)
 		{
 			std::lock_guard lock(mutex_);
 			obj_list_.erase(obj);
@@ -89,7 +72,7 @@ namespace asio {
 
 	private:
 		std::mutex mutex_;
-		std::set<ConnectObjectPtr> obj_list_;
+		std::set<NetObjectPtr> obj_list_;
 		enum { max_recent_msgs = 100 };
 		message_queue recent_msgs_;
 	};
@@ -97,7 +80,7 @@ namespace asio {
 	//----------------------------------------------------------------------
 
 	class Session
-		: public ConnectObject,
+		: public NetObject,
 		public std::enable_shared_from_this<Session>
 	{
 	public:
@@ -109,11 +92,15 @@ namespace asio {
 
 		}
 
+		uint64_t SocketId() override 
+		{
+			return socket_.native_handle();
+		}
+
 		void start()
 		{
-			this->setSocket(socket_.native_handle());
 			room_.join(shared_from_this());
-			net_event_->Connect(shared_from_this());
+			net_event_->Connect(this);
 			do_read_header();
 		}
 
@@ -127,7 +114,7 @@ namespace asio {
 			}
 		}
 
-		void send(const message& msg) override
+		void Send(const message& msg) override
 		{
 			deliver(msg);
 		}
@@ -147,7 +134,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
-						net_event_->Disconnect(shared_from_this());
+						net_event_->Disconnect(this);
 					}
 				});
 		}
@@ -169,7 +156,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
-						net_event_->Disconnect(shared_from_this());
+						net_event_->Disconnect(this);
 					}
 				});
 		}
@@ -193,7 +180,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
-						net_event_->Disconnect(shared_from_this());
+						net_event_->Disconnect(this);
 					}
 				});
 		}

@@ -15,9 +15,9 @@
 #include <cstdlib>
 #include <cstring>
 #pragma warning(disable : 26495)
+#include <asio/extend/object.hpp>
 
 namespace asio {
-	class ConnectObject;
 
 	enum MsgType
 	{
@@ -96,18 +96,18 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setObject(std::shared_ptr<ConnectObject> obj) {
+	  void setObject(std::shared_ptr<NetObject> obj) {
 		  this->connect_object_ = obj;
 	  }
 
-	  auto getObject()->std::shared_ptr<ConnectObject> {
+	  auto getObject()->std::shared_ptr<NetObject> {
 		  return connect_object_;
 	  }
 	private:
 	  char data_[header_length + max_body_length];
 	  MsgHeader msg_header_;
 	  std::size_t body_length_;
-	  std::shared_ptr<ConnectObject> connect_object_;
+	  std::shared_ptr<NetObject> connect_object_;
 	};
 }
 
