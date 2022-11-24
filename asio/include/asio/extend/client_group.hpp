@@ -41,9 +41,9 @@ namespace asio {
 	class NetClient : public Worker, public NetObject
 	{
 	public:
-		NetClient(NetClientEvent* handleMessage, const std::string& address, const int port) ASIO_NOEXCEPT
+		NetClient(NetClientEvent* event, const std::string& address, const int port) ASIO_NOEXCEPT
 			: Worker(),
-			handle_message_(handleMessage),
+			handle_event_(event),
 			is_connect_(false), is_close_(false), connect_state_(ConnectState::ST_STOPPED), socket_(nullptr)
 		{
 			tcp::resolver resolver(io_context_);
@@ -83,7 +83,7 @@ namespace asio {
 
 	protected:
 		void handle_message(NetObject* pObject, const message& msg) {
-			this->handle_message_->HandleMessage(this, msg);
+			this->handle_event_->HandleMessage(this, msg);
 		}
 
 		void Run() override
@@ -96,7 +96,7 @@ namespace asio {
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
 				socket_->close();
-				this->handle_message_->Disconnect();
+				this->handle_event_->Disconnect();
 				this->write_msgs_.clear();
 				this->is_connect_ = false;
 				this->connect_state_ = ConnectState::ST_STOPPED;
@@ -131,7 +131,7 @@ namespace asio {
 						this->connect_state_ = ConnectState::ST_CONNECTED;
 						is_connect_ = true;
 						std::cout << "connection succeeded. " << socket_->native_handle() << std::endl;
-						this->handle_message_->Connect();
+						this->handle_event_->Connect();
 						do_read_header();
 					}
 					else {
@@ -241,7 +241,7 @@ namespace asio {
 		std::atomic<bool> is_connect_;
 		std::atomic<bool> is_close_;
 		ConnectState connect_state_;
-		NetClientEvent* handle_message_;
+		NetClientEvent* handle_event_;
 	};
 
 
@@ -287,20 +287,6 @@ namespace asio {
 			}
 		}
 	private:
-		void HandleMessage(NetObject* pObject, const message& msg) override
-		{
-
-		}
-
-		void Connect() override
-		{
-
-		}
-
-		void Disconnect() override
-		{
-
-		}
 		NetClientWorkGroup(const NetClientWorkGroup&) = delete;
 		NetClientWorkGroup operator = (const NetClientWorkGroup&) = delete;
 	private:

@@ -345,20 +345,6 @@ namespace asio {
 		}
 
 	private:
-		void HandleMessage(message& msg) override
-		{
-
-		}
-
-		void Connect(ConnectObjectPtr pObj) override
-		{
-
-		}
-
-		void Disconnect(ConnectObjectPtr pObj) override
-		{
-
-		}
 		NetServerWorkGroup(const NetServerWorkGroup&) = delete;
 		NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;
 	private:
