@@ -23,10 +23,6 @@ namespace asio {
 			:io_worker_(ioc_) {}
 		~AsioTimer() {}
 
-		void Run() override {
-			ioc_.run();
-		}
-
 		void Stop() {
 			if (!io_worker_.get_io_context().stopped())
 			{
@@ -66,6 +62,10 @@ namespace asio {
 			}
 		}
 	protected:
+		void Run() override {
+			ioc_.run();
+		}
+
 		void Clear() {
 			timer_list_.clear();
 		}
