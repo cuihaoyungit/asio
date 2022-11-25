@@ -20,14 +20,11 @@
 #include <asio/extend/worker.hpp>
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/object.hpp>
+#include <asio/extend/typedef.hpp>
 
 namespace asio {
 
 	using asio::ip::tcp;
-	typedef std::deque<message> message_queue;
-
-	typedef std::shared_ptr<NetObject> NetObjectPtr;
-
 	//---------------------------------------------------------------------
 
 	class NetServerEvent

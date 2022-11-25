@@ -15,9 +15,10 @@
 #include <asio/extend/worker.hpp>
 #include <asio/msgdef/state.hpp>
 #include <asio/extend/object.hpp>
+#include <asio/extend/typedef.hpp>
 
 namespace asio {
-
+	
 	class NetClientEvent
 	{
 	public:
@@ -30,7 +31,6 @@ namespace asio {
 	};
 
 	using asio::ip::tcp;
-	typedef std::deque<message> message_queue;
 	class NetClient : public Worker, public NetObject
 	{
 	public:

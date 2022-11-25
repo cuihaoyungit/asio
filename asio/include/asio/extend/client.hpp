@@ -5,7 +5,171 @@
 
 #ifndef __CLIENT_HPP__
 #define __CLIENT_HPP__
+#include <deque>
+#include <asio.hpp>
+#include <asio/msgdef/message.hpp>
+#include <asio/msgdef/state.hpp>
+#include <asio/extend/object.hpp>
+#include <asio/detail/socket_types.hpp>
+#include <asio/extend/typedef.hpp>
 
+
+namespace asio {
+
+    using asio::ip::tcp;
+
+    class client
+    {
+    public:
+        client(asio::io_context& io_context,
+            const tcp::resolver::results_type& endpoints)
+            : io_context_(io_context),
+            socket_(io_context),
+            is_connect_(false),
+            client_state_(ConnectState::ST_STOPPED)
+        {
+            this->client_state_ = ConnectState::ST_STARTING;
+            this->endpoints_ = endpoints;
+            do_connect(endpoints);
+        }
+
+        void write(const message& msg)
+        {
+            if (!this->is_connect_) {
+                return;
+            }
+            asio::post(io_context_,
+                [this, msg]()
+                {
+                    bool write_in_progress = !write_msgs_.empty();
+            write_msgs_.push_back(msg);
+            if (!write_in_progress && is_connect_)
+            {
+                do_write();
+            }
+                });
+        }
+
+        void close()
+        {
+            this->client_state_ = ConnectState::ST_STOPPING;
+            asio::post(io_context_, [this]() {
+                socket_.close();
+            this->write_msgs_.clear();
+            this->is_connect_ = false;
+            this->client_state_ = ConnectState::ST_STOPPED;
+            this->reconnect();
+                });
+        }
+
+        void reconnect()
+        {
+            std::cout << "reconnecting" << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            if (!this->is_connect_)
+            {
+                do_connect(endpoints_);
+            }
+        }
+
+    private:
+        void do_connect(const tcp::resolver::results_type& endpoints)
+        {
+            this->client_state_ = ConnectState::ST_STARTED;
+            asio::async_connect(socket_, endpoints,
+                [this](std::error_code ec, tcp::endpoint)
+                {
+                    if (!ec)
+                    {
+                        this->client_state_ = ConnectState::ST_CONNECTED;
+                        is_connect_ = true;
+                        std::cout << "connection succeeded." << std::endl;
+                        do_read_header();
+                    }
+                    else {
+                        is_connect_ = false;
+                        std::cout << "connection failed." << std::endl;
+                        this->close();
+                    }
+                });
+            this->client_state_ = ConnectState::ST_CONNECTING;
+        }
+
+        void do_read_header()
+        {
+            asio::async_read(socket_,
+                asio::buffer(read_msg_.data(), message::header_length),
+                [this](std::error_code ec, std::size_t /*length*/)
+                {
+                    if (!ec && read_msg_.decode_header())
+                    {
+                        do_read_body();
+                    }
+                    else
+                    {
+                        this->close();
+                    }
+                });
+        }
+
+        void do_read_body()
+        {
+            asio::async_read(socket_,
+                asio::buffer(read_msg_.body(), read_msg_.body_length()),
+                [this](std::error_code ec, std::size_t /*length*/)
+                {
+                    if (!ec)
+                    {
+                        std::cout.write(read_msg_.body(), read_msg_.body_length());
+                        std::cout << "\n";
+                        do_read_header();
+                    }
+                    else
+                    {
+                        this->close();
+                    }
+                });
+        }
+
+        void do_write()
+        {
+            asio::async_write(socket_,
+                asio::buffer(write_msgs_.front().data(),
+                    write_msgs_.front().length()),
+                [this](std::error_code ec, std::size_t /*length*/)
+                {
+                    if (!ec)
+                    {
+                        if (!write_msgs_.empty())
+                        {
+                            write_msgs_.pop_front();
+                        }
+
+                        if (!write_msgs_.empty())
+                        {
+                            do_write();
+                        }
+                    }
+                    else
+                    {
+                        this->close();
+                    }
+                });
+        }
+
+    private:
+        asio::io_context& io_context_;
+        tcp::socket socket_;
+        message read_msg_;
+        message_queue write_msgs_;
+        tcp::resolver::results_type endpoints_;
+        std::atomic<bool> is_connect_;
+        ConnectState client_state_;
+    };
+
+
+
+}
 
 
 #endif // __CLIENT_HPP__

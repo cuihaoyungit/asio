@@ -18,6 +18,11 @@ namespace asio {
 		virtual void Send(const message& msg) {}
 		virtual uint64_t SocketId() { return 0; }
 	};
+
+	typedef std::shared_ptr<NetObject> NetObjectPtr;
+
+
+
 }
 
 #endif // __OBJECT_HPP__
