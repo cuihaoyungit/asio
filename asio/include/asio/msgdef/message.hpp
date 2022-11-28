@@ -1,4 +1,4 @@
-//
+ï»¿//
 // message.hpp
 // add by [11/20/2022 cuihaoyun]
 //
@@ -21,8 +21,8 @@ namespace asio {
 
 	enum MsgType
 	{
-		NET_MSG    = 1,  // ÍøÂçÏûÏ¢
-		THREAD_MSG = 2   // Ïß³ÌÏûÏ¢-±¾µØÏûÏ¢
+		NET_MSG    = 1,  // ç½‘ç»œæ¶ˆæ¯
+		THREAD_MSG = 2   // çº¿ç¨‹æ¶ˆæ¯
 	};
 
 	typedef struct TPkgHeader

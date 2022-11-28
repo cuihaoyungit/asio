@@ -31,6 +31,10 @@ namespace asio {
 			}
 		}
 
+		std::thread::id GetThreadId() {
+			return thread_.get_id();
+		}
+
 	protected:
 		void RunThread() {
 			this->Run();
@@ -39,6 +43,7 @@ namespace asio {
 		Worker operator = (const Worker&) = delete;
 	private:
 		std::thread thread_;
+		//std::unique_ptr<std::thread> m_thread;
 	};
 }
 
