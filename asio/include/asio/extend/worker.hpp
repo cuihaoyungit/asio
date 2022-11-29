@@ -20,19 +20,34 @@ namespace asio {
 
 		virtual void Run() {}
 
-		void Startup() {
-			thread_ = std::thread(std::bind(&Worker::RunThread, this));
+		bool Startup() {
+			if (!thread_) {
+				thread_ = std::make_unique<std::thread>(std::bind(&Worker::RunThread, this));
+			}
+			return true;
 		}
 
 		void WaitStop() {
-			if (thread_.joinable())
+			if (thread_->joinable())
 			{
-				thread_.join();
+				thread_->join();
 			}
 		}
 
 		std::thread::id GetThreadId() {
-			return thread_.get_id();
+			return thread_->get_id();
+		}
+
+		static std::thread::id GetCurrentThreadId() {
+			return std::this_thread::get_id();
+		}
+
+		const std::string& Name() {
+			return name_;
+		}
+
+		void SetName(const std::string &name) {
+			this->name_ = name;
 		}
 
 	protected:
@@ -42,8 +57,8 @@ namespace asio {
 		Worker(const Worker&) = delete;
 		Worker operator = (const Worker&) = delete;
 	private:
-		std::thread thread_;
-		//std::unique_ptr<std::thread> m_thread;
+		std::unique_ptr<std::thread> thread_;
+		std::string name_;
 	};
 }
 

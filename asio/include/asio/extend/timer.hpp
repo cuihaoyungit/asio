@@ -62,13 +62,6 @@ namespace asio {
 			}
 		}
 
-		void SetName(const std::string &name) {
-			this->name_ = name;
-		}
-
-		const std::string& GetName() {
-			return name_;
-		}
 	protected:
 		void Run() override {
 			ioc_.run();
@@ -83,7 +76,6 @@ namespace asio {
 		asio::io_context::work io_worker_;
 		using io_timer = std::shared_ptr<asio::steady_timer>;
 		std::unordered_map<std::string, io_timer> timer_list_;
-		std::string name_;
 	};
 
 }
