@@ -26,8 +26,8 @@ namespace asio {
 		virtual ~NetClientEvent() {}
 		virtual void Connect(NetObject* pObject) {}
 		virtual void Disconnect(NetObject* pObject) {}
-		virtual void HandleMessage(NetObject* pObject, const message& msg) {}
-		virtual void PostMsg(const message& msg) {}
+		virtual void HandleMessage(NetObject* pObject, const Message& msg) {}
+		virtual void PostMsg(const Message& msg) {}
 	};
 
 	using asio::ip::tcp;
@@ -74,12 +74,12 @@ namespace asio {
 				});
 		}
 
-		void Send(const message& msg) override {
+		void Send(const Message& msg) override {
 			this->write(msg);
 		}
 
 	protected:
-		void handle_message(NetObject* pObject, const message& msg) {
+		void handle_message(NetObject* pObject, const Message& msg) {
 			this->handle_event_->HandleMessage(this, msg);
 		}
 
@@ -143,7 +143,7 @@ namespace asio {
 		void do_read_header()
 		{
 			asio::async_read(*socket_,
-				asio::buffer(read_msg_.data(), message::header_length),
+				asio::buffer(read_msg_.data(), Message::header_length),
 				[this](std::error_code ec, std::size_t /*length*/)
 				{
 					if (!ec && read_msg_.decode_header())
@@ -213,7 +213,7 @@ namespace asio {
 				});
 		}
 
-		void write(const message& msg)
+		void write(const Message& msg)
 		{
 			if (!this->is_connect_) {
 				return;
@@ -232,8 +232,8 @@ namespace asio {
 	private:
 		asio::io_context io_context_;
 		tcp::socket* socket_;
-		message read_msg_;
-		message_queue write_msgs_;
+		Message read_msg_;
+		MessageQueue write_msgs_;
 		tcp::resolver::results_type endpoints_;
 		std::atomic<bool> is_connect_;
 		std::atomic<bool> is_close_;
@@ -275,7 +275,7 @@ namespace asio {
 			return nullptr;
 		}
 
-		void PostMsg(const message& msg) override
+		void PostMsg(const Message& msg) override
 		{
 			NetClient* pClient = net_clients_[std::rand() % net_clients_.size()];
 			if (pClient)

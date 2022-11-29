@@ -34,8 +34,8 @@ namespace asio {
 		virtual ~NetServerEvent() {}
 		virtual void Connect(NetObject *pObj) {}
 		virtual void Disconnect(NetObject *pObj) {}
-		virtual void HandleMessage(message& msg) {}
-		virtual void PostMsg(const message& msg) {}
+		virtual void HandleMessage(Message& msg) {}
+		virtual void PostMsg(const Message& msg) {}
 	};
 
 	//----------------------------------------------------------------------
@@ -57,7 +57,7 @@ namespace asio {
 			obj_list_.erase(obj);
 		}
 
-		void deliver(const message& msg)
+		void deliver(const Message& msg)
 		{
 			recent_msgs_.push_back(msg);
 			while (recent_msgs_.size() > max_recent_msgs)
@@ -71,7 +71,7 @@ namespace asio {
 		std::mutex mutex_;
 		std::set<NetObjectPtr> obj_list_;
 		enum { max_recent_msgs = 100 };
-		message_queue recent_msgs_;
+		MessageQueue recent_msgs_;
 	};
 
 	//----------------------------------------------------------------------
@@ -101,7 +101,7 @@ namespace asio {
 			do_read_header();
 		}
 
-		void deliver(const message& msg) override
+		void deliver(const Message& msg) override
 		{
 			bool write_in_progress = !write_msgs_.empty();
 			write_msgs_.push_back(msg);
@@ -111,7 +111,7 @@ namespace asio {
 			}
 		}
 
-		void Send(const message& msg) override
+		void Send(const Message& msg) override
 		{
 			deliver(msg);
 		}
@@ -121,7 +121,7 @@ namespace asio {
 		{
 			auto self(shared_from_this());
 			asio::async_read(socket_,
-				asio::buffer(read_msg_.data(), message::header_length),
+				asio::buffer(read_msg_.data(), Message::header_length),
 				[this, self](std::error_code ec, std::size_t /*length*/)
 				{
 					if (!ec && read_msg_.decode_header())
@@ -184,8 +184,8 @@ namespace asio {
 
 		tcp::socket socket_;
 		Room& room_;
-		message read_msg_;
-		message_queue write_msgs_;
+		Message read_msg_;
+		MessageQueue write_msgs_;
 		NetServerEvent* net_event_;
 	};
 
@@ -319,7 +319,7 @@ namespace asio {
 			return m_vNetServers[index % m_vNetServers.size()];
 		}
 
-		void PostMsg(const message& msg) override {
+		void PostMsg(const Message& msg) override {
 			std::unique_lock<std::mutex> lock(m_queue_mutex);
 			if (m_stop) {
 				return;
@@ -335,7 +335,7 @@ namespace asio {
 		std::vector<NetServer*>  m_vNetServers;
 
 		std::vector<std::thread> m_workers;
-		std::queue<message> m_msgQueue;
+		std::queue<Message> m_msgQueue;
 		// synchronization
 		std::mutex m_queue_mutex;
 		std::condition_variable m_condition;
