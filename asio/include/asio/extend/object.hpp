@@ -8,14 +8,14 @@
 #include <asio/msgdef/message.hpp>
 
 namespace asio {
-	class message;
+	class Message;
 	class NetObject
 	{
 	public:
 		NetObject() ASIO_NOEXCEPT {}
 		virtual ~NetObject() {}
-		virtual void deliver(const message& msg) {}
-		virtual void Send(const message& msg) {}
+		virtual void deliver(const Message& msg) {}
+		virtual void Send(const Message& msg) {}
 		virtual uint64_t SocketId() { return 0; }
 	};
 

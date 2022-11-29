@@ -33,7 +33,7 @@ namespace asio {
             do_connect(endpoints);
         }
 
-        void write(const message& msg)
+        void write(const Message& msg)
         {
             if (!this->is_connect_) {
                 return;
@@ -98,7 +98,7 @@ namespace asio {
         void do_read_header()
         {
             asio::async_read(socket_,
-                asio::buffer(read_msg_.data(), message::header_length),
+                asio::buffer(read_msg_.data(), Message::header_length),
                 [this](std::error_code ec, std::size_t /*length*/)
                 {
                     if (!ec && read_msg_.decode_header())
@@ -160,8 +160,8 @@ namespace asio {
     private:
         asio::io_context& io_context_;
         tcp::socket socket_;
-        message read_msg_;
-        message_queue write_msgs_;
+        Message read_msg_;
+        MessageQueue write_msgs_;
         tcp::resolver::results_type endpoints_;
         std::atomic<bool> is_connect_;
         ConnectState client_state_;

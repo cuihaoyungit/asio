@@ -10,8 +10,8 @@
 
 namespace asio {
 
-
-	typedef std::deque<message> message_queue;
+	class Message;
+	typedef std::deque<Message> MessageQueue;
 
 
 

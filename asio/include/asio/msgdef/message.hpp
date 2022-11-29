@@ -32,13 +32,13 @@ namespace asio {
 		MsgType type = NET_MSG;
 	} MsgHeader;
 
-	class message
+	class Message
 	{
 	public:
 	  static constexpr std::size_t header_length   = sizeof(MsgHeader);
 	  static constexpr std::size_t max_body_length = 512;
 
-	  message()
+	  Message()
 		: body_length_(0), connect_object_(nullptr),id_(0)
 	  {
 	  }

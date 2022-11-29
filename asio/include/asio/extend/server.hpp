@@ -35,7 +35,7 @@ namespace asio {
             participants_.erase(participant);
         }
 
-        void deliver(const message& msg)
+        void deliver(const Message& msg)
         {
             recent_msgs_.push_back(msg);
             while (recent_msgs_.size() > max_recent_msgs)
@@ -48,7 +48,7 @@ namespace asio {
     private:
         std::set<NetObjectPtr> participants_;
         enum { max_recent_msgs = 100 };
-        message_queue recent_msgs_;
+        MessageQueue recent_msgs_;
     };
 
     //----------------------------------------------------------------------
@@ -70,7 +70,7 @@ namespace asio {
             do_read_header();
         }
 
-        void deliver(const message& msg)
+        void deliver(const Message& msg)
         {
             bool write_in_progress = !write_msgs_.empty();
             write_msgs_.push_back(msg);
@@ -85,7 +85,7 @@ namespace asio {
         {
             auto self(shared_from_this());
             asio::async_read(socket_,
-                asio::buffer(read_msg_.data(), message::header_length),
+                asio::buffer(read_msg_.data(), Message::header_length),
                 [this, self](std::error_code ec, std::size_t /*length*/)
                 {
                     if (!ec && read_msg_.decode_header())
@@ -143,8 +143,8 @@ namespace asio {
 
         tcp::socket socket_;
         Room& room_;
-        message read_msg_;
-        message_queue write_msgs_;
+        Message read_msg_;
+        MessageQueue write_msgs_;
     };
 
     //----------------------------------------------------------------------
