@@ -27,9 +27,9 @@ namespace asio {
 
 	typedef struct TPkgHeader
 	{
-		DWORD seq;
-		int body_len;
-		//MsgType type = NET_MSG;
+		DWORD seq    = {0};
+		int body_len = {0};
+		MsgType type = NET_MSG;
 	} MsgHeader;
 
 	class message
@@ -39,7 +39,7 @@ namespace asio {
 	  static constexpr std::size_t max_body_length = 512;
 
 	  message()
-		: body_length_(0), connect_object_(nullptr)
+		: body_length_(0), connect_object_(nullptr),id_(0)
 	  {
 	  }
 
@@ -103,11 +103,18 @@ namespace asio {
 	  auto getObject()->std::shared_ptr<NetObject> {
 		  return connect_object_;
 	  }
+
+	  void setId(const int id) {
+		  this->id_ = id;
+	  }
+
+	  int getId() { return id_; }
 	private:
 	  char data_[header_length + max_body_length];
 	  MsgHeader msg_header_;
 	  std::size_t body_length_;
 	  std::shared_ptr<NetObject> connect_object_;
+	  int id_;
 	};
 }
 
