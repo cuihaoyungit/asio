@@ -18,19 +18,9 @@
 #include <asio/extend/typedef.hpp>
 
 namespace asio {
-	
-	class NetClientEvent
-	{
-	public:
-		NetClientEvent() = default;
-		virtual ~NetClientEvent() {}
-		virtual void Connect(NetObject* pObject) {}
-		virtual void Disconnect(NetObject* pObject) {}
-		virtual void HandleMessage(NetObject* pObject, const Message& msg) {}
-		virtual void PostMsg(const Message& msg) {}
-	};
 
 	using asio::ip::tcp;
+	class NetClientEvent;
 	class NetClient : public Worker, public NetObject
 	{
 	public:

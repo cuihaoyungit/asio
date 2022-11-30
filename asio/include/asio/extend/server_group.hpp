@@ -25,21 +25,7 @@
 namespace asio {
 
 	using asio::ip::tcp;
-	//---------------------------------------------------------------------
-
-	class NetServerEvent
-	{
-	public:
-		NetServerEvent() = default;
-		virtual ~NetServerEvent() {}
-		virtual void Connect(NetObject *pObj) {}
-		virtual void Disconnect(NetObject *pObj) {}
-		virtual void HandleMessage(Message& msg) {}
-		virtual void PostMsg(const Message& msg) {}
-	};
-
-	//----------------------------------------------------------------------
-
+	class NetServerEvent;
 	class Room
 	{
 	public:

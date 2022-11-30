@@ -18,21 +18,43 @@ namespace asio {
 
     using asio::ip::tcp;
 
-    class client
+    // Single Client
+    //--------------------------------------------------------------
+    class Client : public NetObject
     {
     public:
-        client(asio::io_context& io_context,
+        Client(asio::io_context& io_context,
             const tcp::resolver::results_type& endpoints)
             : io_context_(io_context),
             socket_(io_context),
             is_connect_(false),
-            client_state_(ConnectState::ST_STOPPED)
+            is_close_(false),
+            connect_state_(ConnectState::ST_STOPPED)
         {
-            this->client_state_ = ConnectState::ST_STARTING;
+            this->connect_state_ = ConnectState::ST_STARTING;
             this->endpoints_ = endpoints;
             do_connect(endpoints);
         }
 
+        void Close() override 
+        {
+            this->disconnect();
+        }
+
+        void Send(const Message& msg) override 
+        {
+            this->write(msg);
+        }
+
+        void deliver(const Message& msg) override
+        {
+            this->write(msg);
+        }
+
+        uint64_t SocketId() override {
+            return socket_.native_handle();
+        }
+	private:
         void write(const Message& msg)
         {
             if (!this->is_connect_) {
@@ -50,20 +72,36 @@ namespace asio {
                 });
         }
 
+		void disconnect()
+		{
+			is_close_ = true;
+			this->connect_state_ = ConnectState::ST_STOPPING;
+			asio::post(io_context_, [this]() {
+				socket_.close();
+			io_context_.stop();
+			this->write_msgs_.clear();
+			this->is_connect_ = false;
+			this->connect_state_ = ConnectState::ST_STOPPED;
+				});
+		}
+
         void close()
         {
-            this->client_state_ = ConnectState::ST_STOPPING;
+            this->connect_state_ = ConnectState::ST_STOPPING;
             asio::post(io_context_, [this]() {
                 socket_.close();
             this->write_msgs_.clear();
             this->is_connect_ = false;
-            this->client_state_ = ConnectState::ST_STOPPED;
+            this->connect_state_ = ConnectState::ST_STOPPED;
             this->reconnect();
                 });
         }
 
         void reconnect()
         {
+			if (is_close_) {
+				return;
+			}
             std::cout << "reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->is_connect_)
@@ -72,16 +110,15 @@ namespace asio {
             }
         }
 
-    private:
         void do_connect(const tcp::resolver::results_type& endpoints)
         {
-            this->client_state_ = ConnectState::ST_STARTED;
+            this->connect_state_ = ConnectState::ST_STARTED;
             asio::async_connect(socket_, endpoints,
                 [this](std::error_code ec, tcp::endpoint)
                 {
                     if (!ec)
                     {
-                        this->client_state_ = ConnectState::ST_CONNECTED;
+                        this->connect_state_ = ConnectState::ST_CONNECTED;
                         is_connect_ = true;
                         std::cout << "connection succeeded." << std::endl;
                         do_read_header();
@@ -92,7 +129,7 @@ namespace asio {
                         this->close();
                     }
                 });
-            this->client_state_ = ConnectState::ST_CONNECTING;
+            this->connect_state_ = ConnectState::ST_CONNECTING;
         }
 
         void do_read_header()
@@ -164,7 +201,8 @@ namespace asio {
         MessageQueue write_msgs_;
         tcp::resolver::results_type endpoints_;
         std::atomic<bool> is_connect_;
-        ConnectState client_state_;
+        std::atomic<bool> is_close_;
+        ConnectState connect_state_;
     };
 
 
