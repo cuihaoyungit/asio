@@ -17,6 +17,7 @@
 namespace asio {
 
     using asio::ip::tcp;
+    class NetServerEvent;
 
     //----------------------------------------------------------------------
 
@@ -58,15 +59,17 @@ namespace asio {
         public std::enable_shared_from_this<session>
     {
     public:
-        session(tcp::socket socket, Room& room)
+        session(tcp::socket socket, Room& room, NetServerEvent* event)
             : socket_(std::move(socket)),
-            room_(room)
+            room_(room),
+            net_event_(event)
         {
         }
 
         void start()
         {
             room_.join(shared_from_this());
+            net_event_->Connect(this);
             do_read_header();
         }
 
@@ -95,6 +98,7 @@ namespace asio {
                     else
                     {
                         room_.leave(shared_from_this());
+                        net_event_->Disconnect(this);
                     }
                 });
         }
@@ -108,12 +112,15 @@ namespace asio {
                 {
                     if (!ec)
                     {
+						read_msg_.setObject(shared_from_this());
                         room_.deliver(read_msg_);
+                        net_event_->HandleMessage(read_msg_);
                         do_read_header();
                     }
                     else
                     {
                         room_.leave(shared_from_this());
+                        net_event_->Disconnect(this);
                     }
                 });
         }
@@ -137,6 +144,7 @@ namespace asio {
                     else
                     {
                         room_.leave(shared_from_this());
+                        net_event_->Disconnect(this);
                     }
                 });
         }
@@ -145,20 +153,24 @@ namespace asio {
         Room& room_;
         Message read_msg_;
         MessageQueue write_msgs_;
+        NetServerEvent* net_event_;
     };
 
     //----------------------------------------------------------------------
 
-    class server
+    class Server : public NetServerEvent
     {
     public:
-        server(asio::io_context& io_context,
+        Server(asio::io_context& io_context,
             const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
         {
             do_accept();
         }
-
+    public:
+		void Connect(NetObject* pObj)    override {}
+		void Disconnect(NetObject* pObj) override {}
+		void HandleMessage(Message& msg) override {}
     private:
         void do_accept()
         {
@@ -167,7 +179,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        std::make_shared<session>(std::move(socket), room_)->start();
+                        std::make_shared<session>(std::move(socket), room_, this)->start();
                     }
 
             do_accept();

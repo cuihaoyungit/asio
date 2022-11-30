@@ -17,10 +17,10 @@
 namespace asio {
 
     using asio::ip::tcp;
-
+    class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    class Client : public NetObject
+    class Client : public NetObject, public NetClientEvent
     {
     public:
         Client(asio::io_context& io_context,
@@ -53,6 +53,14 @@ namespace asio {
 
         uint64_t SocketId() override {
             return socket_.native_handle();
+        }
+    public:
+		void Connect(NetObject* pObject) override {}
+		void Disconnect(NetObject* pObject) override {}
+		void HandleMessage(NetObject* pObject, const Message& msg) override {}
+		void PostMsg(const Message& msg) override 
+        {
+            this->write(msg);
         }
 	private:
         void write(const Message& msg)
@@ -93,6 +101,7 @@ namespace asio {
             this->write_msgs_.clear();
             this->is_connect_ = false;
             this->connect_state_ = ConnectState::ST_STOPPED;
+            this->Disconnect(this);
             this->reconnect();
                 });
         }
@@ -121,6 +130,7 @@ namespace asio {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         is_connect_ = true;
                         std::cout << "connection succeeded." << std::endl;
+                        this->Connect(this);
                         do_read_header();
                     }
                     else {
@@ -159,6 +169,7 @@ namespace asio {
                     {
                         std::cout.write(read_msg_.body(), read_msg_.body_length());
                         std::cout << "\n";
+                        this->HandleMessage(this, read_msg_);
                         do_read_header();
                     }
                     else

@@ -49,6 +49,16 @@ namespace asio {
 		virtual void PostMsg(const Message& msg) {}
 	};
 
+	//--------------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 }
 
