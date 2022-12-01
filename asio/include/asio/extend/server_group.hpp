@@ -314,6 +314,16 @@ namespace asio {
 			m_condition.notify_one();
 		}
 
+		void Init() override
+		{
+		
+		}
+		
+		void Exit() override
+		{
+		
+		}
+
 	private:
 		NetServerWorkGroup(const NetServerWorkGroup&) = delete;
 		NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;

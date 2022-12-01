@@ -273,6 +273,17 @@ namespace asio {
 				pClient->Send(msg);
 			}
 		}
+
+		void Init() override
+		{
+
+		}
+
+		void Exit() override
+		{
+
+		}
+
 	private:
 		NetClientWorkGroup(const NetClientWorkGroup&) = delete;
 		NetClientWorkGroup operator = (const NetClientWorkGroup&) = delete;

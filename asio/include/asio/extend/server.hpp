@@ -158,7 +158,7 @@ namespace asio {
 
     //----------------------------------------------------------------------
 
-    class Server : public NetServerEvent
+    class Server : public NetServerEvent, public Dispatcher
     {
     public:
         Server(asio::io_context& io_context,
@@ -166,6 +166,10 @@ namespace asio {
             : acceptor_(io_context, endpoint)
         {
             do_accept();
+        }
+
+        void setRouter(const std::shared_ptr<Router>& router) {
+            this->router_ = router_;
         }
     public:
 		void Connect(NetObject* pObj)    override {}
@@ -188,6 +192,8 @@ namespace asio {
 
         tcp::acceptor acceptor_;
         Room room_;
+    protected:
+        std::shared_ptr<Router> router_;
     };
 
     //----------------------------------------------------------------------

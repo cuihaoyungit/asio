@@ -6,6 +6,8 @@
 #ifndef __OBJECT_HPP__
 #define __OBJECT_HPP__
 #include <asio/msgdef/message.hpp>
+#include <functional>
+#include <unordered_map>
 
 namespace asio {
 
@@ -31,6 +33,8 @@ namespace asio {
 	public:
 		NetClientEvent() = default;
 		virtual ~NetClientEvent() {}
+		virtual void Init() {}
+		virtual void Exit() {}
 		virtual void Connect(NetObject* pObject) {}
 		virtual void Disconnect(NetObject* pObject) {}
 		virtual void HandleMessage(NetObject* pObject, const Message& msg) {}
@@ -43,6 +47,8 @@ namespace asio {
 	public:
 		NetServerEvent() = default;
 		virtual ~NetServerEvent() {}
+		virtual void Init() {}
+		virtual void Exit() {}
 		virtual void Connect(NetObject* pObj) {}
 		virtual void Disconnect(NetObject* pObj) {}
 		virtual void HandleMessage(Message& msg) {}
@@ -50,12 +56,24 @@ namespace asio {
 	};
 
 	//--------------------------------------------------------------
+	class Dispatcher
+	{
+	public:
+		Dispatcher() {}
+		~Dispatcher() {}
+		virtual void Register() {}
+	protected:
+		std::unordered_map<int, std::function<void(Message*)> > m_funs;
+	};
 
 
-
-
-
-
+	//--------------------------------------------------------------
+	class Router
+	{
+	public:
+		Router() = default;
+		virtual ~Router() {}
+	};
 
 
 

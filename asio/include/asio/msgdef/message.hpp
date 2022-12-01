@@ -16,6 +16,7 @@
 #include <cstring>
 #pragma warning(disable : 26495)
 #include <asio/extend/object.hpp>
+#include <asio/msgdef/node.hpp>
 
 namespace asio {
 
@@ -32,14 +33,23 @@ namespace asio {
 		MsgType type = NET_MSG;
 	} MsgHeader;
 
-	class Message
+	struct NetPacket {
+		int msdId     = {0};
+		int connectId = {0};
+		Message* buff = {nullptr};
+	};
+
+	//
+	// Support memory object pool
+	//
+	class Message : public Node<Message>
 	{
 	public:
 	  static constexpr std::size_t header_length   = sizeof(MsgHeader);
 	  static constexpr std::size_t max_body_length = 512;
 
 	  Message()
-		: body_length_(0), connect_object_(nullptr),id_(0)
+		: body_length_(0), connect_object_(nullptr),msg_id_(0)
 	  {
 	  }
 
@@ -84,6 +94,7 @@ namespace asio {
 	  {
 		  MsgHeader* msg = (MsgHeader*)data_;
 		  body_length_ = msg->body_len;
+		  msg_id_ = msg->seq;
 		  if (body_length_ > max_body_length)
 		  {
 			  body_length_ = 0;
@@ -105,16 +116,15 @@ namespace asio {
 	  }
 
 	  void setId(const int id) {
-		  this->id_ = id;
+		  this->msg_id_ = id;
 	  }
 
-	  int getId() { return id_; }
+	  int getId() { return msg_id_; }
 	private:
 	  char data_[header_length + max_body_length];
-	  MsgHeader msg_header_;
 	  std::size_t body_length_;
-	  std::shared_ptr<NetObject> connect_object_;
-	  int id_;
+	  NetObjectPtr connect_object_;
+	  int msg_id_;
 	};
 }
 
