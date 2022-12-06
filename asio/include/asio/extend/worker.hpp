@@ -54,6 +54,8 @@ namespace asio {
 		void RunThread() {
 			this->Run();
 		}
+		virtual void Init() {}
+		virtual void Exit() {}
 		Worker(const Worker&) = delete;
 		Worker operator = (const Worker&) = delete;
 	private:

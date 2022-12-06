@@ -64,11 +64,21 @@ namespace asio {
 
 	protected:
 		void Run() override {
+			this->Init();
 			ioc_.run();
+			this->Exit();
 		}
 
 		void Clear() {
 			timer_list_.clear();
+		}
+
+		void Init() override {
+
+		}
+
+		void Exit() override {
+
 		}
 
 	private:
