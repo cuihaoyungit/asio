@@ -18,6 +18,7 @@ namespace asio {
 
 	class AsioTimer : public Worker
 	{
+		using io_timer = std::shared_ptr<asio::steady_timer>;
 	public:
 		AsioTimer() ASIO_NOEXCEPT
 			:io_worker_(ioc_) {}
@@ -35,7 +36,7 @@ namespace asio {
 			return ioc_;
 		}
 
-		auto GetTimer(const std::string &key_name) -> std::shared_ptr<asio::steady_timer> {
+		auto GetTimer(const std::string &key_name) -> io_timer {
 			auto it = timer_list_.find(key_name);
 			if (it != timer_list_.end())
 			{
@@ -84,7 +85,6 @@ namespace asio {
 	private:
 		asio::io_context ioc_;
 		asio::io_context::work io_worker_;
-		using io_timer = std::shared_ptr<asio::steady_timer>;
 		std::unordered_map<std::string, io_timer> timer_list_;
 	};
 
