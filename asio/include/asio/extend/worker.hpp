@@ -12,7 +12,7 @@ namespace asio {
 	class Worker
 	{
 	public:
-		Worker() ASIO_NOEXCEPT {}
+		Worker() noexcept {}
 
 		virtual ~Worker() {
 			this->WaitStop();
@@ -52,7 +52,9 @@ namespace asio {
 
 	protected:
 		void RunThread() {
+			this->Init();
 			this->Run();
+			this->Exit();
 		}
 		virtual void Init() {}
 		virtual void Exit() {}
