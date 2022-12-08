@@ -28,7 +28,7 @@ namespace asio {
 
 	typedef struct TPkgHeader
 	{
-		DWORD seq    = {0};
+		int seq    = {0};
 		int body_len = {0};
 		MsgType type = NET_MSG;
 	} MsgHeader;

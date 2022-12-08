@@ -38,10 +38,6 @@ namespace asio {
 			return thread_->get_id();
 		}
 
-		static std::thread::id GetCurrentThreadId() {
-			return std::this_thread::get_id();
-		}
-
 		const std::string& Name() {
 			return name_;
 		}
