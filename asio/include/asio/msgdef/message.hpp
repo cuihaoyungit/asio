@@ -107,11 +107,11 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setObject(std::shared_ptr<NetObject> obj) {
+	  void setObject(NetObjectPtr &obj) {
 		  this->connect_object_ = obj;
 	  }
 
-	  auto getObject()->std::shared_ptr<NetObject> {
+	  auto getObject()-> NetObjectPtr {
 		  return connect_object_;
 	  }
 
