@@ -56,7 +56,7 @@ namespace asio {
 
     class session
         : public NetObject,
-        public std::enable_shared_from_this<session>
+        public std::enable_shared_from_this<NetObject>
     {
     public:
         session(tcp::socket socket, Room& room, NetServerEvent* event)
