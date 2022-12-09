@@ -189,7 +189,7 @@ namespace asio {
 		{
 			this->do_accept();
 		}
-		~NetServer() { }
+		~NetServer() {}
 
 		void Run() override {
 			io_context_.run();

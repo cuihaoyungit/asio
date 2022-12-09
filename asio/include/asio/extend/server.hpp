@@ -13,6 +13,7 @@
 #include <asio/detail/socket_types.hpp>
 #include <asio/extend/typedef.hpp>
 #include <asio/extend/object.hpp>
+#include <asio/extend/worker.hpp>
 
 namespace asio {
 
@@ -158,15 +159,16 @@ namespace asio {
 
     //----------------------------------------------------------------------
 
-    class Server : public NetServerEvent, public Dispatcher
+    class Server :public Worker, public NetServerEvent, public Dispatcher
     {
     public:
-        Server(asio::io_context& io_context,
-            const tcp::endpoint& endpoint)
+        Server(const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
         {
             do_accept();
         }
+
+        ~Server() {}
 
         void setRouter(const std::shared_ptr<Router>& router) {
             this->router_ = router_;
@@ -176,6 +178,10 @@ namespace asio {
 		void Disconnect(NetObject* pObj) override {}
 		void HandleMessage(Message& msg) override {}
     private:
+        void Run() override
+        {
+            io_context.run();
+        }
         void do_accept()
         {
             acceptor_.async_accept(
@@ -189,7 +195,7 @@ namespace asio {
             do_accept();
                 });
         }
-
+		asio::io_context io_context;
         tcp::acceptor acceptor_;
         Room room_;
     protected:
