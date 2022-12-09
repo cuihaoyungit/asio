@@ -173,6 +173,12 @@ namespace asio {
         void setRouter(const std::shared_ptr<Router>& router) {
             this->router_ = router_;
         }
+		void Stop() {
+			if (!io_context.stopped())
+			{
+				io_context.stop();
+			}
+		}
     public:
 		void Connect(NetObject* pObj)    override {}
 		void Disconnect(NetObject* pObj) override {}
