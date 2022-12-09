@@ -251,6 +251,7 @@ namespace asio {
 
 		void Startup(const std::vector<int>& vPorts, int threadWorks = 1) {
 			// server port
+			this->Init();
 			for (auto it : vPorts)
 			{
 				NetServer* pNetServer = new NetServer(this, tcp::endpoint(tcp::v4(), it));
@@ -286,6 +287,7 @@ namespace asio {
 				it->Stop();
 				it->WaitStop();
 			}
+			this->Exit();
 		}
 
 		auto GetNetClient(int index) -> NetServer* {
@@ -314,6 +316,7 @@ namespace asio {
 			m_condition.notify_one();
 		}
 
+	private:
 		void Init() override
 		{
 		
@@ -324,7 +327,6 @@ namespace asio {
 		
 		}
 
-	private:
 		NetServerWorkGroup(const NetServerWorkGroup&) = delete;
 		NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;
 	private:
