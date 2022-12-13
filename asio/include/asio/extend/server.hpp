@@ -171,7 +171,7 @@ namespace asio {
         ~Server() {}
 
         // stop asio io_content
-		void Stop() {
+		void StopContent() {
 			if (!io_context.stopped())
 			{
 				io_context.stop();

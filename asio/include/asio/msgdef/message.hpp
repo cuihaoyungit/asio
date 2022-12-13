@@ -51,6 +51,7 @@ namespace asio {
 	  Message()
 		: body_length_(0), connect_object_(nullptr),msg_id_(0)
 	  {
+		  this->clear();
 	  }
 
 	  const char* data() const
@@ -120,6 +121,10 @@ namespace asio {
 	  }
 
 	  int getId() { return msg_id_; }
+
+	  void clear() {
+		  std::memset(data_, 0, header_length + max_body_length);
+	  }
 	private:
 	  char data_[header_length + max_body_length];
 	  std::size_t body_length_;
