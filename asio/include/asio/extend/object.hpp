@@ -8,6 +8,7 @@
 #include <asio/msgdef/message.hpp>
 #include <functional>
 #include <unordered_map>
+#include <memory>
 
 namespace asio {
 
@@ -17,7 +18,7 @@ namespace asio {
 	class NetObject
 	{
 	public:
-		NetObject() ASIO_NOEXCEPT {}
+		NetObject() noexcept {}
 		virtual ~NetObject() {}
 		virtual void deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
@@ -56,14 +57,24 @@ namespace asio {
 	};
 
 	//--------------------------------------------------------------
+	class Router;
 	class Dispatcher
 	{
 	public:
-		Dispatcher() {}
-		~Dispatcher() {}
+		Dispatcher():m_router(nullptr) {}
+		virtual ~Dispatcher() 
+		{
+			if (m_router)
+				delete m_router;
+		}
 		virtual void Register() {}
+		virtual void SetRouter(Router *router)
+		{
+			m_router = router;
+		}
 	protected:
 		std::unordered_map<int, std::function<void(Message*)> > m_funs;
+		Router* m_router;
 	};
 
 

@@ -159,7 +159,7 @@ namespace asio {
 
     //----------------------------------------------------------------------
 
-    class Server :public Worker, public NetServerEvent, public Dispatcher
+    class Server :public Worker, public NetServerEvent
     {
     public:
         Server(const tcp::endpoint& endpoint)
@@ -169,10 +169,6 @@ namespace asio {
         }
 
         ~Server() {}
-
-        void setRouter(const std::shared_ptr<Router>& router) {
-            this->router_ = router_;
-        }
 
         // stop asio io_content
 		void Stop() {
@@ -206,8 +202,6 @@ namespace asio {
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
         Room room_;
-    protected:
-        std::shared_ptr<Router> router_;
     };
 
     //----------------------------------------------------------------------
