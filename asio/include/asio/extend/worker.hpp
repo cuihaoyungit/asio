@@ -27,6 +27,7 @@ namespace asio {
 			return true;
 		}
 
+		// wait thread exit
 		void WaitStop() {
 			if (thread_->joinable())
 			{

@@ -12,7 +12,7 @@
 #include <asio/extend/object.hpp>
 #include <asio/detail/socket_types.hpp>
 #include <asio/extend/typedef.hpp>
-
+#include <asio/extend/worker.hpp>
 
 namespace asio {
 
@@ -20,18 +20,18 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    class Client : public NetObject, public NetClientEvent
+    class Client : public Worker, public NetObject, public NetClientEvent
     {
     public:
-        Client(asio::io_context& io_context,
-            const tcp::resolver::results_type& endpoints)
-            : io_context_(io_context),
-            socket_(io_context),
-            is_connect_(false),
-            is_close_(false),
+        Client(const std::string &ip, const std::string &port)
+            :socket_(io_context_),
+             is_connect_(false),
+             is_close_(false),
             connect_state_(ConnectState::ST_STOPPED)
         {
             this->connect_state_ = ConnectState::ST_STARTING;
+            tcp::resolver resolver(io_context_);
+            auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
             do_connect(endpoints);
         }
@@ -54,6 +54,13 @@ namespace asio {
         uint64_t SocketId() override {
             return socket_.native_handle();
         }
+
+		void Stop() {
+			if (!io_context_.stopped())
+			{
+				io_context_.stop();
+			}
+		}
     public:
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}
@@ -61,6 +68,10 @@ namespace asio {
 		void PostMsg(const Message& msg) override 
         {
             this->write(msg);
+        }
+        void Run() override
+        {
+            io_context_.run();
         }
 	private:
         void write(const Message& msg)
@@ -206,7 +217,7 @@ namespace asio {
         }
 
     private:
-        asio::io_context& io_context_;
+        asio::io_context io_context_;
         tcp::socket socket_;
         Message read_msg_;
         MessageQueue write_msgs_;

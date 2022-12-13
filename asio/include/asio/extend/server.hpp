@@ -173,6 +173,8 @@ namespace asio {
         void setRouter(const std::shared_ptr<Router>& router) {
             this->router_ = router_;
         }
+
+        // stop asio io_content
 		void Stop() {
 			if (!io_context.stopped())
 			{
