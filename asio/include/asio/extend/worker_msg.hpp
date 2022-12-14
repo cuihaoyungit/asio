@@ -21,7 +21,7 @@ namespace asio {
 			this->Stop();
 		}
 
-		void PostMsg(asio::Message& msg) {
+		void PostMsg(asio::Message* msg) {
 			{
 				std::unique_lock<std::mutex> lock(this->queue_mutex);
 				if (stop) {
@@ -49,15 +49,15 @@ namespace asio {
 					[this] { return this->stop || !this->msg_queue.empty(); });
 				if (this->stop && this->msg_queue.empty())
 					return;
-				auto& msg = std::move(this->msg_queue.front());
+				auto msg = std::move(this->msg_queue.front());
 				this->msg_queue.pop();
 				this->HandleMessage(msg);
 			}
 		}
 
-		virtual void HandleMessage(asio::Message& msg) {}
+		virtual void HandleMessage(asio::Message* msg) {}
 	private:
-		std::queue<asio::Message> msg_queue;
+		std::queue<asio::Message*> msg_queue;
 		std::mutex queue_mutex;
 		std::condition_variable condition;
 		bool stop;
