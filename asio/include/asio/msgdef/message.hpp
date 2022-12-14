@@ -48,7 +48,7 @@ namespace asio {
 	  static constexpr std::size_t header_length   = sizeof(MsgHeader);
 	  static constexpr std::size_t max_body_length = 512;
 
-	  Message()
+	  Message():body_length_(0), id_(0)
 	  {
 		  this->clear();
 	  }
@@ -125,9 +125,9 @@ namespace asio {
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  std::size_t body_length_ = {0};
-	  NetObjectPtr connect_object_ = {nullptr};
 	  int id_;
+	  std::size_t body_length_;
+	  NetObjectPtr connect_object_;
 	};
 }
 
