@@ -12,6 +12,7 @@
 #include <asio/detail/io_object_impl.hpp>
 #include <asio/detail/object_pool.hpp>
 #include <mutex>
+#include <atomic>
 using namespace asio::detail;
 
 namespace asio {
@@ -25,21 +26,37 @@ namespace asio {
 
 		Object* alloc() {
 			std::lock_guard lock(this->mutex_);
+			this->alloc_count_++;
 			return object_pool<Object>::alloc();
 		}
 
 		template <typename Arg>
 		Object* alloc(Arg arg) {
 			std::lock_guard lock(this->mutex_);
+			this->alloc_count_++;
 			return object_pool<Object>::alloc(arg);
 		}
 
 		void free(Object* o) {
 			std::lock_guard lock(this->mutex_);
+			this->free_cout_++;
 			object_pool<Object>::free(o);
+		}
+
+		int live_size() {
+			int count = 0;
+			auto obj = this->first();
+			while (obj)
+			{
+				count++;
+				obj = obj->next_;
+			}
+			return count;
 		}
 	private:
 		std::mutex mutex_;
+		std::atomic<int> alloc_count_ = {0};
+		std::atomic<int> free_cout_   = {0};
 	};
 
 }
