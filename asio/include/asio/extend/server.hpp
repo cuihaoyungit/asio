@@ -70,7 +70,7 @@ namespace asio {
         void start()
         {
             room_.join(shared_from_this());
-            net_event_->Connect(this);
+            net_event_->Connect(shared_from_this());
             do_read_header();
         }
 
@@ -99,7 +99,7 @@ namespace asio {
                     else
                     {
                         room_.leave(shared_from_this());
-                        net_event_->Disconnect(this);
+                        net_event_->Disconnect(shared_from_this());
                     }
                 });
         }
@@ -122,7 +122,7 @@ namespace asio {
                     else
                     {
                         room_.leave(shared_from_this());
-                        net_event_->Disconnect(this);
+                        net_event_->Disconnect(shared_from_this());
                     }
                 });
         }
@@ -146,7 +146,7 @@ namespace asio {
                     else
                     {
                         room_.leave(shared_from_this());
-                        net_event_->Disconnect(this);
+                        net_event_->Disconnect(shared_from_this());
                     }
                 });
         }
@@ -179,9 +179,9 @@ namespace asio {
 			}
 		}
     public:
-		void Connect(NetObject* pObj)    override {}
-		void Disconnect(NetObject* pObj) override {}
-		void HandleMessage(Message& msg) override {}
+		void Connect(NetObjectPtr pObj)    override {}
+		void Disconnect(NetObjectPtr pObj) override {}
+		void HandleMessage(Message& msg)   override {}
     private:
         void Run() override
         {

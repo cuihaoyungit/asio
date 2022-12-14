@@ -106,11 +106,11 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setObject(NetObjectPtr obj) {
+	  void setObject(std::weak_ptr<NetObject> obj) {
 		  this->connect_object_ = obj;
 	  }
 
-	  auto getObject()-> NetObjectPtr {
+	  auto getObject()-> std::weak_ptr<NetObject> {
 		  return connect_object_;
 	  }
 
@@ -127,7 +127,7 @@ namespace asio {
 	  char data_[header_length + max_body_length];
 	  int id_;
 	  std::size_t body_length_;
-	  NetObjectPtr connect_object_;
+	  std::weak_ptr<NetObject> connect_object_;
 	};
 }
 

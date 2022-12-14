@@ -50,8 +50,8 @@ namespace asio {
 		virtual ~NetServerEvent() {}
 		virtual void Init() {}
 		virtual void Exit() {}
-		virtual void Connect(NetObject* pObj) {}
-		virtual void Disconnect(NetObject* pObj) {}
+		virtual void Connect(NetObjectPtr pObj) {}
+		virtual void Disconnect(NetObjectPtr pObj) {}
 		virtual void HandleMessage(Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
 	};

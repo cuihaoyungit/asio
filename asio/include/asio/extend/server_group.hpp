@@ -83,7 +83,7 @@ namespace asio {
 		void start()
 		{
 			room_.join(shared_from_this());
-			net_event_->Connect(this);
+			net_event_->Connect(shared_from_this());
 			do_read_header();
 		}
 
@@ -117,7 +117,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
-						net_event_->Disconnect(this);
+						net_event_->Disconnect(shared_from_this());
 					}
 				});
 		}
@@ -139,7 +139,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
-						net_event_->Disconnect(this);
+						net_event_->Disconnect(shared_from_this());
 					}
 				});
 		}
@@ -163,7 +163,7 @@ namespace asio {
 					else
 					{
 						room_.leave(shared_from_this());
-						net_event_->Disconnect(this);
+						net_event_->Disconnect(shared_from_this());
 					}
 				});
 		}
