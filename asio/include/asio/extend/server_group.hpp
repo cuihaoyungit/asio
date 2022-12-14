@@ -195,7 +195,7 @@ namespace asio {
 			io_context_.run();
 		}
 
-		void Stop() {
+		void StopContext() {
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
@@ -284,7 +284,7 @@ namespace asio {
 
 		void WaitStop() {
 			for (const auto it : m_vNetServers) {
-				it->Stop();
+				it->StopContext();
 				it->WaitStop();
 			}
 			this->Exit();
