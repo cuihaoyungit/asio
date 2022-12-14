@@ -49,7 +49,6 @@ namespace asio {
 	  static constexpr std::size_t max_body_length = 512;
 
 	  Message()
-		: body_length_(0), connect_object_(nullptr),msg_id_(0)
 	  {
 		  this->clear();
 	  }
@@ -95,7 +94,6 @@ namespace asio {
 	  {
 		  MsgHeader* msg = (MsgHeader*)data_;
 		  body_length_ = msg->body_len;
-		  msg_id_ = msg->seq;
 		  if (body_length_ > max_body_length)
 		  {
 			  body_length_ = 0;
@@ -117,19 +115,19 @@ namespace asio {
 	  }
 
 	  void setId(const int id) {
-		  this->msg_id_ = id;
+		  this->id_ = id;
 	  }
 
-	  int getId() { return msg_id_; }
+	  int getId() { return id_; }
 
 	  void clear() {
 		  std::memset(data_, 0, header_length + max_body_length);
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  std::size_t body_length_;
-	  NetObjectPtr connect_object_;
-	  int msg_id_;
+	  std::size_t body_length_ = {0};
+	  NetObjectPtr connect_object_ = {nullptr};
+	  int id_;
 	};
 }
 
