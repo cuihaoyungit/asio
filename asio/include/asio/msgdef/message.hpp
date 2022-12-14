@@ -14,13 +14,15 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #pragma warning(disable : 26495)
-#include <asio/extend/object.hpp>
 #include <asio/msgdef/node.hpp>
+#include <asio/extend/object.hpp>
 
 namespace asio {
-
-	enum MsgType
+	class NetObject;
+	class Message;
+	enum  MsgType
 	{
 		NET_MSG    = 1,  // 网络消息
 		THREAD_MSG = 2   // 线程消息

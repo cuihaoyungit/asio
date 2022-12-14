@@ -84,6 +84,10 @@ namespace asio {
             }
         }
 
+        uint64_t SocketId() override {
+            return this->socket_.native_handle();
+        }
+
     private:
         void do_read_header()
         {
