@@ -6,12 +6,11 @@
 #ifndef __WORKER_MSG_HPP__
 #define __WORKER_MSG_HPP__
 #include <asio/extend/worker.hpp>
-#include <asio/msgdef/message.hpp>
 #include <queue>
 #include <mutex>
 
 namespace asio {
-
+	class Message;
 	class MsgWorker : public Worker
 	{
 	public:

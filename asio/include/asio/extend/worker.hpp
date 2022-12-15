@@ -6,6 +6,7 @@
 #ifndef __WORKER_HPP__
 #define __WORKER_HPP__
 #include <thread>
+#include <iostream>
 
 namespace asio {
 
