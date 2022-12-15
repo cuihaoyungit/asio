@@ -55,7 +55,7 @@ namespace asio {
             return socket_.native_handle();
         }
 
-		void Stop() {
+		void StopContext() {
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
@@ -82,12 +82,12 @@ namespace asio {
             asio::post(io_context_,
                 [this, msg]()
                 {
-                    bool write_in_progress = !write_msgs_.empty();
-            write_msgs_.push_back(msg);
-            if (!write_in_progress && is_connect_)
-            {
-                do_write();
-            }
+                bool write_in_progress = !write_msgs_.empty();
+                write_msgs_.push_back(msg);
+                if (!write_in_progress && is_connect_)
+                {
+                    do_write();
+                }
                 });
         }
 
