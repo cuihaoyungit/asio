@@ -50,6 +50,23 @@ namespace asio {
 	  static constexpr std::size_t header_length   = sizeof(MsgHeader);
 	  static constexpr std::size_t max_body_length = 512;
 
+	  Message(const Message& other) {
+		  std::memcpy(data_, other.data(), other.length());
+		  this->id_ = other.id_;
+		  this->body_length_ = other.body_length_;
+		  this->connect_object_ = other.connect_object_;
+	  }
+
+	  Message& operator=(const Message& other) {
+		  if (this == &other)
+			  return *this;
+		  std::memcpy(data_, other.data(), other.length());
+		  this->id_ = other.id_;
+		  this->body_length_ = other.body_length_;
+		  this->connect_object_ = other.connect_object_;
+		  return *this;
+	  }
+
 	  Message():body_length_(0), id_(0)
 	  {
 		  this->clear();

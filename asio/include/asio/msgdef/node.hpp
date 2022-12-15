@@ -15,6 +15,20 @@ namespace asio {
 	public:
 		Node() {}
 		virtual ~Node() {}
+		Node(const Node& other) {
+			this->next_ = other.next_;
+			this->prev_ = other.prev_;
+		}
+
+		Node& operator=(const Node& other) {
+			if (this == &other)
+				return *this;
+
+			this->next_ = other.next_;
+			this->prev_ = other.prev_;
+			return *this;
+		}
+
 		T* next_ = { nullptr };
 		T* prev_ = { nullptr };
 	};
