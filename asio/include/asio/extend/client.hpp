@@ -178,8 +178,10 @@ namespace asio {
                 {
                     if (!ec)
                     {
+#if 0
                         std::cout.write(read_msg_.body(), read_msg_.body_length());
                         std::cout << "\n";
+#endif
                         this->HandleMessage(this, read_msg_);
                         do_read_header();
                     }
@@ -199,13 +201,11 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        if (!write_msgs_.empty())
-                        {
+                        if (!write_msgs_.empty()) {
                             write_msgs_.pop_front();
                         }
 
-                        if (!write_msgs_.empty())
-                        {
+                        if (!write_msgs_.empty()) {
                             do_write();
                         }
                     }
