@@ -72,6 +72,15 @@ namespace asio {
 		{
 			m_router = router;
 		}
+		virtual bool BindMsg(const int& MsgId, std::function<void(Message*)> fun) 
+		{
+			const auto &it = m_funs.find(MsgId);
+			if (it == m_funs.end()) {
+				m_funs[MsgId] = fun;
+				return true;
+			}
+			return false;
+		}
 	protected:
 		std::unordered_map<int, std::function<void(Message*)> > m_funs;
 		Router* m_router;

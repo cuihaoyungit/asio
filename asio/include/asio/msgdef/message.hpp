@@ -32,6 +32,7 @@ namespace asio {
 	{
 		int seq      = {0};
 		int body_len = {0};
+		int gate_id  = {0};
 		MsgType type = NET_MSG;
 	} MsgHeader;
 
