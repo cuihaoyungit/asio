@@ -9,6 +9,8 @@
 #include <functional>
 #include <unordered_map>
 #include <memory>
+#include <iostream>
+#include <map>
 
 namespace asio {
 
@@ -19,11 +21,37 @@ namespace asio {
 	{
 	public:
 		NetObject() noexcept {}
-		virtual ~NetObject() {}
+		virtual ~NetObject()
+		{
+			userdata.clear();
+		}
 		virtual void deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
 		virtual uint64_t SocketId() { return 0; }
 		virtual void Close(){}
+		void setType(const int type) {
+			this->type = type;
+		}
+		void setConnectName(const std::string &name) {
+			this->connectName = name;
+		}
+		void setUserData(const std::string &key, const std::string &value) {
+			this->userdata[key] = value;
+		}
+		bool userData(const std::string &key, std::string &out) {
+			auto it = userdata.find(key);
+			if (it != userdata.end())
+			{
+				out = it->second;
+				return true;
+			}
+			return false;
+		}
+
+	private:
+		int type = {0};
+		std::string connectName;
+		std::map<std::string, std::string> userdata;
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;
