@@ -24,8 +24,6 @@ git fetch upstream
 ```
 git merge upstream/master 或者 git rebase upstream/master
 ```
-
-
 4.更新合并后的推送到远程主分支中
 ```
 git push origin master
