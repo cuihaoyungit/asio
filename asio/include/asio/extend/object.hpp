@@ -35,6 +35,9 @@ namespace asio {
 		void setConnectName(const std::string &name) {
 			this->connectName = name;
 		}
+		std::string& getConnectName() {
+			return this->connectName;
+		}
 		void setUserData(const std::string &key, const std::string &value) {
 			this->userdata[key] = value;
 		}
@@ -68,6 +71,7 @@ namespace asio {
 		virtual void Disconnect(NetObject* pObject) {}
 		virtual void HandleMessage(NetObject* pObject, const Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
+		virtual void Reconnect() {}
 	};
 
 	//--------------------------------------------------------------

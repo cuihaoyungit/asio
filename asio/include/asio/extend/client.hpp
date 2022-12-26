@@ -122,6 +122,7 @@ namespace asio {
 			if (is_close_) {
 				return;
 			}
+            this->Reconnect();
             std::cout << "reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->is_connect_)
