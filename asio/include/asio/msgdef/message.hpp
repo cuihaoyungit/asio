@@ -161,7 +161,7 @@ namespace asio {
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  int id_;
+	  int id_ = {0};
 	  std::size_t body_length_;
 	  std::weak_ptr<NetObject> connect_object_;
 	};

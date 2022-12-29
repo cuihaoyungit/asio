@@ -1,4 +1,4 @@
-//
+﻿//
 // state.hpp
 // add by [11/21/2022 cuihaoyun]
 // ����״̬
