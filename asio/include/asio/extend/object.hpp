@@ -93,18 +93,34 @@ namespace asio {
 	class Dispatcher
 	{
 	public:
-		Dispatcher():m_router(nullptr) {}
+		Dispatcher() {}
 		virtual ~Dispatcher() 
 		{
-			if (m_router)
-				delete m_router;
+			for (auto& [key, value] : m_routers)
+			{
+				delete value;
+			}
+			m_routers.clear();
 		}
 		virtual void Register() {}
-		virtual void SetRouter(Router *router)
+		void SetRouter(const std::string &key, Router *router)
 		{
-			m_router = router;
+			const auto it = this->m_routers.find(key);
+			if (it != m_routers.end())
+			{
+				return;
+			}
+			m_routers[key] = router;
 		}
-		virtual bool BindMsg(const int& MsgId, std::function<void(Message*)> fun) 
+		Router* GetRouter(const std::string& key) {
+			const auto it = this->m_routers.find(key);
+			if (it != m_routers.end())
+			{
+				return it->second;
+			}
+			return nullptr;
+		}
+		bool BindMsg(const int& MsgId, std::function<void(Message*)> fun) 
 		{
 			const auto &it = m_funs.find(MsgId);
 			if (it == m_funs.end()) {
@@ -115,7 +131,7 @@ namespace asio {
 		}
 	protected:
 		std::unordered_map<int, std::function<void(Message*)> > m_funs;
-		Router* m_router;
+		std::unordered_map<std::string, Router*> m_routers;
 	};
 
 
