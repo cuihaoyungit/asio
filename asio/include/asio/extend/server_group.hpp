@@ -21,44 +21,13 @@
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/object.hpp>
 #include <asio/extend/typedef.hpp>
+#include <asio/extend/room.hpp>
 
 namespace asio {
 
 	using asio::ip::tcp;
 	class NetServerEvent;
-	class Room
-	{
-	public:
-		void join(NetObjectPtr obj)
-		{
-			std::lock_guard lock(mutex_);
-			obj_list_.insert(obj);
-			for (const auto& msg : recent_msgs_)
-				obj->deliver(msg);
-		}
-
-		void leave(NetObjectPtr obj)
-		{
-			std::lock_guard lock(mutex_);
-			obj_list_.erase(obj);
-		}
-
-		void deliver(const Message& msg)
-		{
-			recent_msgs_.push_back(msg);
-			while (recent_msgs_.size() > max_recent_msgs)
-				recent_msgs_.pop_front();
-
-			for (auto& obj : obj_list_)
-				obj->deliver(msg);
-		}
-
-	private:
-		std::mutex mutex_;
-		std::set<NetObjectPtr> obj_list_;
-		enum { max_recent_msgs = 100 };
-		MessageQueue recent_msgs_;
-	};
+	class Room;
 
 	//----------------------------------------------------------------------
 
@@ -132,7 +101,7 @@ namespace asio {
 					if (!ec)
 					{
 						read_msg_.setObject(shared_from_this());
-						room_.deliver(read_msg_);
+						//room_.deliver(read_msg_);
 						net_event_->PostMsg(read_msg_);
 						do_read_header();
 					}

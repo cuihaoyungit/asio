@@ -14,44 +14,13 @@
 #include <asio/extend/typedef.hpp>
 #include <asio/extend/object.hpp>
 #include <asio/extend/worker.hpp>
+#include <asio/extend/room.hpp>
 
 namespace asio {
 
     using asio::ip::tcp;
     class NetServerEvent;
-
-    //----------------------------------------------------------------------
-
-    class Room
-    {
-    public:
-        void join(NetObjectPtr participant)
-        {
-            participants_.insert(participant);
-            for (const auto& msg : recent_msgs_)
-                participant->deliver(msg);
-        }
-
-        void leave(NetObjectPtr participant)
-        {
-            participants_.erase(participant);
-        }
-
-        void deliver(const Message& msg)
-        {
-            recent_msgs_.push_back(msg);
-            while (recent_msgs_.size() > max_recent_msgs)
-                recent_msgs_.pop_front();
-
-            for (auto participant : participants_)
-                participant->deliver(msg);
-        }
-
-    private:
-        std::set<NetObjectPtr> participants_;
-        enum { max_recent_msgs = 100 };
-        MessageQueue recent_msgs_;
-    };
+    class Room;
 
     //----------------------------------------------------------------------
 
@@ -119,7 +88,7 @@ namespace asio {
                     {
                         read_msg_.setId(this->SocketId());
 						read_msg_.setObject(shared_from_this());
-                        room_.deliver(read_msg_);
+                        //room_.deliver(read_msg_);
                         net_event_->HandleMessage(read_msg_);
                         do_read_header();
                     }
