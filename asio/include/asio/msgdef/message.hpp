@@ -32,13 +32,11 @@ namespace asio {
 	{
 		int seq         = {0};
 		int body_len    = {0};
-		int gate_id     = {0};
 		MsgType type    = NET_MSG;
 	} MsgHeader;
 
 	struct NetPacket {
-		int msdId     = {0};
-		int connectId = {0};
+		int msgId     = {0};
 		Message* buff = {nullptr};
 	};
 
