@@ -175,6 +175,7 @@ namespace asio {
         }
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
+    protected:
         Room room_;
     };
 

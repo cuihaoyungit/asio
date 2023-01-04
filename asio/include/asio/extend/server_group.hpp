@@ -194,6 +194,7 @@ namespace asio {
 		NetServerEvent* handle_message_;
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
+	protected:
 		Room room_;
 	};
 
