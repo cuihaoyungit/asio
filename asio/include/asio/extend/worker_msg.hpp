@@ -15,7 +15,7 @@ namespace asio {
 	{
 	public:
 		MsgWorker() :stop(false) {}
-		~MsgWorker()
+		virtual ~MsgWorker()
 		{
 			this->Stop();
 		}

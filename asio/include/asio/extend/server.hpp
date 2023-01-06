@@ -36,6 +36,8 @@ namespace asio {
         {
         }
 
+        virtual ~session() override = default;
+
         void start()
         {
             room_.join(shared_from_this());
@@ -53,7 +55,7 @@ namespace asio {
             }
         }
 
-        uint64_t SocketId() override {
+        uint64_t SocketId() override final {
             return this->socket_.native_handle();
         }
 
@@ -142,7 +144,7 @@ namespace asio {
             do_accept();
         }
 
-        ~Server() {}
+        virtual ~Server() override = default;
 
         // stop asio io_content
 		void StopContent() {

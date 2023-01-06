@@ -26,8 +26,8 @@ namespace asio {
 			userdata.clear();
 		}
 		virtual void deliver(const Message& msg) {}
-		virtual void Send(const Message& msg) {}
-		virtual uint64_t SocketId() { return 0; }
+		virtual void Send(const Message& msg) {};
+		virtual uint64_t SocketId() = 0;
 		virtual void Close(){}
 		void setType(const int type) {
 			this->type = type;
