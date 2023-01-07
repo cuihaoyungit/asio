@@ -57,7 +57,7 @@ namespace asio {
 		virtual void Init() {}
 		virtual void Exit() {}
 		Worker(const Worker&) = delete;
-		Worker operator = (const Worker&) = delete;
+		Worker& operator = (const Worker&) = delete;
 	private:
 		std::unique_ptr<std::thread> thread_;
 		std::string name_;
