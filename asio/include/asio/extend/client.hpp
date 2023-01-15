@@ -25,14 +25,31 @@ namespace asio {
     public:
         Client(const std::string &ip, const std::string &port)
             :socket_(io_context_),
+             signals_(io_context_),
              is_connect_(false),
              is_close_(false),
-            connect_state_(ConnectState::ST_STOPPED)
+             connect_state_(ConnectState::ST_STOPPED)
         {
             this->connect_state_ = ConnectState::ST_STARTING;
             tcp::resolver resolver(io_context_);
             auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
+
+			signals_.add(SIGINT);
+			signals_.add(SIGTERM);
+#if defined(SIGQUIT)
+			signals_.add(SIGQUIT);
+#endif // defined(SIGQUIT)
+
+			signals_.async_wait(
+				[this](std::error_code /*ec*/, int /*signo*/)
+				{
+					// The server is stopped by cancelling all outstanding asynchronous
+					// operations. Once all operations have finished the io_context::run()
+					// call will exit.
+			        this->StopContext();
+				});
+
             do_connect(endpoints);
         }
 
@@ -80,8 +97,7 @@ namespace asio {
                 return;
             }
             asio::post(io_context_,
-                [this, msg]()
-                {
+                [this, msg]() {
                 bool write_in_progress = !write_msgs_.empty();
                 write_msgs_.push_back(msg);
                 if (!write_in_progress && is_connect_)
@@ -97,10 +113,10 @@ namespace asio {
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
 				socket_.close();
-			io_context_.stop();
-			this->write_msgs_.clear();
-			this->is_connect_ = false;
-			this->connect_state_ = ConnectState::ST_STOPPED;
+			    io_context_.stop();
+			    this->write_msgs_.clear();
+			    this->is_connect_ = false;
+			    this->connect_state_ = ConnectState::ST_STOPPED;
 				});
 		}
 
@@ -109,11 +125,11 @@ namespace asio {
             this->connect_state_ = ConnectState::ST_STOPPING;
             asio::post(io_context_, [this]() {
                 socket_.close();
-            this->write_msgs_.clear();
-            this->is_connect_ = false;
-            this->connect_state_ = ConnectState::ST_STOPPED;
-            this->Disconnect(this);
-            this->reconnect();
+                this->write_msgs_.clear();
+                this->is_connect_ = false;
+                this->connect_state_ = ConnectState::ST_STOPPED;
+                this->Disconnect(this);
+                this->reconnect();
                 });
         }
 
@@ -219,6 +235,7 @@ namespace asio {
 
     private:
         asio::io_context io_context_;
+        asio::signal_set signals_;
         tcp::socket socket_;
         Message read_msg_;
         MessageQueue write_msgs_;
