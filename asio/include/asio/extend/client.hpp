@@ -35,6 +35,7 @@ namespace asio {
             auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
 
+            // 还需要验证和测试
 			signals_.add(SIGINT);
 			signals_.add(SIGTERM);
 #if defined(SIGQUIT)
