@@ -140,7 +140,23 @@ namespace asio {
     public:
         Server(const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
+            , signals_(io_context)
         {
+			signals_.add(SIGINT);
+			signals_.add(SIGTERM);
+#if defined(SIGQUIT)
+			signals_.add(SIGQUIT);
+#endif // defined(SIGQUIT)
+
+			signals_.async_wait(
+				[this](std::error_code /*ec*/, int /*signo*/)
+				{
+					// The server is stopped by cancelling all outstanding asynchronous
+					// operations. Once all operations have finished the io_context::run()
+					// call will exit.
+					acceptor_.close();
+                    this->StopContent();
+				});
             do_accept();
         }
 
@@ -179,6 +195,7 @@ namespace asio {
         tcp::acceptor acceptor_;
     protected:
         Room room_;
+        asio::signal_set signals_;
     };
 
     //----------------------------------------------------------------------
