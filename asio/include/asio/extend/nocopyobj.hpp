@@ -11,9 +11,9 @@ namespace asio {
 	public:
 		NoCopyObj() {}
 		virtual ~NoCopyObj() {}
-		NoCopyObj(const NoCopyObj&) = delete;
-		NoCopyObj& operator =(const NoCopyObj&) = delete;
 	private:
+		NoCopyObj(const NoCopyObj&) = delete;
+		const NoCopyObj& operator =(const NoCopyObj&) = delete;
 	};
 
 }
