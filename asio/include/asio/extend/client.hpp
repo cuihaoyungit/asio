@@ -141,6 +141,8 @@ namespace asio {
 				return;
 			}
             this->Reconnect();
+            static std::mutex mtx;
+            std::lock_guard lock(mtx);
             std::cout << this->getConnectName() <<"\t"<<"reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->is_connect_)
