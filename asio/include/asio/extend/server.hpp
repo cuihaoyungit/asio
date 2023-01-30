@@ -88,7 +88,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        read_msg_.setId(this->SocketId());
+                        read_msg_.setNetId(this->SocketId());
 						read_msg_.setObject(shared_from_this());
                         //room_.deliver(read_msg_);
                         net_event_->HandleMessage(read_msg_);

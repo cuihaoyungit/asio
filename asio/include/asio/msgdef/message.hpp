@@ -51,13 +51,13 @@ namespace asio {
 
 	  Message(Message& other)
 	  {
-		  this->id_ = other.id_;
+		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 	  }
 	  Message(const Message& other) {
-		  this->id_ = other.id_;
+		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
@@ -66,7 +66,7 @@ namespace asio {
 	  Message& operator=(Message& other) {
 		  if (this == &other)
 			  return *this;
-		  this->id_ = other.id_;
+		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
@@ -75,14 +75,14 @@ namespace asio {
 	  Message& operator=(const Message& other) {
 		  if (this == &other)
 			  return *this;
-		  this->id_ = other.id_;
+		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 		  return *this;
 	  }
 
-	  Message():body_length_(0), id_(0)
+	  Message():body_length_(0), net_id_(0)
 	  {
 		  this->clear();
 	  }
@@ -148,18 +148,18 @@ namespace asio {
 		  return connect_object_;
 	  }
 
-	  void setId(const int id) {
-		  this->id_ = id;
+	  void setNetId(const int id) {
+		  this->net_id_ = id;
 	  }
 
-	  int getId() { return id_; }
+	  int getNetId() { return net_id_; }
 
 	  void clear() {
 		  std::memset(data_, 0, header_length + max_body_length);
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  int id_ = {0};
+	  int net_id_ = {0};
 	  std::size_t body_length_;
 	  std::weak_ptr<NetObject> connect_object_;
 	};
