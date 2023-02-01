@@ -8,6 +8,7 @@
 #include <thread>
 #include <iostream>
 #include <functional>
+
 namespace asio {
 
 	class Worker
