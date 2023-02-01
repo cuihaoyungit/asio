@@ -42,6 +42,7 @@ namespace asio {
         {
             room_.join(shared_from_this());
             net_event_->Connect(shared_from_this());
+            this->setConnect(true);
             do_read_header();
         }
 
@@ -75,6 +76,7 @@ namespace asio {
                     {
                         room_.leave(shared_from_this());
                         net_event_->Disconnect(shared_from_this());
+                        this->setConnect(false);
                     }
                 });
         }
@@ -98,6 +100,7 @@ namespace asio {
                     {
                         room_.leave(shared_from_this());
                         net_event_->Disconnect(shared_from_this());
+                        this->setConnect(false);
                     }
                 });
         }
@@ -122,6 +125,7 @@ namespace asio {
                     {
                         room_.leave(shared_from_this());
                         net_event_->Disconnect(shared_from_this());
+                        this->setConnect(false);
                     }
                 });
         }

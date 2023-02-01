@@ -7,7 +7,7 @@
 #define __WORKER_HPP__
 #include <thread>
 #include <iostream>
-
+#include <functional>
 namespace asio {
 
 	class Worker

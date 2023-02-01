@@ -20,7 +20,7 @@ namespace asio {
 	class NetObject
 	{
 	public:
-		NetObject() noexcept {}
+		NetObject() noexcept:is_connect_(false) {}
 		virtual ~NetObject()
 		{
 			userdata.clear();
@@ -50,8 +50,15 @@ namespace asio {
 			}
 			return false;
 		}
+		bool isConnect() {
+			return is_connect_;
+		}
+		void setConnect(const bool bConnect) {
+			this->is_connect_ = bConnect;
+		}
 
 	private:
+		bool is_connect_ = {false};
 		int type = {0};
 		std::string connectName;
 		std::map<std::string, std::string> userdata;

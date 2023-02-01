@@ -26,10 +26,10 @@ namespace asio {
         Client(const std::string &ip, const std::string &port)
             :socket_(io_context_),
              signals_(io_context_),
-             is_connect_(false),
              is_close_(false),
              connect_state_(ConnectState::ST_STOPPED)
         {
+            this->setConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
             tcp::resolver resolver(io_context_);
             auto endpoints = resolver.resolve(ip, port);
@@ -95,14 +95,14 @@ namespace asio {
 	private:
         void write(const Message& msg)
         {
-            if (!this->is_connect_) {
+            if (!this->isConnect()) {
                 return;
             }
             asio::post(io_context_,
                 [this, msg]() {
                 bool write_in_progress = !write_msgs_.empty();
                 write_msgs_.push_back(msg);
-                if (!write_in_progress && is_connect_)
+                if (!write_in_progress && this->isConnect())
                 {
                     do_write();
                 }
@@ -117,7 +117,7 @@ namespace asio {
 				socket_.close();
 			    io_context_.stop();
 			    this->write_msgs_.clear();
-			    this->is_connect_ = false;
+                this->setConnect(false);
 			    this->connect_state_ = ConnectState::ST_STOPPED;
 				});
 		}
@@ -128,7 +128,7 @@ namespace asio {
             asio::post(io_context_, [this]() {
                 socket_.close();
                 this->write_msgs_.clear();
-                this->is_connect_ = false;
+                this->setConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
                 this->Disconnect(this);
                 this->reconnect();
@@ -145,7 +145,7 @@ namespace asio {
             std::lock_guard lock(mtx);
             std::cout << this->getConnectName() <<"\t"<<"reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
-            if (!this->is_connect_)
+            if (!this->isConnect())
             {
                 do_connect(endpoints_);
             }
@@ -160,13 +160,13 @@ namespace asio {
                     if (!ec)
                     {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
-                        is_connect_ = true;
+                        this->setConnect(true);
                         std::cout << "connection succeeded." << std::endl;
                         this->Connect(this);
                         do_read_header();
                     }
                     else {
-                        is_connect_ = false;
+                        this->setConnect(false);
                         std::cout << "connection failed." << std::endl;
                         this->close();
                     }
@@ -244,8 +244,7 @@ namespace asio {
         Message read_msg_;
         MessageQueue write_msgs_;
         tcp::resolver::results_type endpoints_;
-        std::atomic<bool> is_connect_;
-        std::atomic<bool> is_close_;
+        bool is_close_;
         ConnectState connect_state_;
     };
 
