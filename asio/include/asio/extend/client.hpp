@@ -6,6 +6,7 @@
 #ifndef __CLIENT_HPP__
 #define __CLIENT_HPP__
 #include <deque>
+#include <mutex>
 #include <asio.hpp>
 #include <asio/msgdef/message.hpp>
 #include <asio/msgdef/state.hpp>
@@ -95,6 +96,7 @@ namespace asio {
 	private:
         void write(const Message& msg)
         {
+			std::lock_guard lock(this->mutex_);
             if (!this->isConnect()) {
                 return;
             }
@@ -246,6 +248,7 @@ namespace asio {
         tcp::resolver::results_type endpoints_;
         bool is_close_;
         ConnectState connect_state_;
+		std::mutex mutex_;
     };
 
 

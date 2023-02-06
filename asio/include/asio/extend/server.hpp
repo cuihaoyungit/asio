@@ -6,6 +6,7 @@
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 #include <set>
+#include <mutex>
 #include <asio.hpp>
 #include <asio/msgdef/message.hpp>
 #include <asio/msgdef/state.hpp>
@@ -48,6 +49,7 @@ namespace asio {
 
         void deliver(const Message& msg)
         {
+			std::lock_guard lock(this->mutex_);
             bool write_in_progress = !write_msgs_.empty();
             write_msgs_.push_back(msg);
             if (!write_in_progress)
@@ -135,6 +137,7 @@ namespace asio {
         Message read_msg_;
         MessageQueue write_msgs_;
         NetServerEvent* net_event_;
+		std::mutex mutex_;
     };
 
     //----------------------------------------------------------------------
