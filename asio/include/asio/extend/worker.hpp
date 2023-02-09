@@ -57,6 +57,7 @@ namespace asio {
 		}
 		virtual void Init() {}
 		virtual void Exit() {}
+		virtual void Tick() {}
 		Worker(const Worker&) = delete;
 		Worker& operator = (const Worker&) = delete;
 	private:
