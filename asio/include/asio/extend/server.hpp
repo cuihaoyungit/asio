@@ -148,6 +148,7 @@ namespace asio {
         Server(const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
             , signals_(io_context)
+            , stoped_(false)
         {
 			signals_.add(SIGINT);
 			signals_.add(SIGTERM);
@@ -163,6 +164,7 @@ namespace asio {
 					// call will exit.
 					acceptor_.close();
                     this->StopContent();
+                    this->stoped_ = false;
 				});
             do_accept();
         }
@@ -203,6 +205,7 @@ namespace asio {
     protected:
         Room room_;
         asio::signal_set signals_;
+        bool stoped_;
     };
 
     //----------------------------------------------------------------------
