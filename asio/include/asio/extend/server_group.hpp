@@ -178,6 +178,7 @@ namespace asio {
 	private:
 		void do_accept()
 		{
+			acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 			acceptor_.async_accept(
 				[this](std::error_code ec, tcp::socket socket)
 				{

@@ -154,7 +154,7 @@ namespace asio {
 #if defined(SIGQUIT)
 			signals_.add(SIGQUIT);
 #endif // defined(SIGQUIT)
-
+			acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 			signals_.async_wait(
 				[this](std::error_code /*ec*/, int /*signo*/)
 				{
