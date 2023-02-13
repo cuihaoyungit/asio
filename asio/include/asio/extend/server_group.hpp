@@ -154,6 +154,7 @@ namespace asio {
 			: Worker(),
 			handle_message_(handleMessage),
 			port_(0),
+			stoped_(false),
 			acceptor_(io_context_, endpoint)
 		{
 			this->do_accept();
@@ -168,6 +169,7 @@ namespace asio {
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
+				stoped_ = true;
 			}
 		}
 
@@ -197,6 +199,7 @@ namespace asio {
 		tcp::acceptor acceptor_;
 	protected:
 		Room room_;
+		bool stoped_;
 	};
 
 	//----------------------------------------------------------------------

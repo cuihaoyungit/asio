@@ -164,7 +164,7 @@ namespace asio {
 					// call will exit.
 					acceptor_.close();
                     this->StopContent();
-                    this->stoped_ = false;
+                    this->stoped_ = true;
 				});
             do_accept();
         }
