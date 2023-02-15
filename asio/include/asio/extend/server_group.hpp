@@ -155,8 +155,24 @@ namespace asio {
 			handle_message_(handleMessage),
 			port_(0),
 			stoped_(false),
-			acceptor_(io_context_, endpoint)
+			acceptor_(io_context_, endpoint),
+			signals_(io_context)
 		{
+			signals_.add(SIGINT);
+			signals_.add(SIGTERM);
+#if defined(SIGQUIT)
+			signals_.add(SIGQUIT);
+#endif // defined(SIGQUIT)
+            		acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+			signals_.async_wait(
+				[this](std::error_code /*ec*/, int /*signo*/)
+				{
+					// The server is stopped by cancelling all outstanding asynchronous
+					// operations. Once all operations have finished the io_context::run()
+					// call will exit.
+					acceptor_.close();
+                    			this->StopContent();
+				});
 			this->do_accept();
 		}
 		~NetServer() {}
@@ -197,6 +213,7 @@ namespace asio {
 		NetServerEvent* handle_message_;
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
+		asio::signal_set signals_;
 	protected:
 		Room room_;
 		bool stoped_;
