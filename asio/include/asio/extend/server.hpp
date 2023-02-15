@@ -162,7 +162,7 @@ namespace asio {
 					// The server is stopped by cancelling all outstanding asynchronous
 					// operations. Once all operations have finished the io_context::run()
 					// call will exit.
-					if(acceptor.is_open())
+					if(acceptor_.is_open())
 					{
 						acceptor_.close();
 					}

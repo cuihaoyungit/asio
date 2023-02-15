@@ -22,6 +22,7 @@
 #include <asio/extend/object.hpp>
 #include <asio/extend/typedef.hpp>
 #include <asio/extend/room.hpp>
+#include <asio/signal_set.hpp>
 
 namespace asio {
 
@@ -156,22 +157,22 @@ namespace asio {
 			port_(0),
 			stoped_(false),
 			acceptor_(io_context_, endpoint),
-			signals_(io_context)
+			signals_(io_context_)
 		{
 			signals_.add(SIGINT);
 			signals_.add(SIGTERM);
 #if defined(SIGQUIT)
 			signals_.add(SIGQUIT);
 #endif // defined(SIGQUIT)
-            		acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+			acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 			signals_.async_wait(
 				[this](std::error_code /*ec*/, int /*signo*/)
 				{
 					// The server is stopped by cancelling all outstanding asynchronous
 					// operations. Once all operations have finished the io_context::run()
 					// call will exit.
-					acceptor_.close();
-                    			this->StopContent();
+					this->acceptor_.close();
+					this->StopContext();
 				});
 			this->do_accept();
 		}
