@@ -20,7 +20,7 @@ namespace asio {
 	{
 		using io_timer = std::shared_ptr<asio::steady_timer>;
 	public:
-		AsioTimer() ASIO_NOEXCEPT
+		AsioTimer() noexcept
 			:io_worker_(ioc_) {}
 		~AsioTimer() {}
 
