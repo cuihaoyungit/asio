@@ -1,7 +1,7 @@
 ﻿//
 // state.hpp
 // add by [11/21/2022 cuihaoyun]
-// ����״̬
+// 网络链接状态
 //
 
 #ifndef __STATE_HPP__
