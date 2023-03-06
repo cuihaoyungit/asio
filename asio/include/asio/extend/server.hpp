@@ -30,10 +30,10 @@ namespace asio {
         public std::enable_shared_from_this<NetObject>
     {
     public:
-        session(tcp::socket socket, Room& room, NetServerEvent* event)
+        session(tcp::socket socket, Room& room, NetServerEvent* event) noexcept
             : socket_(std::move(socket)),
             room_(room),
-            net_event_(event)
+            net_event_(event) 
         {
         }
 
