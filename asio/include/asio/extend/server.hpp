@@ -25,25 +25,25 @@ namespace asio {
 
     //----------------------------------------------------------------------
 
-    class session
+    class Session
         : public NetObject,
         public std::enable_shared_from_this<NetObject>
     {
     public:
-        session(tcp::socket socket, Room& room, NetServerEvent* event) noexcept
+        Session(tcp::socket socket, Room& room, NetServerEvent* event) noexcept
             : socket_(std::move(socket)),
             room_(room),
             net_event_(event) 
         {
         }
 
-        virtual ~session() override = default;
+        virtual ~Session() override = default;
 
         void start()
         {
-            room_.join(shared_from_this());
+            room_.Join(shared_from_this());
             net_event_->Connect(shared_from_this());
-            this->setConnect(true);
+            this->SetConnect(true);
             do_read_header();
         }
 
@@ -76,9 +76,9 @@ namespace asio {
                     }
                     else
                     {
-                        room_.leave(shared_from_this());
+                        room_.Leave(shared_from_this());
                         net_event_->Disconnect(shared_from_this());
-                        this->setConnect(false);
+                        this->SetConnect(false);
                     }
                 });
         }
@@ -100,9 +100,9 @@ namespace asio {
                     }
                     else
                     {
-                        room_.leave(shared_from_this());
+                        room_.Leave(shared_from_this());
                         net_event_->Disconnect(shared_from_this());
-                        this->setConnect(false);
+                        this->SetConnect(false);
                     }
                 });
         }
@@ -125,9 +125,9 @@ namespace asio {
                     }
                     else
                     {
-                        room_.leave(shared_from_this());
+                        room_.Leave(shared_from_this());
                         net_event_->Disconnect(shared_from_this());
-                        this->setConnect(false);
+                        this->SetConnect(false);
                     }
                 });
         }
@@ -141,8 +141,9 @@ namespace asio {
     };
 
     //----------------------------------------------------------------------
-
-    class Server :public Worker, public NetServerEvent
+    // Singleton Server Basic class
+    // 
+    class Server : public Worker, public NetServerEvent
     {
     public:
         Server(const tcp::endpoint& endpoint)
@@ -190,6 +191,7 @@ namespace asio {
         {
             io_context.run();
         }
+
         void do_accept()
         {
             acceptor_.async_accept(
@@ -197,10 +199,10 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        std::make_shared<session>(std::move(socket), room_, this)->start();
+                        std::make_shared<Session>(std::move(socket), room_, this)->start();
                     }
 
-            do_accept();
+                    do_accept();
                 });
         }
 		asio::io_context io_context;

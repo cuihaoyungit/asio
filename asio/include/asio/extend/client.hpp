@@ -30,7 +30,7 @@ namespace asio {
              is_close_(false),
              connect_state_(ConnectState::ST_STOPPED)
         {
-            this->setConnect(false);
+            this->SetConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
             tcp::resolver resolver(io_context_);
             auto endpoints = resolver.resolve(ip, port);
@@ -66,7 +66,7 @@ namespace asio {
             this->write(msg);
         }
 
-        void deliver(const Message& msg) override
+        void Deliver(const Message& msg) override
         {
             this->write(msg);
         }
@@ -97,14 +97,14 @@ namespace asio {
         void write(const Message& msg)
         {
 			std::lock_guard lock(this->mutex_);
-            if (!this->isConnect()) {
+            if (!this->IsConnect()) {
                 return;
             }
             asio::post(io_context_,
                 [this, msg]() {
                 bool write_in_progress = !write_msgs_.empty();
                 write_msgs_.push_back(msg);
-                if (!write_in_progress && this->isConnect())
+                if (!write_in_progress && this->IsConnect())
                 {
                     do_write();
                 }
@@ -119,7 +119,7 @@ namespace asio {
 				socket_.close();
 			    io_context_.stop();
 			    this->write_msgs_.clear();
-                this->setConnect(false);
+                this->SetConnect(false);
 			    this->connect_state_ = ConnectState::ST_STOPPED;
 				});
 		}
@@ -130,7 +130,7 @@ namespace asio {
             asio::post(io_context_, [this]() {
                 socket_.close();
                 this->write_msgs_.clear();
-                this->setConnect(false);
+                this->SetConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
                 this->Disconnect(this);
                 this->reconnect();
@@ -145,9 +145,9 @@ namespace asio {
             this->Reconnect();
             static std::mutex mtx;
             std::lock_guard lock(mtx);
-            std::cout << this->getConnectName() <<"\t"<<"reconnecting" << std::endl;
+            std::cout << this->GetConnectName() <<"\t"<<"reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
-            if (!this->isConnect())
+            if (!this->IsConnect())
             {
                 do_connect(endpoints_);
             }
@@ -162,13 +162,13 @@ namespace asio {
                     if (!ec)
                     {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
-                        this->setConnect(true);
+                        this->SetConnect(true);
                         std::cout << "connection succeeded." << std::endl;
                         this->Connect(this);
                         do_read_header();
                     }
                     else {
-                        this->setConnect(false);
+                        this->SetConnect(false);
                         std::cout << "connection failed." << std::endl;
                         this->close();
                     }

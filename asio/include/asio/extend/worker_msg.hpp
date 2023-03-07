@@ -57,6 +57,7 @@ namespace asio {
 		virtual void HandleMessage(asio::Message* msg) {}
 	private:
 		std::queue<asio::Message*> msg_queue;
+
 		std::mutex queue_mutex;
 		std::condition_variable condition;
 		bool stop;

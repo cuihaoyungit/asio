@@ -12,28 +12,28 @@ namespace asio {
 	class Room
 	{
 	public:
-		void join(NetObjectPtr obj)
+		void Join(NetObjectPtr obj)
 		{
 			std::lock_guard lock(mutex_);
 			obj_list_.insert(obj);
 			for (const auto& msg : recent_msgs_)
-				obj->deliver(msg);
+				obj->Deliver(msg);
 		}
 
-		void leave(NetObjectPtr obj)
+		void Leave(NetObjectPtr obj)
 		{
 			std::lock_guard lock(mutex_);
 			obj_list_.erase(obj);
 		}
 
-		void deliver(const Message& msg)
+		void Deliver(const Message& msg)
 		{
 			recent_msgs_.push_back(msg);
 			while (recent_msgs_.size() > max_recent_msgs)
 				recent_msgs_.pop_front();
 
 			for (auto& obj : obj_list_)
-				obj->deliver(msg);
+				obj->Deliver(msg);
 		}
 
 	private:

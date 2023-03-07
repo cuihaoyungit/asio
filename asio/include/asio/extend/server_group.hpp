@@ -50,14 +50,14 @@ namespace asio {
 			return socket_.native_handle();
 		}
 
-		void start()
+		void Start()
 		{
-			room_.join(shared_from_this());
+			room_.Join(shared_from_this());
 			net_event_->Connect(shared_from_this());
 			do_read_header();
 		}
 
-		void deliver(const Message& msg) override
+		void Deliver(const Message& msg) override
 		{
 			bool write_in_progress = !write_msgs_.empty();
 			write_msgs_.push_back(msg);
@@ -69,7 +69,7 @@ namespace asio {
 
 		void Send(const Message& msg) override
 		{
-			deliver(msg);
+			this->Deliver(msg);
 		}
 
 	private:
@@ -86,7 +86,7 @@ namespace asio {
 					}
 					else
 					{
-						room_.leave(shared_from_this());
+						room_.Leave(shared_from_this());
 						net_event_->Disconnect(shared_from_this());
 					}
 				});
@@ -108,7 +108,7 @@ namespace asio {
 					}
 					else
 					{
-						room_.leave(shared_from_this());
+						room_.Leave(shared_from_this());
 						net_event_->Disconnect(shared_from_this());
 					}
 				});
@@ -132,7 +132,7 @@ namespace asio {
 					}
 					else
 					{
-						room_.leave(shared_from_this());
+						room_.Leave(shared_from_this());
 						net_event_->Disconnect(shared_from_this());
 					}
 				});
@@ -203,7 +203,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						std::make_shared<Session>(std::move(socket), room_, handle_message_)->start();
+						std::make_shared<Session>(std::move(socket), room_, handle_message_)->Start();
 					}
 
 					do_accept();
@@ -237,6 +237,8 @@ namespace asio {
 				m_stop = true;
 			}
 			m_condition.notify_all();
+			
+			// waiting for thread stop
 			for (std::thread& worker : m_workers)
 				worker.join();
 		}
@@ -291,12 +293,7 @@ namespace asio {
 
 		auto GetBalanceNetClient()
 		{
-			static int index = 0;
-			index++;
-			if (index > 100) {
-				index = 0;
-			}
-			return m_vNetServers[index % m_vNetServers.size()];
+			return m_vNetServers[rand() % m_vNetServers.size()];
 		}
 
 		void PostMsg(const Message& msg) override {
@@ -322,10 +319,15 @@ namespace asio {
 		NetServerWorkGroup(const NetServerWorkGroup&) = delete;
 		NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;
 	private:
-		std::vector<NetServer*>  m_vNetServers;
+		typedef std::vector<NetServer*>  ServerList;
+		ServerList m_vNetServers;
 
-		std::vector<std::thread> m_workers;
-		std::queue<Message> m_msgQueue;
+		typedef std::vector<std::thread> ThreadList;
+		ThreadList m_workers;
+
+		typedef std::queue<Message>      MsgQueue;
+		MsgQueue   m_msgQueue;
+
 		// synchronization
 		std::mutex m_queue_mutex;
 		std::condition_variable m_condition;

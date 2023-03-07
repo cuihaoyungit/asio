@@ -25,23 +25,23 @@ namespace asio {
 		{
 			userdata.clear();
 		}
-		virtual void deliver(const Message& msg) {}
+		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {};
 		virtual uint64_t SocketId() = 0;
 		virtual void Close(){}
-		void setType(const int type) {
+		void SetType(const int type) {
 			this->type = type;
 		}
-		void setConnectName(const std::string &name) {
+		void SetConnectName(const std::string &name) {
 			this->connectName = name;
 		}
-		std::string& getConnectName() {
+		std::string& GetConnectName() {
 			return this->connectName;
 		}
-		void setUserData(const std::string &key, const std::string &value) {
+		void SetUserData(const std::string &key, const std::string &value) {
 			this->userdata[key] = value;
 		}
-		bool userData(const std::string &key, std::string &out) {
+		bool UserData(const std::string &key, std::string &out) {
 			auto it = userdata.find(key);
 			if (it != userdata.end())
 			{
@@ -50,10 +50,10 @@ namespace asio {
 			}
 			return false;
 		}
-		bool isConnect() {
+		bool IsConnect() {
 			return is_connect_;
 		}
-		void setConnect(const bool bConnect) {
+		void SetConnect(const bool bConnect) {
 			this->is_connect_ = bConnect;
 		}
 
