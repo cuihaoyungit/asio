@@ -31,13 +31,13 @@ namespace asio {
 	class Room;
 
 	//----------------------------------------------------------------------
-
+	// Session
 	class Session
 		: public NetObject,
 		public std::enable_shared_from_this<Session>
 	{
 	public:
-		Session(tcp::socket socket, Room& room, NetServerEvent* event)
+		Session(tcp::socket socket, Room& room, NetServerEvent* event) noexcept
 			: socket_(std::move(socket)),
 			room_(room),
 			net_event_(event)
@@ -45,20 +45,19 @@ namespace asio {
 
 		}
 
-		uint64_t SocketId() override 
-		{
-			return socket_.native_handle();
-		}
+		virtual ~Session() override = default;
 
 		void Start()
 		{
 			room_.Join(shared_from_this());
 			net_event_->Connect(shared_from_this());
+			this->SetConnect(true);
 			do_read_header();
 		}
 
 		void Deliver(const Message& msg) override
 		{
+			std::lock_guard lock(this->mutex_);
 			bool write_in_progress = !write_msgs_.empty();
 			write_msgs_.push_back(msg);
 			if (!write_in_progress)
@@ -72,6 +71,10 @@ namespace asio {
 			this->Deliver(msg);
 		}
 
+		uint64_t SocketId() override final
+		{
+			return this->socket_.native_handle();
+		}
 	private:
 		void do_read_header()
 		{
@@ -88,6 +91,7 @@ namespace asio {
 					{
 						room_.Leave(shared_from_this());
 						net_event_->Disconnect(shared_from_this());
+						this->SetConnect(false);
 					}
 				});
 		}
@@ -110,6 +114,7 @@ namespace asio {
 					{
 						room_.Leave(shared_from_this());
 						net_event_->Disconnect(shared_from_this());
+						this->SetConnect(false);
 					}
 				});
 		}
@@ -134,6 +139,7 @@ namespace asio {
 					{
 						room_.Leave(shared_from_this());
 						net_event_->Disconnect(shared_from_this());
+						this->SetConnect(false);
 					}
 				});
 		}
@@ -143,10 +149,11 @@ namespace asio {
 		Message read_msg_;
 		MessageQueue write_msgs_;
 		NetServerEvent* net_event_;
+		std::mutex mutex_;
 	};
 
 	//----------------------------------------------------------------------
-
+	// NetServer
 	class NetServer : public Worker
 	{
 		friend class NetServerWorkGroup;
@@ -221,7 +228,7 @@ namespace asio {
 	};
 
 	//----------------------------------------------------------------------
-
+	// NetServerWorkGroup
 	class NetServerWorkGroup : public NetServerEvent
 	{
 	public:

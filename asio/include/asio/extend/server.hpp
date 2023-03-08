@@ -24,7 +24,7 @@ namespace asio {
     class Room;
 
     //----------------------------------------------------------------------
-
+    // Session
     class Session
         : public NetObject,
         public std::enable_shared_from_this<NetObject>
@@ -39,7 +39,7 @@ namespace asio {
 
         virtual ~Session() override = default;
 
-        void start()
+        void Start()
         {
             room_.Join(shared_from_this());
             net_event_->Connect(shared_from_this());
@@ -47,7 +47,7 @@ namespace asio {
             do_read_header();
         }
 
-        void deliver(const Message& msg)
+        void Deliver(const Message& msg)
         {
 			std::lock_guard lock(this->mutex_);
             bool write_in_progress = !write_msgs_.empty();
@@ -57,6 +57,11 @@ namespace asio {
                 do_write();
             }
         }
+
+		void Send(const Message& msg) override
+		{
+			this->Deliver(msg);
+		}
 
         uint64_t SocketId() override final {
             return this->socket_.native_handle();
@@ -142,7 +147,6 @@ namespace asio {
 
     //----------------------------------------------------------------------
     // Singleton Server Basic class
-    // 
     class Server : public Worker, public NetServerEvent
     {
     public:
@@ -199,7 +203,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        std::make_shared<Session>(std::move(socket), room_, this)->start();
+                        std::make_shared<Session>(std::move(socket), room_, this)->Start();
                     }
 
                     do_accept();

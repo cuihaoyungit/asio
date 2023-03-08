@@ -16,11 +16,12 @@ namespace asio {
 
 	// NetGroup interface
 	//--------------------------------------------------------------
+	// NetObject
 	class Message;
 	class NetObject
 	{
 	public:
-		NetObject() noexcept:is_connect_(false) {}
+		NetObject() noexcept:is_connect_(false), type(0) {}
 		virtual ~NetObject()
 		{
 			userdata.clear();
@@ -59,14 +60,17 @@ namespace asio {
 
 	private:
 		bool is_connect_ = {false};
-		int type = {0};
+		int type;
 		std::string connectName;
-		std::map<std::string, std::string> userdata;
+
+		typedef std::unordered_map<std::string, std::string> UserDataList;
+		UserDataList userdata;
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;
 
 	//--------------------------------------------------------------
+	// NetClientEvent
 	class NetClientEvent
 	{
 	public:
@@ -82,6 +86,7 @@ namespace asio {
 	};
 
 	//--------------------------------------------------------------
+	// NetServerEvent
 	class NetServerEvent
 	{
 	public:
@@ -96,6 +101,7 @@ namespace asio {
 	};
 
 	//--------------------------------------------------------------
+	// Dispatcher
 	class Router;
 	class Dispatcher
 	{
@@ -143,6 +149,7 @@ namespace asio {
 
 
 	//--------------------------------------------------------------
+	// Router
 	class Router
 	{
 	public:
