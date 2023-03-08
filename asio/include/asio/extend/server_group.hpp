@@ -268,16 +268,14 @@ namespace asio {
 					{
 						for (;;)
 						{
-							{
-								std::unique_lock<std::mutex> lock(this->m_queue_mutex);
-								this->m_condition.wait(lock,
-									[this] { return this->m_stop || !this->m_msgQueue.empty(); });
-								if (this->m_stop && this->m_msgQueue.empty())
-									return;
-								auto msg = std::move(this->m_msgQueue.front());
-								this->m_msgQueue.pop();
-								this->HandleMessage(msg);
-							}
+							std::unique_lock<std::mutex> lock(this->m_queue_mutex);
+							this->m_condition.wait(lock,
+								[this] { return this->m_stop || !this->m_msgQueue.empty(); });
+							if (this->m_stop && this->m_msgQueue.empty())
+								return;
+							auto msg = std::move(this->m_msgQueue.front());
+							this->m_msgQueue.pop();
+							this->HandleMessage(msg);
 						}
 					});
 			}

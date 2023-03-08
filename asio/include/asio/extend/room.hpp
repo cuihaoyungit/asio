@@ -28,7 +28,10 @@ namespace asio {
 
 		void Deliver(const Message& msg)
 		{
-			recent_msgs_.push_back(msg);
+			{
+				std::lock_guard lock(mutex_);
+				recent_msgs_.push_back(msg);
+			}
 			while (recent_msgs_.size() > max_recent_msgs)
 				recent_msgs_.pop_front();
 
