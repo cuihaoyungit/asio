@@ -106,6 +106,7 @@ namespace asio {
 	class Dispatcher
 	{
 	public:
+		typedef std::function<void(Message*)> TaskCallback;
 		Dispatcher() {}
 		virtual ~Dispatcher() 
 		{
@@ -116,7 +117,7 @@ namespace asio {
 			m_routers.clear();
 		}
 		virtual void Register() {}
-		void SetRouter(const std::string &key, Router *router)
+		void SetRouter(const std::string& key, Router* router)
 		{
 			const auto it = this->m_routers.find(key);
 			if (it != m_routers.end())
@@ -133,17 +134,17 @@ namespace asio {
 			}
 			return nullptr;
 		}
-		bool BindMsg(const int& MsgId, std::function<void(Message*)> fun) 
+		bool BindMsg(const int& MsgId, TaskCallback fun) 
 		{
-			const auto &it = m_funs.find(MsgId);
-			if (it == m_funs.end()) {
-				m_funs[MsgId] = fun;
+			const auto &it = m_taskList.find(MsgId);
+			if (it == m_taskList.end()) {
+				m_taskList[MsgId] = fun;
 				return true;
 			}
 			return false;
 		}
 	protected:
-		std::unordered_map<int, std::function<void(Message*)> > m_funs;
+		std::unordered_map<int, TaskCallback> m_taskList;
 		std::unordered_map<std::string, Router*> m_routers;
 	};
 
