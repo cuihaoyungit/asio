@@ -31,10 +31,10 @@ namespace asio {
 	class Room;
 
 	//----------------------------------------------------------------------
-	// Session
+	// Session GroupServer
 	class Session
 		: public NetObject,
-		public std::enable_shared_from_this<Session>
+		public std::enable_shared_from_this<NetObject>
 	{
 	public:
 		Session(tcp::socket socket, Room& room, NetServerEvent* event) noexcept
@@ -240,6 +240,7 @@ namespace asio {
 			}
 			m_vNetServers.clear();
 
+			// notify stop thread
 			{
 				std::unique_lock<std::mutex> lock(m_queue_mutex);
 				m_stop = true;

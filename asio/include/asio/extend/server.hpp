@@ -24,7 +24,7 @@ namespace asio {
     class Room;
 
     //----------------------------------------------------------------------
-    // Session
+    // Session Server
     class Session
         : public NetObject,
         public std::enable_shared_from_this<NetObject>
@@ -35,6 +35,7 @@ namespace asio {
             room_(room),
             net_event_(event) 
         {
+
         }
 
         virtual ~Session() override = default;
