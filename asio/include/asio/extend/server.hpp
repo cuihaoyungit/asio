@@ -174,7 +174,7 @@ namespace asio {
 					this->StopContent();
 					this->stoped_ = true;
 				});
-            do_accept();
+            this->do_accept();
         }
 
         virtual ~Server() override = default;
@@ -206,7 +206,7 @@ namespace asio {
                         std::make_shared<Session>(std::move(socket), room_, this)->Start();
                     }
 
-                    do_accept();
+                    this->do_accept();
                 });
         }
 		asio::io_context io_context;

@@ -28,6 +28,7 @@ namespace asio {
 		THREAD_MSG = 2   // 线程消息
 	};
 
+	// TPkgHeader
 	typedef struct TPkgHeader
 	{
 		int seq         = {0};
@@ -35,6 +36,7 @@ namespace asio {
 		MsgType type    = NET_MSG;
 	} MsgHeader;
 
+	// NetPacket
 	struct NetPacket {
 		int msgId     = {0};
 		Message* buff = {nullptr};
@@ -42,7 +44,7 @@ namespace asio {
 
 	//
 	// Support memory object pool
-	//
+	// Message Pool Object
 	class Message : public Node<Message>
 	{
 	public:

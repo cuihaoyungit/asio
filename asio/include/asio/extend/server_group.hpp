@@ -105,6 +105,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
+						read_msg_.setNetId(this->SocketId());
 						read_msg_.setObject(shared_from_this());
 						//room_.deliver(read_msg_);
 						net_event_->PostMsg(read_msg_);
@@ -246,7 +247,7 @@ namespace asio {
 			m_condition.notify_all();
 			
 			// waiting for thread stop
-			for (std::thread& worker : m_workers)
+			for (auto& worker : m_workers)
 				worker.join();
 		}
 
@@ -289,14 +290,14 @@ namespace asio {
 			this->Exit();
 		}
 
-		auto GetNetClient(int index) -> NetServer* {
+		auto GetNetServer(int index) -> NetServer* {
 			if (index < m_vNetServers.size()) {
 				return m_vNetServers[index];
 			}
 			return nullptr;
 		}
 
-		auto GetBalanceNetClient()
+		auto RandomNetServer()
 		{
 			return m_vNetServers[rand() % m_vNetServers.size()];
 		}

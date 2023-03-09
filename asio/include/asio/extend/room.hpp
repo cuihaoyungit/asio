@@ -14,7 +14,6 @@ namespace asio {
 	public:
 		void Join(NetObjectPtr obj)
 		{
-			std::lock_guard lock(mutex_);
 			obj_list_.insert(obj);
 			for (const auto& msg : recent_msgs_)
 				obj->Deliver(msg);
@@ -22,16 +21,11 @@ namespace asio {
 
 		void Leave(NetObjectPtr obj)
 		{
-			std::lock_guard lock(mutex_);
 			obj_list_.erase(obj);
 		}
 
 		void Deliver(const Message& msg)
 		{
-			{
-				std::lock_guard lock(mutex_);
-				recent_msgs_.push_back(msg);
-			}
 			while (recent_msgs_.size() > max_recent_msgs)
 				recent_msgs_.pop_front();
 
@@ -40,7 +34,6 @@ namespace asio {
 		}
 
 	private:
-		std::mutex mutex_;
 		std::set<NetObjectPtr> obj_list_;
 		enum { max_recent_msgs = 100 };
 		MessageQueue recent_msgs_;
