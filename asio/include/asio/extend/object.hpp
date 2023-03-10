@@ -110,30 +110,9 @@ namespace asio {
 		Dispatcher() {}
 		virtual ~Dispatcher() 
 		{
-			for (auto& [key, value] : m_routers)
-			{
-				delete value;
-			}
-			m_routers.clear();
 		}
 		virtual void Register() {}
-		void SetRouter(const std::string& key, Router* router)
-		{
-			const auto it = this->m_routers.find(key);
-			if (it != m_routers.end())
-			{
-				return;
-			}
-			m_routers[key] = router;
-		}
-		Router* GetRouter(const std::string& key) {
-			const auto it = this->m_routers.find(key);
-			if (it != m_routers.end())
-			{
-				return it->second;
-			}
-			return nullptr;
-		}
+
 		bool BindMsg(const int& MsgId, TaskCallback fun) 
 		{
 			const auto &it = m_taskList.find(MsgId);
@@ -145,9 +124,7 @@ namespace asio {
 		}
 	protected:
 		std::unordered_map<int, TaskCallback> m_taskList;
-		std::unordered_map<std::string, Router*> m_routers;
 	};
-
 
 	//--------------------------------------------------------------
 	// Router
