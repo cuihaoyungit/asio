@@ -56,6 +56,10 @@ namespace asio {
             do_connect(endpoints);
         }
 
+        virtual ~Client() {
+            this->Final();
+        }
+
         void Close() override 
         {
             this->disconnect();
@@ -81,6 +85,11 @@ namespace asio {
 				io_context_.stop();
 			}
 		}
+
+        void Shutdown() {
+            this->Close();
+            this->StopContext();
+        }
     public:
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}

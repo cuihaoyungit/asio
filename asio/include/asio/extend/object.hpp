@@ -26,6 +26,7 @@ namespace asio {
 		{
 			userdata.clear();
 		}
+		virtual void Final() {}
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {};
 		virtual uint64_t SocketId() = 0;
@@ -94,6 +95,7 @@ namespace asio {
 		virtual ~NetServerEvent() {}
 		virtual void Init() {}
 		virtual void Exit() {}
+		virtual void Final() {}
 		virtual void Connect(NetObjectPtr pObj) {}
 		virtual void Disconnect(NetObjectPtr pObj) {}
 		virtual void HandleMessage(Message& msg) {}
@@ -107,6 +109,8 @@ namespace asio {
 	{
 	public:
 		typedef std::function<void(Message*)> TaskCallback;
+		typedef std::unordered_map<int, TaskCallback> TaskList;
+
 		Dispatcher() {}
 		virtual ~Dispatcher() 
 		{
@@ -122,8 +126,22 @@ namespace asio {
 			}
 			return false;
 		}
-	protected:
-		std::unordered_map<int, TaskCallback> m_taskList;
+	
+		TaskList& GetTaskList()
+		{
+			return m_taskList;
+		}
+
+		TaskCallback FindCallback(const int &key) {
+			auto it = m_taskList.find(key);
+			if (it != m_taskList.end())
+			{
+				return it->second;
+			}
+			return nullptr;
+		}
+	private:
+		TaskList m_taskList;
 	};
 
 	//--------------------------------------------------------------

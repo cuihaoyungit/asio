@@ -38,7 +38,9 @@ namespace asio {
 
         }
 
-        virtual ~Session() override = default;
+        virtual ~Session() {
+            this->Final();
+        }
 
         void Start()
         {
@@ -178,15 +180,23 @@ namespace asio {
             this->do_accept();
         }
 
-        virtual ~Server() override = default;
+        virtual ~Server() {
+            this->Final();
+        }
 
         // stop asio io_content
-		void StopContent() {
+		void StopContent() 
+        {
+            this->Shutdown();
+		}
+
+        void Shutdown()
+        {
 			if (!io_context.stopped())
 			{
 				io_context.stop();
 			}
-		}
+        }
     public:
 		void Connect(NetObjectPtr pObj)    override {}
 		void Disconnect(NetObjectPtr pObj) override {}

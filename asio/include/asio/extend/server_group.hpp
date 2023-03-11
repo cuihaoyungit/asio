@@ -45,7 +45,9 @@ namespace asio {
 
 		}
 
-		virtual ~Session() override = default;
+		virtual ~Session() {
+			this->Final();
+		}
 
 		void Start()
 		{
@@ -191,6 +193,10 @@ namespace asio {
 		}
 
 		void StopContext() {
+			this->Shutdown();
+		}
+
+		void Shutdown() {
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
