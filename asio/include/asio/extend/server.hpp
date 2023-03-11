@@ -140,6 +140,11 @@ namespace asio {
                 });
         }
 
+        void Final() override
+        {
+
+        }
+
         tcp::socket socket_;
         Room& room_;
         Message read_msg_;
