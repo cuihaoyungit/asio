@@ -67,7 +67,7 @@ namespace asio {
 
         void Send(const Message& msg) override 
         {
-            this->write(msg);
+			this->write(msg);
         }
 
         void Deliver(const Message& msg) override
@@ -89,6 +89,11 @@ namespace asio {
         void Shutdown() {
             this->Close();
             this->StopContext();
+        }
+        
+        void ClearMsgQueue() {
+            std::lock_guard lock(this->mutex_);
+            this->write_msgs_.clear();
         }
     public:
 		void Connect(NetObject* pObject) override {}

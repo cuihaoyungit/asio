@@ -170,7 +170,7 @@ namespace asio {
 #endif // defined(SIGQUIT)
 			acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 			signals_.async_wait(
-				[this](std::error_code /*ec*/, int /*signo*/)
+				[this](std::error_code /*ec*/, int /*signal*/)
 				{
 					// The server is stopped by cancelling all outstanding asynchronous
 					// operations. Once all operations have finished the io_context::run()
