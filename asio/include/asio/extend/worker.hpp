@@ -10,7 +10,7 @@
 #include <functional>
 
 namespace asio {
-
+	class Message;
 	class Worker
 	{
 	public:
@@ -49,7 +49,7 @@ namespace asio {
 			this->name_ = name;
 		}
 
-	protected:
+	private:
 		void RunThread() {
 			this->Init();
 			this->Run();
@@ -57,8 +57,12 @@ namespace asio {
 		}
 		virtual void Init() {}
 		virtual void Exit() {}
+		virtual void Tick() {}
+	protected:
+		virtual void HandleMessage(Message* msg) {}
+
 		Worker(const Worker&) = delete;
-		Worker& operator = (const Worker&) = delete;
+		const Worker& operator = (const Worker&) = delete;
 	private:
 		std::unique_ptr<std::thread> thread_;
 		std::string name_;
