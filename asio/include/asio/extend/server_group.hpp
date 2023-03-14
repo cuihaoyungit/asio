@@ -263,13 +263,13 @@ namespace asio {
 				worker.join();
 		}
 
-		void Startup(const std::vector<int>& vPorts, int threadWorks = 1) {
+		void Startup(const std::vector<unsigned short>& vPorts, int threadWorks = 1) {
 			// server port
 			this->Init();
-			for (auto it : vPorts)
+			for (auto port : vPorts)
 			{
-				NetServer* pNetServer = new NetServer(this, tcp::endpoint(tcp::v4(), it));
-				pNetServer->SetPort(it);
+				NetServer* pNetServer = new NetServer(this, tcp::endpoint(tcp::v4(), port));
+				pNetServer->SetPort(port);
 				m_vNetServers.push_back(pNetServer);
 				pNetServer->Startup();
 			}
