@@ -5,10 +5,10 @@
 
 #ifndef __ROOM_HPP__
 #define __ROOM_HPP__
+#include <asio/extend/object.hpp>
 #include <asio/msgdef/message.hpp>
 
 namespace asio {
-
 	class Room
 	{
 	public:

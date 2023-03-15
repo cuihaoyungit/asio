@@ -1,8 +1,6 @@
 //
 // server.hpp
 // add by [11/21/2022 cuihaoyun]
-// 
-
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 #include <set>
@@ -203,8 +201,8 @@ namespace asio {
 			}
         }
     public:
-		void Connect(NetObjectPtr pObj)    override {}
-		void Disconnect(NetObjectPtr pObj) override {}
+		void Connect(NetObjectPtr pNetObj)    override {}
+		void Disconnect(NetObjectPtr pNetObj) override {}
 		void HandleMessage(Message& msg)   override {}
     private:
         void Run() override

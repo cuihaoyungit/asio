@@ -79,9 +79,9 @@ namespace asio {
 		virtual ~NetClientEvent() {}
 		virtual void Init() {}
 		virtual void Exit() {}
-		virtual void Connect(NetObject* pObject) {}
-		virtual void Disconnect(NetObject* pObject) {}
-		virtual void HandleMessage(NetObject* pObject, const Message& msg) {}
+		virtual void Connect(NetObject* pNetObj) {}
+		virtual void Disconnect(NetObject* pNetObj) {}
+		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
 		virtual void Reconnect() {}
 	};
@@ -96,8 +96,8 @@ namespace asio {
 		virtual void Init() {}
 		virtual void Exit() {}
 		virtual void Final() {}
-		virtual void Connect(NetObjectPtr pObj) {}
-		virtual void Disconnect(NetObjectPtr pObj) {}
+		virtual void Connect(NetObjectPtr pNetObj) {}
+		virtual void Disconnect(NetObjectPtr pNetObj) {}
 		virtual void HandleMessage(Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
 	};

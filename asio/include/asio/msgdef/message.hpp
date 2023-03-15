@@ -10,7 +10,6 @@
 
 #ifndef __MESSAGE_HPP__
 #define __MESSAGE_HPP__
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -89,45 +88,37 @@ namespace asio {
 		  this->clear();
 	  }
 
-	  const char* data() const
-	  {
+	  const char* data() const {
 		return data_;
 	  }
 
-	  char* data()
-	  {
+	  char* data() {
 		return data_;
 	  }
 
-	  std::size_t length() const
-	  {
+	  std::size_t length() const {
 		return header_length + body_length_;
 	  }
 
-	  const char* body() const
-	  {
+	  const char* body() const {
 		return data_ + header_length;
 	  }
 
-	  char* body()
-	  {
+	  char* body() {
 		return data_ + header_length;
 	  }
 
-	  std::size_t body_length() const
-	  {
+	  std::size_t body_length() const {
 		return body_length_;
 	  }
 
-	  void body_length(std::size_t new_length)
-	  {
+	  void body_length(std::size_t new_length) {
 		  body_length_ = new_length;
 		  if (body_length_ > max_body_length)
 			  body_length_ = max_body_length;
 	  }
 
-	  bool decode_header()
-	  {
+	  bool decode_header() {
 		  MsgHeader* msg = (MsgHeader*)data_;
 		  body_length_ = msg->body_len;
 		  if (body_length_ > max_body_length)
@@ -154,7 +145,9 @@ namespace asio {
 		  this->net_id_ = id;
 	  }
 
-	  int getNetId() { return net_id_; }
+	  int getNetId() {
+		  return net_id_; 
+	  }
 
 	  void clear() {
 		  std::memset(data_, 0, header_length + max_body_length);

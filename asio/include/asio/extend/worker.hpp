@@ -25,8 +25,9 @@ namespace asio {
 		bool Startup() {
 			if (!thread_) {
 				thread_ = std::make_unique<std::thread>(std::bind(&Worker::RunThread, this));
+				return true;
 			}
-			return true;
+			return false;
 		}
 
 		// wait thread exit
