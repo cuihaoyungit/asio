@@ -57,9 +57,9 @@ namespace asio {
 		}
 		virtual void Init() {}
 		virtual void Exit() {}
-		virtual void Tick() {}
 	protected:
 		virtual void HandleMessage(Message* msg) {}
+		virtual void Tick() {}
 
 		Worker(const Worker&) = delete;
 		const Worker& operator = (const Worker&) = delete;
