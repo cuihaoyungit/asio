@@ -29,6 +29,7 @@ namespace asio {
 		virtual void Final() {}
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {};
+		virtual void Post(const Message& msg) {};
 		virtual uint64_t SocketId() = 0;
 		virtual void Close(){}
 		void SetType(const int type) {

@@ -61,7 +61,7 @@ namespace asio {
 		{
 			std::lock_guard lock(this->mutex_);
 			bool write_in_progress = !write_msgs_.empty();
-			write_msgs_.push_back(msg);
+			write_msgs_.push_back(std::move(msg));
 			if (!write_in_progress)
 			{
 				do_write();
@@ -69,6 +69,11 @@ namespace asio {
 		}
 
 		void Send(const Message& msg) override
+		{
+			this->Deliver(msg);
+		}
+
+		void Post(const Message& msg) override
 		{
 			this->Deliver(msg);
 		}
