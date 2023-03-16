@@ -56,11 +56,10 @@ namespace asio {
 			this->Run();
 			this->Exit();
 		}
-		virtual void Init() {}
-		virtual void Exit() {}
+		virtual void Init() = 0;
+		virtual void Exit() = 0;
 	protected:
 		virtual void HandleMessage(Message* msg) {}
-		virtual void Tick() {}
 
 		Worker(const Worker&) = delete;
 		const Worker& operator = (const Worker&) = delete;

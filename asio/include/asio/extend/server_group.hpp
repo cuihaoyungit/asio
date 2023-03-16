@@ -193,8 +193,18 @@ namespace asio {
 		}
 		~NetServer() {}
 
+		void Init() override
+		{
+
+		}
+
 		void Run() override {
 			io_context_.run();
+		}
+
+		void Exit() override
+		{
+
 		}
 
 		void StopContext() {
