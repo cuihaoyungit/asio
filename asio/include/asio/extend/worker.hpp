@@ -56,9 +56,9 @@ namespace asio {
 			this->Run();
 			this->Exit();
 		}
+	protected:
 		virtual void Init() = 0;
 		virtual void Exit() = 0;
-	protected:
 		virtual void HandleMessage(Message* msg) {}
 
 		Worker(const Worker&) = delete;

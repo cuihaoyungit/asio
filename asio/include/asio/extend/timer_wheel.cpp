@@ -1,6 +1,9 @@
 #include "timer_wheel.h"
-//#define _CRT_SECURE_NO_WARNINGS
-//#include <sys/time.h>
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#else
+#include <sys/time.h>
+#endif // _MSC_VER
 #define TVN_BITS 6
 #define TVR_BITS 8
 #define TVN_SIZE (1 << TVN_BITS)
@@ -145,25 +148,14 @@ namespace TimerWheel {
 
 	unsigned long long TimerManager::GetCurrentMillisecs()
 	{
-		//auto now = std::chrono::system_clock::now();
-		//time_t time = std::chrono::system_clock::to_time_t(now);
-		//return time;
-
+#ifdef _MSC_VER
 		auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		return millisec_since_epoch;
-		/*
-#ifdef _MSC_VER
-		_timeb timebuffer;
-		_ftime(&timebuffer);
-		unsigned long long ret = timebuffer.time;
-		ret = ret * 1000 + timebuffer.millitm;
-		return ret;
 #else
 		timeval tv;
 		::gettimeofday(&tv, 0);
 		unsigned long long ret = tv.tv_sec;
 		return ret * 1000 + tv.tv_usec / 1000;
 #endif
-*/
 	}
 }

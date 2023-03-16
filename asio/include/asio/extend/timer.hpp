@@ -57,7 +57,7 @@ namespace asio {
 		}
 
 		void RemoveTimer(const std::string &key_name) {
-			auto it = timer_list_.find(key_name);
+			const auto it = timer_list_.find(key_name);
 			if (it != timer_list_.end()) {
 				this->timer_list_.erase(it);
 			}
@@ -72,14 +72,6 @@ namespace asio {
 
 		void Clear() {
 			timer_list_.clear();
-		}
-
-		void Init() override {
-
-		}
-
-		void Exit() override {
-
 		}
 
 	private:
