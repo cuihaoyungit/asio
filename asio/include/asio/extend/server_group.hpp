@@ -61,7 +61,7 @@ namespace asio {
 		{
 			std::lock_guard lock(this->mutex_);
 			bool write_in_progress = !write_msgs_.empty();
-			write_msgs_.push_back(std::move(msg));
+			write_msgs_.push_back(msg);
 			if (!write_in_progress)
 			{
 				do_write();
@@ -154,7 +154,8 @@ namespace asio {
 
 		void Final() override
 		{
-
+			std::lock_guard lock(this->mutex_);
+			this->write_msgs_.clear();
 		}
 
 		tcp::socket socket_;
