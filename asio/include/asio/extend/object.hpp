@@ -144,18 +144,6 @@ namespace asio {
 		TaskList m_taskList;
 	};
 
-	//--------------------------------------------------------------
-	// Router
-	class Router
-	{
-	public:
-		Router() = default;
-		virtual ~Router() {}
-	};
-
-
-
-
 }
 
 #endif // __OBJECT_HPP__

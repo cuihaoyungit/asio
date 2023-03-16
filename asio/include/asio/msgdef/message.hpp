@@ -41,9 +41,7 @@ namespace asio {
 		Message* buff = {nullptr};
 	};
 
-	//
-	// Support memory object pool
-	// Message Pool Object
+	// Message Support memory object pool
 	class Message : public Node<Message>
 	{
 	public:
@@ -73,7 +71,7 @@ namespace asio {
 		  this->body_length_ = other.body_length_;
 		  return *this;
 	  }
-	  Message& operator=(const Message& other) {
+	  const Message& operator=(const Message& other) {
 		  if (this == &other)
 			  return *this;
 		  this->net_id_ = other.net_id_;
