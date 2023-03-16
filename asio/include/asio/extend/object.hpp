@@ -30,6 +30,8 @@ namespace asio {
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {};
 		virtual void Post(const Message& msg) {};
+		virtual void PostMsg(const Message& msg) {}
+
 		virtual uint64_t SocketId() = 0;
 		virtual void Close(){}
 		void SetType(const int type) {
@@ -83,7 +85,6 @@ namespace asio {
 		virtual void Connect(NetObject* pNetObj) {}
 		virtual void Disconnect(NetObject* pNetObj) {}
 		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) {}
-		virtual void PostMsg(const Message& msg) {}
 		virtual void Reconnect() {}
 	};
 

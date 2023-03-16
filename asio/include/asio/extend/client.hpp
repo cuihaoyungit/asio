@@ -103,6 +103,10 @@ namespace asio {
         {
             this->write(msg);
         }
+        void Post(const Message& msg) override
+        {
+            this->write(msg);
+        }
         void Run() override
         {
             io_context_.run();
