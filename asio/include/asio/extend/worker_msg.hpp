@@ -22,7 +22,7 @@ namespace asio {
 
 		void PostMsg(Message* msg) {
 			{
-				std::unique_lock<std::mutex> lock(this->queue_mutex);
+				std::unique_lock<std::mutex> lock(this->mutex_);
 				if (stop) {
 					throw std::runtime_error("enqueue on stopped.");
 				}
@@ -33,7 +33,7 @@ namespace asio {
 
 		void Stop() {
 			{
-				std::unique_lock<std::mutex> lock(queue_mutex);
+				std::unique_lock<std::mutex> lock(this->mutex_);
 				stop = true;
 			}
 			condition.notify_all();
@@ -43,7 +43,7 @@ namespace asio {
 		void Run() override {
 			for (;;)
 			{
-				std::unique_lock<std::mutex> lock(this->queue_mutex);
+				std::unique_lock<std::mutex> lock(this->mutex_);
 				this->condition.wait(lock,
 					[this] { return this->stop || !this->msg_queue.empty(); });
 				if (this->stop && this->msg_queue.empty())
@@ -55,8 +55,7 @@ namespace asio {
 		}
 	private:
 		std::queue<Message*> msg_queue;
-
-		std::mutex queue_mutex;
+		std::mutex mutex_;
 		std::condition_variable condition;
 		bool stop;
 	};
