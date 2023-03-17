@@ -28,7 +28,7 @@ namespace asio {
 	};
 
 	// TPkgHeader
-	typedef struct TPkgHeader
+	typedef struct _TPkgHeader
 	{
 		int seq         = {0};
 		int body_len    = {0};
