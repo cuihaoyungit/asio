@@ -20,7 +20,7 @@ namespace asio {
 			this->Stop();
 		}
 
-		void PostMsg(Message* msg) {
+		void Post(Message* msg) {
 			{
 				std::unique_lock<std::mutex> lock(this->mutex_);
 				if (stop) {
