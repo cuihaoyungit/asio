@@ -131,11 +131,11 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setObject(std::weak_ptr<NetObject> obj) {
+	  void setNetObject(std::weak_ptr<NetObject> obj) {
 		  this->connect_object_ = obj;
 	  }
 
-	  auto getObject()-> std::weak_ptr<NetObject> {
+	  auto getNetObject()-> std::weak_ptr<NetObject> {
 		  return connect_object_;
 	  }
 
