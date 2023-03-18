@@ -258,11 +258,11 @@ namespace asio {
 
 	//----------------------------------------------------------------------
 	// NetServerWorkGroup
-	class NetServerWorkGroup : public NetServer
+	class NetGroupServer : public NetServer
 	{
 	public:
-		NetServerWorkGroup() : m_stop(false) {}
-		virtual ~NetServerWorkGroup() {
+		NetGroupServer() : m_stop(false) {}
+		virtual ~NetGroupServer() {
 			for (const auto& it : m_vSubServers) {
 				delete it;
 			}
@@ -351,8 +351,8 @@ namespace asio {
 		
 		}
 
-		NetServerWorkGroup(const NetServerWorkGroup&) = delete;
-		const NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;
+		NetGroupServer(const NetGroupServer&) = delete;
+		const NetGroupServer operator = (const NetGroupServer&) = delete;
 	private:
 		typedef std::vector<SubServer*>  ServerList;
 		ServerList m_vSubServers;
@@ -369,7 +369,6 @@ namespace asio {
 		bool m_stop;
 	};
 
-	using NetServerGroup = NetServerWorkGroup;
 
 }
 
