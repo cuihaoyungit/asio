@@ -10,7 +10,7 @@ namespace asio {
 	class NoCopyObj {
 	public:
 		NoCopyObj() {}
-		virtual ~NoCopyObj() {}
+		~NoCopyObj() {}
 	private:
 		NoCopyObj(const NoCopyObj&) = delete;
 		const NoCopyObj& operator =(const NoCopyObj&) = delete;
