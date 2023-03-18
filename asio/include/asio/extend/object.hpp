@@ -89,12 +89,12 @@ namespace asio {
 	};
 
 	//--------------------------------------------------------------
-	// NetServerEvent
-	class NetServerEvent
+	// NetServer Event
+	class NetServer
 	{
 	public:
-		NetServerEvent() = default;
-		virtual ~NetServerEvent() {}
+		NetServer() = default;
+		virtual ~NetServer() {}
 		virtual void Init() {}
 		virtual void Exit() {}
 		virtual void Final() {}

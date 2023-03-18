@@ -37,10 +37,10 @@ namespace asio {
 		public std::enable_shared_from_this<NetObject>
 	{
 	public:
-		Session(tcp::socket socket, Room& room, NetServerEvent* event) noexcept
+		Session(tcp::socket socket, Room& room, NetServer* netserver) noexcept
 			: socket_(std::move(socket)),
 			room_(room),
-			net_event_(event)
+			net_server_(netserver)
 		{
 
 		}
@@ -52,7 +52,7 @@ namespace asio {
 		void Start()
 		{
 			room_.Join(shared_from_this());
-			net_event_->Connect(shared_from_this());
+			net_server_->Connect(shared_from_this());
 			this->SetConnect(true);
 			do_read_header();
 		}
@@ -97,7 +97,7 @@ namespace asio {
 					else
 					{
 						room_.Leave(shared_from_this());
-						net_event_->Disconnect(shared_from_this());
+						net_server_->Disconnect(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -115,13 +115,13 @@ namespace asio {
 						read_msg_.setNetId(this->SocketId());
 						read_msg_.setNetObject(shared_from_this());
 						//room_.deliver(read_msg_);
-						net_event_->PostMsg(read_msg_);
+						net_server_->PostMsg(read_msg_);
 						do_read_header();
 					}
 					else
 					{
 						room_.Leave(shared_from_this());
-						net_event_->Disconnect(shared_from_this());
+						net_server_->Disconnect(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -146,7 +146,7 @@ namespace asio {
 					else
 					{
 						room_.Leave(shared_from_this());
-						net_event_->Disconnect(shared_from_this());
+						net_server_->Disconnect(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -158,23 +158,24 @@ namespace asio {
 			this->write_msgs_.clear();
 		}
 
+	private:
 		tcp::socket socket_;
 		Room& room_;
 		Message read_msg_;
 		MessageQueue write_msgs_;
-		NetServerEvent* net_event_;
+		NetServer* net_server_;
 		std::mutex mutex_;
 	};
 
 	//----------------------------------------------------------------------
-	// NetServer
-	class NetServer : public Worker
+	// SubServer
+	class SubServer : public Worker
 	{
 		friend class NetServerWorkGroup;
 	public:
-		NetServer(NetServerEvent* handleMessage, const tcp::endpoint& endpoint)
+		SubServer(NetServer* handleMessage, const tcp::endpoint& endpoint)
 			: Worker(),
-			handle_message_(handleMessage),
+			net_server_(handleMessage),
 			port_(0),
 			stoped_(false),
 			acceptor_(io_context_, endpoint),
@@ -187,7 +188,7 @@ namespace asio {
 #endif // defined(SIGQUIT)
 			acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
 			signals_.async_wait(
-				[this](std::error_code /*ec*/, int /*signo*/)
+				[this](std::error_code /*ec*/, int /*signal*/)
 				{
 					// The server is stopped by cancelling all outstanding asynchronous
 					// operations. Once all operations have finished the io_context::run()
@@ -197,7 +198,7 @@ namespace asio {
 				});
 			this->do_accept();
 		}
-		~NetServer() {}
+		~SubServer() {}
 
 		void Init() override
 		{
@@ -238,34 +239,34 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						std::make_shared<Session>(std::move(socket), room_, handle_message_)->Start();
+						std::make_shared<Session>(std::move(socket), room_, net_server_)->Start();
 					}
 
 					do_accept();
 				});
 		}
 
+	private:
 		int port_;
-		NetServerEvent* handle_message_;
+		NetServer* net_server_;
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
 		asio::signal_set signals_;
-	protected:
 		Room room_;
 		bool stoped_;
 	};
 
 	//----------------------------------------------------------------------
 	// NetServerWorkGroup
-	class NetServerWorkGroup : public NetServerEvent
+	class NetServerWorkGroup : public NetServer
 	{
 	public:
 		NetServerWorkGroup() : m_stop(false) {}
 		~NetServerWorkGroup() {
-			for (const auto& it : m_vNetServers) {
+			for (const auto& it : m_vSubServers) {
 				delete it;
 			}
-			m_vNetServers.clear();
+			m_vSubServers.clear();
 
 			// notify stop thread
 			{
@@ -284,10 +285,10 @@ namespace asio {
 			this->Init();
 			for (auto port : vPorts)
 			{
-				NetServer* pNetServer = new NetServer(this, tcp::endpoint(tcp::v4(), port));
-				pNetServer->SetPort(port);
-				m_vNetServers.push_back(pNetServer);
-				pNetServer->Startup();
+				SubServer* pSubServer = new SubServer(this, tcp::endpoint(tcp::v4(), port));
+				pSubServer->SetPort(port);
+				m_vSubServers.push_back(pSubServer);
+				pSubServer->Startup();
 			}
 
 			// thread pool works
@@ -311,23 +312,23 @@ namespace asio {
 		}
 
 		void WaitStop() {
-			for (const auto it : m_vNetServers) {
+			for (const auto it : m_vSubServers) {
 				it->StopContext();
 				it->WaitStop();
 			}
 			this->Exit();
 		}
 
-		auto GetNetServer(int index) -> NetServer* {
-			if (index < m_vNetServers.size()) {
-				return m_vNetServers[index];
+		auto GetServer(int index) -> SubServer* {
+			if (index < m_vSubServers.size()) {
+				return m_vSubServers[index];
 			}
 			return nullptr;
 		}
 
 		auto RandomNetServer()
 		{
-			return m_vNetServers[rand() % m_vNetServers.size()];
+			return m_vSubServers[rand() % m_vSubServers.size()];
 		}
 
 		void PostMsg(const Message& msg) override {
@@ -351,10 +352,10 @@ namespace asio {
 		}
 
 		NetServerWorkGroup(const NetServerWorkGroup&) = delete;
-		NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;
+		const NetServerWorkGroup operator = (const NetServerWorkGroup&) = delete;
 	private:
-		typedef std::vector<NetServer*>  ServerList;
-		ServerList m_vNetServers;
+		typedef std::vector<SubServer*>  ServerList;
+		ServerList m_vSubServers;
 
 		typedef std::vector<std::thread> ThreadList;
 		ThreadList m_workers;
