@@ -224,7 +224,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        std::make_shared<Session>(std::move(socket), room_, this)->Start();
+                        std::make_shared<Session>(std::move(socket), room_, dynamic_cast<NetServer*>(this))->Start();
                     }
 
                     this->do_accept();

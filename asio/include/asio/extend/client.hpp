@@ -21,7 +21,7 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    class Client : public Worker, public NetObject, public NetClientEvent
+    class Client : public Worker, public NetObject, public NetClient
     {
     public:
         Client(const std::string &ip, const std::string &port)

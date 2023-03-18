@@ -74,12 +74,12 @@ namespace asio {
 	typedef std::shared_ptr<NetObject> NetObjectPtr;
 
 	//--------------------------------------------------------------
-	// NetClientEvent
-	class NetClientEvent
+	// NetClient Event
+	class NetClient
 	{
 	public:
-		NetClientEvent() = default;
-		virtual ~NetClientEvent() {}
+		NetClient() = default;
+		virtual ~NetClient() {}
 		virtual void Init() {}
 		virtual void Exit() {}
 		virtual void Connect(NetObject* pNetObj) {}

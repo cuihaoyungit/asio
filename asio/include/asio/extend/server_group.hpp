@@ -173,9 +173,9 @@ namespace asio {
 	{
 		friend class NetServerWorkGroup;
 	public:
-		SubServer(NetServer* handleMessage, const tcp::endpoint& endpoint)
+		SubServer(NetServer* netserver, const tcp::endpoint& endpoint)
 			: Worker(),
-			net_server_(handleMessage),
+			net_server_(netserver),
 			port_(0),
 			stoped_(false),
 			acceptor_(io_context_, endpoint),
@@ -262,7 +262,7 @@ namespace asio {
 	{
 	public:
 		NetServerWorkGroup() : m_stop(false) {}
-		~NetServerWorkGroup() {
+		virtual ~NetServerWorkGroup() {
 			for (const auto& it : m_vSubServers) {
 				delete it;
 			}
@@ -285,7 +285,7 @@ namespace asio {
 			this->Init();
 			for (auto port : vPorts)
 			{
-				SubServer* pSubServer = new SubServer(this, tcp::endpoint(tcp::v4(), port));
+				SubServer* pSubServer = new SubServer(dynamic_cast<NetServer*>(this), tcp::endpoint(tcp::v4(), port));
 				pSubServer->SetPort(port);
 				m_vSubServers.push_back(pSubServer);
 				pSubServer->Startup();
