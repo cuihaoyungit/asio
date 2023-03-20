@@ -184,7 +184,7 @@ namespace asio {
 					{
 						acceptor_.close();
 					}
-					this->StopContent();
+					this->StopContext();
 					this->stoped_ = true;
 				});
             this->do_accept();
@@ -195,7 +195,7 @@ namespace asio {
         }
 
         // stop asio io_content
-		void StopContent() 
+		void StopContext() 
         {
             this->Shutdown();
 		}

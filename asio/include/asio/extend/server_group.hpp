@@ -311,9 +311,15 @@ namespace asio {
 			}
 		}
 
-		void WaitStop() {
+		void StopContext()
+		{
 			for (const auto it : m_vSubServers) {
 				it->StopContext();
+			}
+		}
+
+		void WaitStop() {
+			for (const auto it : m_vSubServers) {
 				it->WaitStop();
 			}
 			this->Exit();
