@@ -27,7 +27,8 @@ namespace asio {
         Client(const std::string &ip, const std::string &port)
             :socket_(io_context_),
              signals_(io_context_),
-             is_close_(false),
+             is_auto_reconnect_(false),
+             numbers_reconnect_(0),
              connect_state_(ConnectState::ST_STOPPED)
         {
             this->SetConnect(false);
@@ -36,12 +37,10 @@ namespace asio {
             auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
 
-            //////////////////////////////////////////////////////////////////////////
-            // 还需要验证和测试
-			signals_.add(SIGINT);
-			signals_.add(SIGTERM);
+			signals_.add(SIGINT); // ctrl + c
+			signals_.add(SIGTERM);// kill process
 #if defined(SIGQUIT)
-			signals_.add(SIGQUIT);
+			signals_.add(SIGQUIT);// posix linux
 #endif // defined(SIGQUIT)
 
 			signals_.async_wait(
@@ -95,6 +94,16 @@ namespace asio {
             std::lock_guard lock(this->mutex_);
             this->write_msgs_.clear();
         }
+
+        void SetAutoReconnect(bool bAutoReconnect) 
+        {
+            this->is_auto_reconnect_ = bAutoReconnect;
+        }
+        
+        int NumberOfReconnect() const
+        {
+            return this->numbers_reconnect_;
+        }
     public:
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}
@@ -110,6 +119,17 @@ namespace asio {
         void Run() override
         {
             io_context_.run();
+        }
+        void Reconnect() override
+        {
+            this->is_auto_reconnect_ = true;
+            this->reconnect();
+#if 0
+            if (this->numbers_reconnect_ > 30)
+            {
+                this->Shutdown();
+            }
+#endif
         }
 	private:
         void write(const Message& msg)
@@ -131,7 +151,7 @@ namespace asio {
 
 		void disconnect()
 		{
-			is_close_ = true;
+            is_auto_reconnect_ = false;
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
 				socket_.close();
@@ -157,10 +177,11 @@ namespace asio {
 
         void reconnect()
         {
-			if (is_close_) {
-				return;
-			}
-            this->Reconnect();
+            if (!is_auto_reconnect_)
+            {
+                return;
+            }
+			this->numbers_reconnect_++;
             static std::mutex mtx;
             std::lock_guard lock(mtx);
             std::cout << this->GetConnectName() <<"\t"<<"reconnecting" << std::endl;
@@ -183,6 +204,7 @@ namespace asio {
                         this->SetConnect(true);
                         std::cout << "connection succeeded." << std::endl;
                         this->Connect(this);
+                        this->numbers_reconnect_ = 0;
                         do_read_header();
                     }
                     else {
@@ -264,7 +286,8 @@ namespace asio {
         Message read_msg_;
         MessageQueue write_msgs_;
         tcp::resolver::results_type endpoints_;
-        bool is_close_;
+        int numbers_reconnect_;
+        bool is_auto_reconnect_;
         ConnectState connect_state_;
 		std::mutex mutex_;
     };

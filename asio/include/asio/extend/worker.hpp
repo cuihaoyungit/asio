@@ -17,7 +17,9 @@ namespace asio {
 		Worker() = default;
 
 		virtual ~Worker() {
-			this->WaitStop();
+#if 0
+			this->WaitStop(); // thread can't stop yourself [ must be called on the main thread]
+#endif
 		}
 
 		virtual void Run() {}
