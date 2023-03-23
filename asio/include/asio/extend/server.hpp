@@ -105,7 +105,7 @@ namespace asio {
                     {
                         read_msg_.setNetId(this->SocketId());
 						read_msg_.setNetObject(shared_from_this());
-                        //room_.deliver(read_msg_);
+                        //room_.Deliver(read_msg_);
                         net_server_->HandleMessage(read_msg_);
                         do_read_header();
                     }

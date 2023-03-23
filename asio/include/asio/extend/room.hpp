@@ -1,40 +1,58 @@
-//
-// room.hpp
-// add by [11/25/2022 cuihaoyun]
-//
-
 #ifndef __ROOM_HPP__
 #define __ROOM_HPP__
+#include <asio/extend/nocopyobj>
 #include <asio/extend/object.hpp>
 #include <asio/msgdef/message.hpp>
+#include <map>
+#include <unordered_map>
 
 namespace asio {
-	class Room
+	// One server one room
+	// Server -> Room
+	class Room : protected NoCopyObj
 	{
 	public:
-		void Join(NetObjectPtr obj)
+		typedef std::set<NetObjectPtr> ObjList;
+		typedef std::unordered_map<__int64, NetObjectPtr> SocketObjMap;
+		void Join(NetObjectPtr& obj)
 		{
 			obj_list_.insert(obj);
+			socket_obj_map_[obj->SocketId()] = obj;
+#if 0
 			for (const auto& msg : recent_msgs_)
 				obj->Deliver(msg);
+#endif
 		}
 
-		void Leave(NetObjectPtr obj)
+		void Leave(NetObjectPtr& obj)
 		{
 			obj_list_.erase(obj);
+			socket_obj_map_.erase(obj->SocketId());
 		}
 
+		NetObjectPtr FindSocketObj(const __int64 &id)
+		{
+			auto it = this->socket_obj_map_.find(id);
+			if (it != this->socket_obj_map_.end())
+			{
+				return it->second;
+			}
+			return nullptr;
+		}
+
+	private:
 		void Deliver(const Message& msg)
 		{
 			while (recent_msgs_.size() > max_recent_msgs)
 				recent_msgs_.pop_front();
-
 			for (auto& obj : obj_list_)
 				obj->Deliver(msg);
+
 		}
 
 	private:
-		std::set<NetObjectPtr> obj_list_;
+		ObjList   obj_list_;
+		SocketObjMap socket_obj_map_;
 		enum { max_recent_msgs = 100 };
 		MessageQueue recent_msgs_;
 	};

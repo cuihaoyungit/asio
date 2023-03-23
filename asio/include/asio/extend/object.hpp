@@ -72,6 +72,7 @@ namespace asio {
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;
+	typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 	//--------------------------------------------------------------
 	// NetClient Event
