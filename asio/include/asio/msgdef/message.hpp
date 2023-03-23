@@ -21,10 +21,11 @@
 namespace asio {
 	class NetObject;
 	class Message;
-	enum  MsgType
+	enum ProtoFormat
 	{
-		NET_MSG    = 1,  // 网络消息
-		THREAD_MSG = 2   // 线程消息
+		Binary,   // Binary
+		QtStream, // QtStream
+		ProtoBuf  // Protobuf
 	};
 
 	// TPkgHeader
@@ -32,7 +33,7 @@ namespace asio {
 	{
 		int seq         = {0};
 		int body_len    = {0};
-		MsgType type    = NET_MSG;
+		ProtoFormat format = ProtoFormat::Binary;
 	} MsgHeader;
 
 	// NetPacket
