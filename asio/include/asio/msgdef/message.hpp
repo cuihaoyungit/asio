@@ -29,12 +29,14 @@ namespace asio {
 	};
 
 	// TPkgHeader
+#pragma pack(push, 4)
 	typedef struct _TPkgHeader
 	{
 		int seq         = {0};
 		int body_len    = {0};
 		ProtoFormat format = ProtoFormat::Binary;
 	} MsgHeader;
+#pragma pack(pop)
 
 	// NetPacket
 	struct NetPacket {
