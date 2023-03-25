@@ -16,17 +16,21 @@
 #include <memory>
 #pragma warning(disable : 26495)
 #include <asio/msgdef/node.hpp>
-#include <asio/extend/object.hpp>
 
 namespace asio {
 	class NetObject;
 	class Message;
+	typedef std::shared_ptr<NetObject> NetObjectPtr;
+	typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
+
+#pragma pack(push, 1)
 	enum ProtoFormat
 	{
-		Binary,   // Binary
-		QtStream, // QtStream
-		ProtoBuf  // Protobuf
+		Binary   = 0, // Binary
+		QtStream = 1, // QtStream
+		ProtoBuf = 2  // Protobuf
 	};
+#pragma pack(pop)
 
 	// TPkgHeader
 #pragma pack(push, 4)
@@ -134,11 +138,11 @@ namespace asio {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setNetObject(std::weak_ptr<NetObject> obj) {
+	  void setNetObject(NetObjectPtr obj) {
 		  this->connect_object_ = obj;
 	  }
 
-	  auto getNetObject()-> std::weak_ptr<NetObject> {
+	  auto getNetObject() {
 		  return connect_object_;
 	  }
 
@@ -157,7 +161,7 @@ namespace asio {
 	  char data_[header_length + max_body_length];
 	  int net_id_ = {0};
 	  std::size_t body_length_;
-	  std::weak_ptr<NetObject> connect_object_;
+	  NetObjectWeakPtr connect_object_;
 	};
 }
 
