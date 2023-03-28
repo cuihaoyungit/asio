@@ -53,6 +53,8 @@ namespace asio {
 				this->HandleMessage(msg);
 			}
 		}
+
+		virtual void HandleMessage(Message* msg) {}
 	private:
 		std::queue<Message*> msg_queue;
 		std::mutex mutex_;

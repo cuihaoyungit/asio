@@ -1,8 +1,6 @@
-//
 // worker.hpp
 // add by [11/21/2022 cuihaoyun]
 // wrap cpp11 thread
-
 #ifndef __WORKER_HPP__
 #define __WORKER_HPP__
 #include <thread>
@@ -21,8 +19,6 @@ namespace asio {
 			this->WaitStop(); // thread can't stop yourself [ must be called on the main thread]
 #endif
 		}
-
-		virtual void Run() {}
 
 		bool Startup() {
 			if (!thread_) {
@@ -61,7 +57,7 @@ namespace asio {
 	protected:
 		virtual void Init() = 0;
 		virtual void Exit() = 0;
-		virtual void HandleMessage(Message* msg) {}
+		virtual void Run() {}
 
 		Worker(const Worker&) = delete;
 		const Worker& operator = (const Worker&) = delete;

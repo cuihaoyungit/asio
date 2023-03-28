@@ -156,6 +156,8 @@ namespace asio {
 
 	  void clear() {
 		  std::memset(data_, 0, header_length + max_body_length);
+		  this->net_id_ = 0;
+		  this->body_length_ = 0;
 	  }
 	private:
 	  char data_[header_length + max_body_length];
