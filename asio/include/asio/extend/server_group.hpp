@@ -53,6 +53,10 @@ namespace asio {
 		{
 			room_.Join(shared_from_this());
 			net_server_->Connect(shared_from_this());
+#if 1
+			read_msg_.setNetId(this->SocketId());
+			read_msg_.setNetObject(shared_from_this());
+#endif
 			this->SetConnect(true);
 			do_read_header();
 		}
@@ -112,8 +116,10 @@ namespace asio {
 				{
 					if (!ec)
 					{
+#if 0
 						read_msg_.setNetId(this->SocketId());
 						read_msg_.setNetObject(shared_from_this());
+#endif
 						//room_.Deliver(read_msg_);
 						net_server_->PostMsg(read_msg_);
 						do_read_header();

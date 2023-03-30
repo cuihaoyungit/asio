@@ -52,8 +52,8 @@ namespace asio {
 	class Message : public Node<Message>
 	{
 	public:
-	  static constexpr std::size_t header_length   = sizeof(MsgHeader);
-	  static constexpr std::size_t max_body_length = 512;
+	  static constexpr int header_length   = sizeof(MsgHeader);
+	  static constexpr int max_body_length = 512;
 
 	  Message(Message& other)
 	  {
@@ -101,7 +101,7 @@ namespace asio {
 		return data_;
 	  }
 
-	  std::size_t length() const {
+	  int length() const {
 		return header_length + body_length_;
 	  }
 
@@ -113,11 +113,11 @@ namespace asio {
 		return data_ + header_length;
 	  }
 
-	  std::size_t body_length() const {
+	  int body_length() const {
 		return body_length_;
 	  }
 
-	  void body_length(std::size_t new_length) {
+	  void body_length(int new_length) {
 		  body_length_ = new_length;
 		  if (body_length_ > max_body_length)
 			  body_length_ = max_body_length;
@@ -146,11 +146,11 @@ namespace asio {
 		  return connect_object_;
 	  }
 
-	  void setNetId(const int id) {
-		  this->net_id_ = id;
+	  void setNetId(const uint64_t fdsocket) {
+		  this->net_id_ = fdsocket;
 	  }
 
-	  int getNetId() {
+	  auto getNetId() {
 		  return net_id_; 
 	  }
 
@@ -161,8 +161,8 @@ namespace asio {
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  int net_id_ = {0};
-	  std::size_t body_length_;
+	  uint64_t net_id_ = {0};
+	  int body_length_;
 	  NetObjectWeakPtr connect_object_;
 	};
 }
