@@ -206,20 +206,6 @@ namespace asio {
 		}
 		~SubServer() {}
 
-		void Init() override
-		{
-
-		}
-
-		void Run() override {
-			io_context_.run();
-		}
-
-		void Exit() override
-		{
-
-		}
-
 		void StopContext() {
 			this->Shutdown();
 		}
@@ -251,10 +237,26 @@ namespace asio {
 					do_accept();
 				});
 		}
+	private:
+		void Init() override
+		{
+
+		}
+
+		// single thread run
+		void Run() override {
+			io_context_.run();
+		}
+
+		void Exit() override
+		{
+
+		}
 
 	private:
 		int port_;
 		NetServer* net_server_;
+		// io_service
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
 		asio::signal_set signals_;

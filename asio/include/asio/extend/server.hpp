@@ -218,6 +218,7 @@ namespace asio {
 		void Disconnect(NetObjectPtr pNetObj) override {}
 		void HandleMessage(Message& msg)      override {}
     private:
+        // single thread run
         void Run() override
         {
             io_context.run();
@@ -237,6 +238,7 @@ namespace asio {
                 });
         }
     private:
+        // io_service
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
         Room room_;
