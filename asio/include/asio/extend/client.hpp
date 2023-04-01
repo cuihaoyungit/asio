@@ -11,7 +11,6 @@
 #include <asio/msgdef/message.hpp>
 #include <asio/msgdef/state.hpp>
 #include <asio/extend/object.hpp>
-//#include <asio/detail/socket_types.hpp>
 #include <asio/extend/typedef.hpp>
 #include <asio/extend/worker.hpp>
 
