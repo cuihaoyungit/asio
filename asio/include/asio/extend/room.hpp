@@ -9,11 +9,15 @@
 namespace asio {
 	// One server one room
 	// Server -> Room
+	class NetObject;
 	class Room : protected NoCopyObj
 	{
 	public:
+		typedef std::shared_ptr<NetObject> NetObjectPtr;
+		typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
+
 		typedef std::set<NetObjectPtr> ObjList;
-		typedef std::unordered_map<__int64, NetObjectPtr> SocketObjMap;
+		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap;
 		void Join(NetObjectPtr& obj)
 		{
 			obj_list_.insert(obj);
@@ -30,7 +34,7 @@ namespace asio {
 			socket_obj_map_.erase(obj->SocketId());
 		}
 
-		NetObjectPtr FindSocketObj(const __int64 &id)
+		NetObjectPtr FindSocketObj(const uint64_t &id)
 		{
 			auto it = this->socket_obj_map_.find(id);
 			if (it != this->socket_obj_map_.end())
