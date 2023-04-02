@@ -18,7 +18,7 @@ namespace asio {
 
 		typedef std::set<NetObjectPtr> ObjList;
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap;
-		void Join(NetObjectPtr& obj)
+		void Join(NetObjectPtr obj)
 		{
 			obj_list_.insert(obj);
 			socket_obj_map_[obj->SocketId()] = obj;
@@ -28,7 +28,7 @@ namespace asio {
 #endif
 		}
 
-		void Leave(NetObjectPtr& obj)
+		void Leave(NetObjectPtr obj)
 		{
 			obj_list_.erase(obj);
 			socket_obj_map_.erase(obj->SocketId());
