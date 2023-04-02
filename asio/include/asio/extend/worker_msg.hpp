@@ -8,6 +8,7 @@
 #include <asio/extend/worker.hpp>
 #include <queue>
 #include <mutex>
+#include <condition_variable>
 
 namespace asio {
 	class Message;
