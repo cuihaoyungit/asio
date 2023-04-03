@@ -18,8 +18,9 @@ namespace asio {
 		typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 		typedef std::set<NetObjectPtr> ObjList;
-		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap; // socket -> NetObject
+		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap; // socket     -> NetObject
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SessionObjMap;// session id -> NetObject
+		typedef std::unordered_map<uint64_t, NetObjectPtr> UserObjMap;   // user id    -> NetObject
 		Room() {
 			this->uuid_.init(1, 1);
 		}
@@ -33,7 +34,7 @@ namespace asio {
 				obj->Deliver(msg);
 #endif
 			// generator guid for session id
-			uint64_t sessionId = this->uuid_.nextid();
+			const uint64_t sessionId = this->uuid_.nextid();
 			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
 		}
@@ -45,10 +46,33 @@ namespace asio {
 			session_obj_map_.erase(obj->sessionId());
 		}
 
-		NetObjectPtr FindSocketObj(const uint64_t &id)
+		// find Object by socket id
+		NetObjectPtr FindObjBySocketId(const uint64_t &socketId)
 		{
-			auto it = this->socket_obj_map_.find(id);
+			auto it = this->socket_obj_map_.find(socketId);
 			if (it != this->socket_obj_map_.end())
+			{
+				return it->second;
+			}
+			return nullptr;
+		}
+
+		// find Object by session id
+		NetObjectPtr FindObjBySessionId(const uint64_t& sessionId)
+		{
+			auto it = this->session_obj_map_.find(sessionId);
+			if (it != this->session_obj_map_.end())
+			{
+				return it->second;
+			}
+			return nullptr;
+		}
+
+		// find Object by user id
+		NetObjectPtr FindObjByUserId(const uint64_t& userId)
+		{
+			auto it = this->user_map_.find(userId);
+			if (it != this->user_map_.end())
 			{
 				return it->second;
 			}
@@ -66,7 +90,9 @@ namespace asio {
 		}
 
 	private:
+		// net user
 		ObjList   obj_list_;
+		// user socket
 		SocketObjMap socket_obj_map_;
 		enum { max_recent_msgs = 100 };
 		MessageQueue recent_msgs_;
@@ -74,6 +100,9 @@ namespace asio {
 		// guid snowflake
 		SnowFlake uuid_;
 		SessionObjMap session_obj_map_;
+
+		// user map
+		UserObjMap user_map_;
 	};
 
 
