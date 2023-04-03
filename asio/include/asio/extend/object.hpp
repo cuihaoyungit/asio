@@ -21,7 +21,9 @@ namespace asio {
 	class NetObject
 	{
 	public:
-		NetObject() noexcept:is_connect_(false), type(0) {}
+		typedef std::unordered_map<std::string, std::string> UserDataList;
+
+		NetObject() noexcept:is_connect_(false), type(0), session_id_(0) {}
 		virtual ~NetObject()
 		{
 			userdata.clear();
@@ -61,14 +63,21 @@ namespace asio {
 		void SetConnect(const bool bConnect) {
 			this->is_connect_ = bConnect;
 		}
+		void setSessionId(const int64_t& sessionId)
+		{
+			this->session_id_ = sessionId;
+		}
+		const int64_t sessionId() const
+		{
+			return this->session_id_;
+		}
 
 	private:
 		bool is_connect_ = {false};
 		int type;
 		std::string connectName;
-
-		typedef std::unordered_map<std::string, std::string> UserDataList;
 		UserDataList userdata;
+		int64_t session_id_;
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;

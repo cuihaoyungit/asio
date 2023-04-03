@@ -2,6 +2,7 @@
 #define __ROOM_HPP__
 #include <asio/extend/nocopyobj>
 #include <asio/extend/object.hpp>
+#include <asio/extend/snowflake>
 #include <asio/msgdef/message.hpp>
 #include <map>
 #include <unordered_map>
@@ -19,6 +20,10 @@ namespace asio {
 		typedef std::set<NetObjectPtr> ObjList;
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap; // socket -> NetObject
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SessionObjMap;// session id -> NetObject
+		Room() {
+			this->uuid_.init(1, 1);
+		}
+
 		void Join(NetObjectPtr obj)
 		{
 			obj_list_.insert(obj);
@@ -27,6 +32,7 @@ namespace asio {
 			for (const auto& msg : recent_msgs_)
 				obj->Deliver(msg);
 #endif
+
 		}
 
 		void Leave(NetObjectPtr obj)
@@ -60,6 +66,9 @@ namespace asio {
 		SocketObjMap socket_obj_map_;
 		enum { max_recent_msgs = 100 };
 		MessageQueue recent_msgs_;
+
+		// guid snowflake
+		SnowFlake uuid_;
 	};
 
 
