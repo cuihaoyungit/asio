@@ -17,7 +17,8 @@ namespace asio {
 		typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 		typedef std::set<NetObjectPtr> ObjList;
-		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap;
+		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap; // socket -> NetObject
+		typedef std::unordered_map<uint64_t, NetObjectPtr> SessionObjMap;// session id -> NetObject
 		void Join(NetObjectPtr obj)
 		{
 			obj_list_.insert(obj);

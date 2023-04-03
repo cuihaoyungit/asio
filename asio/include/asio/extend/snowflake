@@ -1,0 +1,3 @@
+#include "snowflake.hpp"
+
+using SnowFlake = snowflake<1534832906275L, std::mutex>;
