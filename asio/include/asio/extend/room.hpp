@@ -32,13 +32,17 @@ namespace asio {
 			for (const auto& msg : recent_msgs_)
 				obj->Deliver(msg);
 #endif
-
+			// generator guid for session id
+			uint64_t sessionId = this->uuid_.nextid();
+			obj->setSessionId(sessionId);
+			session_obj_map_[sessionId] = obj;
 		}
 
 		void Leave(NetObjectPtr obj)
 		{
 			obj_list_.erase(obj);
 			socket_obj_map_.erase(obj->SocketId());
+			session_obj_map_.erase(obj->sessionId());
 		}
 
 		NetObjectPtr FindSocketObj(const uint64_t &id)
@@ -69,6 +73,7 @@ namespace asio {
 
 		// guid snowflake
 		SnowFlake uuid_;
+		SessionObjMap session_obj_map_;
 	};
 
 
