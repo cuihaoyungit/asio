@@ -49,6 +49,11 @@ namespace asio {
 			this->Final();
 		}
 
+		void Close() override
+		{
+			this->socket_.close();
+		}
+
 		void Start()
 		{
 			room_.Join(shared_from_this());

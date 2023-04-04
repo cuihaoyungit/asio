@@ -35,7 +35,7 @@ namespace asio {
 		virtual void PostMsg(const Message& msg) {}
 
 		virtual uint64_t SocketId() = 0;
-		virtual void Close(){}
+		virtual void Close() = 0;
 		void SetType(const int type) {
 			this->type = type;
 		}
