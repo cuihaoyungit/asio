@@ -79,6 +79,17 @@ namespace asio {
 			return nullptr;
 		}
 
+		ObjList& GetObjList() {
+			return this->obj_list_;
+		}
+
+		SessionObjMap& GetSessionMap() {
+			return this->session_obj_map_;
+		}
+
+		UserObjMap& GetUserObjMap() {
+			return this->user_map_;
+		}
 	private:
 		void Deliver(const Message& msg)
 		{
@@ -86,7 +97,6 @@ namespace asio {
 				recent_msgs_.pop_front();
 			for (auto& obj : obj_list_)
 				obj->Deliver(msg);
-
 		}
 
 	private:

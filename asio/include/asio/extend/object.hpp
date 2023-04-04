@@ -103,7 +103,7 @@ namespace asio {
 	class NetServer
 	{
 	public:
-		NetServer() = default;
+		NetServer():server_id_(0) {}
 		virtual ~NetServer() {}
 		virtual void Init() {}
 		virtual void Exit() {}
@@ -112,6 +112,16 @@ namespace asio {
 		virtual void Disconnect(NetObjectPtr pNetObj) {}
 		virtual void HandleMessage(Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
+
+		// Server ID card
+		const int ServerId() const {
+			return server_id_;
+		}
+		void SetServerId(const int id) {
+			this->server_id_ = id;
+		}
+	private:
+		int server_id_;
 	};
 
 	//--------------------------------------------------------------
