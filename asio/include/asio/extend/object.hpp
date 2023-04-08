@@ -103,7 +103,7 @@ namespace asio {
 	class NetServer
 	{
 	public:
-		NetServer():server_id_(0) {}
+		NetServer():server_id_(0),server_sub_id_(0) {}
 		virtual ~NetServer() {}
 		virtual void Init() {}
 		virtual void Exit() {}
@@ -120,8 +120,16 @@ namespace asio {
 		void SetServerId(const int id) {
 			this->server_id_ = id;
 		}
+		// Server sub ID card
+		const int ServerSubId() const {
+			return server_sub_id_;
+		}
+		void SetServerSubId(const int subId) {
+			this->server_sub_id_ = subId;
+		}
 	private:
 		int server_id_;
+		int server_sub_id_;
 	};
 
 	//--------------------------------------------------------------

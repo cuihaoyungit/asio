@@ -51,13 +51,18 @@ namespace asio {
 	private:
 		void RunThread() {
 			this->Init();
+			this->AfterInit();
 			this->Run();
+			this->BeforeExit();
 			this->Exit();
 		}
 	protected:
 		virtual void Init() = 0;
 		virtual void Exit() = 0;
 		virtual void Run() {}
+
+		virtual void AfterInit() {}
+		virtual void BeforeExit() {}
 
 		Worker(const Worker&) = delete;
 		const Worker& operator = (const Worker&) = delete;

@@ -21,8 +21,18 @@ namespace asio {
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap; // socket     -> NetObject
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SessionObjMap;// session id -> NetObject
 		typedef std::unordered_map<uint64_t, NetObjectPtr> UserObjMap;   // user id    -> NetObject
-		Room() {
-			this->uuid_.init(1, 1); // default id start [1, 1]
+		Room() {}
+
+		void Init(int workId = 1, int subId = 1)
+		{
+			try
+			{
+				this->uuid_.init(workId, subId); // default id start [1, 1]
+			}
+			catch (const std::exception &ex)
+			{
+				std::cout << ex.what() << std::endl;
+			}
 		}
 
 		void Join(NetObjectPtr obj)

@@ -229,6 +229,25 @@ namespace asio {
             io_context.run();
         }
 
+        void AfterInit()  override
+        {
+            int serverId = this->ServerId();
+            int subId = this->ServerSubId();
+            if (serverId == 0) {
+                serverId = 1;
+            }
+
+            if (subId == 0) {
+                subId = 1;
+            }
+            this->room_.Init(serverId, subId);
+        }
+
+        void BeforeExit() override
+        {
+
+        }
+
         void do_accept()
         {
             acceptor_.async_accept(

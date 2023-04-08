@@ -24,13 +24,13 @@ class snowflake
     using lock_type = Lock;
     static constexpr int64_t TWEPOCH = Twepoch;
     static constexpr int64_t WORKER_ID_BITS = 5L;
-    static constexpr int64_t DATACENTER_ID_BITS = 5L;
+    static constexpr int64_t SUB_ID_BITS = 5L;
     static constexpr int64_t MAX_WORKER_ID = (1 << WORKER_ID_BITS) - 1;
-    static constexpr int64_t MAX_DATACENTER_ID = (1 << DATACENTER_ID_BITS) - 1;
+    static constexpr int64_t MAX_DATACENTER_ID = (1 << SUB_ID_BITS) - 1;
     static constexpr int64_t SEQUENCE_BITS = 12L;
     static constexpr int64_t WORKER_ID_SHIFT = SEQUENCE_BITS;
-    static constexpr int64_t DATACENTER_ID_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS;
-    static constexpr int64_t TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS;
+    static constexpr int64_t SUB_ID_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS;
+    static constexpr int64_t TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS + SUB_ID_BITS;
     static constexpr int64_t SEQUENCE_MASK = (1 << SEQUENCE_BITS) - 1;
 
     using time_point = std::chrono::time_point<std::chrono::steady_clock>;
@@ -40,7 +40,7 @@ class snowflake
 
     int64_t last_timestamp_ = -1;
     int64_t workerid_ = 0;
-    int64_t datacenterid_ = 0;
+    int64_t subid_ = 0;
     int64_t sequence_ = 0;
     lock_type lock_;
 public:
@@ -50,18 +50,18 @@ public:
 
     snowflake& operator=(const snowflake&) = delete;
 
-    void init(int64_t workerid, int64_t datacenterid)
+    void init(int64_t workerid, int64_t subid)
     {
         if (workerid > MAX_WORKER_ID || workerid < 0) {
             throw std::runtime_error("worker Id can't be greater than 31 or less than 0");
         }
 
-        if (datacenterid > MAX_DATACENTER_ID || datacenterid < 0) {
+        if (subid > MAX_DATACENTER_ID || subid < 0) {
             throw std::runtime_error("datacenter Id can't be greater than 31 or less than 0");
         }
 
         workerid_ = workerid;
-        datacenterid_ = datacenterid;
+        subid_ = subid;
     }
 
     int64_t nextid()
@@ -85,7 +85,7 @@ public:
         last_timestamp_ = timestamp;
 
         return ((timestamp - TWEPOCH) << TIMESTAMP_LEFT_SHIFT)
-            | (datacenterid_ << DATACENTER_ID_SHIFT)
+            | (subid_ << SUB_ID_SHIFT)
             | (workerid_ << WORKER_ID_SHIFT)
             | sequence_;
     }
