@@ -24,7 +24,7 @@ namespace asio {
 	typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 #pragma pack(push, 1)
-	enum ProtoFormat
+	enum class ProtoFormat : unsigned char
 	{
 		Binary   = 0, // Binary
 		QtStream = 1, // QtStream
@@ -119,8 +119,9 @@ namespace asio {
 
 	  void body_length(int new_length) {
 		  body_length_ = new_length;
-		  if (body_length_ > max_body_length)
+		  if (body_length_ > max_body_length) { // data length too long
 			  body_length_ = max_body_length;
+		  }
 	  }
 
 	  bool decode_header() {

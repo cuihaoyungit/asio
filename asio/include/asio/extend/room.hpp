@@ -22,7 +22,7 @@ namespace asio {
 		typedef std::unordered_map<uint64_t, NetObjectPtr> SessionObjMap;// session id -> NetObject
 		typedef std::unordered_map<uint64_t, NetObjectPtr> UserObjMap;   // user id    -> NetObject
 		Room() {
-			this->uuid_.init(1, 1);
+			this->uuid_.init(1, 1); // default id start [1, 1]
 		}
 
 		void Join(NetObjectPtr obj)
