@@ -75,4 +75,44 @@ private:
 };
 
 
+//----------------------------------------------------------------------
+// sol2 single class
+// sample singleton.cpp
+
+template <typename T>
+struct DynamicSingleton {
+private:
+	DynamicSingleton() {
+	}
+
+public:
+	static std::shared_ptr<T> getInstance();
+
+	// destructor must be public to work with
+	// std::shared_ptr and friends
+	// if you need it to be private, you must implement
+	// a custom deleter with access to the private members
+	// (e.g., a deleter struct defined in this class)
+	virtual ~DynamicSingleton() {
+	}
+};
+
+template <typename T>
+std::shared_ptr<T> DynamicSingleton::getInstance() {
+	static std::weak_ptr<T> instance;
+	static std::mutex m;
+
+	m.lock();
+	auto ret = instance.lock();
+	if (!ret) {
+		ret.reset(new T());
+		instance = ret;
+	}
+	m.unlock();
+
+	return ret;
+}
+
+
+
 #endif // __Singleton_H__

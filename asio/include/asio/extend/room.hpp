@@ -64,7 +64,7 @@ namespace asio {
 			{
 				return it->second;
 			}
-			return nullptr;
+			return NetObjectPtr();
 		}
 
 		// find Object by session id
@@ -75,7 +75,7 @@ namespace asio {
 			{
 				return it->second;
 			}
-			return nullptr;
+			return NetObjectPtr();
 		}
 
 		// find Object by user id
@@ -86,7 +86,7 @@ namespace asio {
 			{
 				return it->second;
 			}
-			return nullptr;
+			return NetObjectPtr();
 		}
 
 		ObjList& GetObjList() {
