@@ -39,6 +39,8 @@ namespace asio {
 		int seq         = {0};
 		int body_len    = {0};
 		ProtoFormat format = ProtoFormat::Binary;
+		uint8_t gateId;
+		uint8_t dispatherId;
 	} MsgHeader;
 #pragma pack(pop)
 
