@@ -1,6 +1,3 @@
-// worker.hpp
-// add by [11/21/2022 cuihaoyun]
-// wrap cpp11 thread
 #ifndef __WORKER_HPP__
 #define __WORKER_HPP__
 #include <thread>

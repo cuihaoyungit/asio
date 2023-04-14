@@ -1,8 +1,3 @@
-//
-// worker.hpp
-// add by [11/21/2022 cuihaoyun]
-// wrap cpp11 thread
-
 #ifndef __WORKER_MSG_HPP__
 #define __WORKER_MSG_HPP__
 #include <asio/extend/worker.hpp>

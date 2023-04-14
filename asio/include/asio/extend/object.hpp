@@ -1,8 +1,3 @@
-//
-// object.hpp
-// add by [11/24/2022 cuihaoyun]
-//
-
 #ifndef __OBJECT_HPP__
 #define __OBJECT_HPP__
 #include <asio/msgdef/message.hpp>
@@ -35,7 +30,7 @@ namespace asio {
 		virtual void Post(const Message& msg) {};
 		virtual void PostMsg(const Message& msg) {}
 
-		virtual uint64_t SocketId() = 0;
+		virtual uint64 SocketId() = 0;
 		virtual void Close() = 0;
 		void SetType(const int type) {
 			this->type = type;
@@ -64,11 +59,11 @@ namespace asio {
 		void SetConnect(const bool bConnect) {
 			this->is_connect_ = bConnect;
 		}
-		void setSessionId(const int64_t& sessionId)
+		void setSessionId(const int64& sessionId)
 		{
 			this->session_id_ = sessionId;
 		}
-		const int64_t sessionId() const
+		const int64 sessionId() const
 		{
 			return this->session_id_;
 		}
@@ -78,7 +73,7 @@ namespace asio {
 		int type;
 		std::string connectName;
 		UserDataList userdata;
-		int64_t session_id_;
+		int64 session_id_;
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;

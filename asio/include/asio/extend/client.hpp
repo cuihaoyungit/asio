@@ -73,7 +73,7 @@ namespace asio {
             this->write(msg);
         }
 
-        uint64_t SocketId() override {
+        uint64 SocketId() override {
             return socket_.native_handle();
         }
 

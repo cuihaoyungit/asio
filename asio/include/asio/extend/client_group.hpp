@@ -1,11 +1,5 @@
-//
-// client_group.hpp
-// add by [11/21/2022 cuihaoyun]
-//
-
 #ifndef __CLIENT_GROUP_HPP__
 #define __CLIENT_GROUP_HPP__
-
 #include <cstdlib>
 #include <deque>
 #include <iostream>
@@ -47,7 +41,7 @@ namespace asio {
 			}
 		}
 
-		uint64_t SocketId() override {
+		uint64 SocketId() override {
 			return socket_->native_handle();
 		}
 

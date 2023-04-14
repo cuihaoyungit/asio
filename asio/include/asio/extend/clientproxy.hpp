@@ -1,5 +1,6 @@
 #ifndef __CLIENT_PROXY_HPP__
 #define __CLIENT_PROXY_HPP__
+#include <asio/extend/base.hpp>
 
 namespace asio {
 	class NetObject;
@@ -8,8 +9,8 @@ namespace asio {
 
 	typedef struct _ClientConnectProxy 
 	{
-		uint64_t clientId; // clientId -> sessionId
-		int heartBeatTime; // last msg receive time
+		uint64 clientId;     // clientId -> sessionId
+		int32 heartBeatTime; // last msg receive time
 		NetObjectWeakPtr pNetObj;
 	} ClientProxy;
 }
