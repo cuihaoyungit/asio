@@ -6,6 +6,7 @@
 #ifndef __OBJECT_HPP__
 #define __OBJECT_HPP__
 #include <asio/msgdef/message.hpp>
+#include <asio/extend/base.hpp>
 #include <functional>
 #include <unordered_map>
 #include <memory>

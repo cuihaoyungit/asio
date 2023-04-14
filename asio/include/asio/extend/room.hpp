@@ -1,9 +1,10 @@
 #ifndef __ROOM_HPP__
 #define __ROOM_HPP__
-#include <asio/extend/nocopyobj>
+#include <asio/extend/nocopyobj.hpp>
 #include <asio/extend/object.hpp>
-#include <asio/extend/snowflake>
 #include <asio/msgdef/message.hpp>
+#include <asio/extend/base.hpp>
+#include <asio/extend/snowflake>
 #include <map>
 #include <unordered_map>
 
@@ -18,9 +19,9 @@ namespace asio {
 		typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 		typedef std::set<NetObjectPtr> ObjList;
-		typedef std::unordered_map<uint64_t, NetObjectPtr> SocketObjMap; // socket     -> NetObject
-		typedef std::unordered_map<uint64_t, NetObjectPtr> SessionObjMap;// session id -> NetObject
-		typedef std::unordered_map<uint64_t, NetObjectPtr> UserObjMap;   // user id    -> NetObject
+		typedef std::unordered_map<uint64, NetObjectPtr> SocketObjMap; // socket     -> NetObject
+		typedef std::unordered_map<uint64, NetObjectPtr> SessionObjMap;// session id -> NetObject
+		typedef std::unordered_map<uint64, NetObjectPtr> UserObjMap;   // user id    -> NetObject
 		Room() {}
 
 		void Init(int workId = 1, int subId = 1)
@@ -44,7 +45,7 @@ namespace asio {
 				obj->Deliver(msg);
 #endif
 			// generator guid for session id
-			const uint64_t sessionId = this->uuid_.nextid();
+			const uint64 sessionId = this->uuid_.nextid();
 			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
 		}
@@ -57,7 +58,7 @@ namespace asio {
 		}
 
 		// find Object by socket id
-		NetObjectPtr FindObjBySocketId(const uint64_t &socketId)
+		NetObjectPtr FindObjBySocketId(const uint64 &socketId)
 		{
 			auto it = this->socket_obj_map_.find(socketId);
 			if (it != this->socket_obj_map_.end())
@@ -68,7 +69,7 @@ namespace asio {
 		}
 
 		// find Object by session id
-		NetObjectPtr FindObjBySessionId(const uint64_t& sessionId)
+		NetObjectPtr FindObjBySessionId(const uint64& sessionId)
 		{
 			auto it = this->session_obj_map_.find(sessionId);
 			if (it != this->session_obj_map_.end())
@@ -79,7 +80,7 @@ namespace asio {
 		}
 
 		// find Object by user id
-		NetObjectPtr FindObjByUserId(const uint64_t& userId)
+		NetObjectPtr FindObjByUserId(const uint64& userId)
 		{
 			auto it = this->user_map_.find(userId);
 			if (it != this->user_map_.end())

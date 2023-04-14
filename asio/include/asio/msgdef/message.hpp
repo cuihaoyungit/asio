@@ -16,6 +16,7 @@
 #include <memory>
 #pragma warning(disable : 26495)
 #include <asio/msgdef/node.hpp>
+#include <asio/extend/base.hpp>
 
 namespace asio {
 	class NetObject;
@@ -39,8 +40,8 @@ namespace asio {
 		int seq         = {0};
 		int body_len    = {0};
 		ProtoFormat format = ProtoFormat::Binary;
-		uint8_t gateId;
-		uint8_t dispatherId;
+		uint8 gateId;
+		uint8 dispatherId;
 	} MsgHeader;
 #pragma pack(pop)
 
@@ -149,7 +150,7 @@ namespace asio {
 		  return connect_object_;
 	  }
 
-	  void setNetId(const uint64_t fdsocket) {
+	  void setNetId(const uint64 fdsocket) {
 		  this->net_id_ = fdsocket;
 	  }
 
@@ -164,7 +165,7 @@ namespace asio {
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  uint64_t net_id_ = {0};
+	  uint64 net_id_ = {0};
 	  int body_length_;
 	  NetObjectWeakPtr connect_object_;
 	};
