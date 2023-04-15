@@ -31,14 +31,14 @@ typedef double              float64;
 *************************************************************************/
 #if (defined(_MSC_VER) || defined( __WIN32__ ) || defined( _WIN32 ) || defined(_WINDOWS) || defined(_WIN64) || defined( __WIN64__ )) && !defined(ASIO_STATIC)
 #   ifdef ASIO_EXPORTS
-#       define EXPORT __declspec(dllexport)
+#       define ASEXPORT __declspec(dllexport)
 #   else
-#       define EXPORT __declspec(dllimport)
+#       define ASEXPORT __declspec(dllimport)
 #   endif
 #elif defined(__GNUC__)
-#       define EXPORT __attribute__((visibility("default")))
+#       define ASEXPORT __attribute__((visibility("default")))
 #else
-#		define EXPORT
+#		define ASEXPORT
 #endif
 
 
