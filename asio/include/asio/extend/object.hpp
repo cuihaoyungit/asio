@@ -19,7 +19,7 @@ namespace asio {
 	public:
 		typedef std::unordered_map<std::string, std::string> UserDataList;
 
-		NetObject() noexcept:is_connect_(false), type(0), session_id_(0) {}
+		NetObject() noexcept:is_connect_(false), type(0), session_id_(0),proxy_id_(0) {}
 		virtual ~NetObject()
 		{
 			userdata.clear();
@@ -67,6 +67,12 @@ namespace asio {
 		{
 			return this->session_id_;
 		}
+		void setProxyId(const int32& proxyId) {
+			this->proxy_id_ = proxyId;
+		}
+		const int32 getProxyId() const {
+			return this->proxy_id_;
+		}
 
 	private:
 		bool is_connect_ = {false};
@@ -74,6 +80,7 @@ namespace asio {
 		std::string connectName;
 		UserDataList userdata;
 		int64 session_id_;
+		int32 proxy_id_;
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;
