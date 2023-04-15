@@ -197,18 +197,20 @@ namespace asio {
             asio::async_connect(socket_, endpoints,
                 [this](std::error_code ec, tcp::endpoint)
                 {
+					static std::mutex mtx;
+			        std::lock_guard lock(mtx);
                     if (!ec)
                     {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         this->SetConnect(true);
-                        std::cout << "connection succeeded." << std::endl;
+                        std::cout << this->GetConnectName() << "\t" << "connection succeeded." << std::endl;
                         this->Connect(this);
                         this->numbers_reconnect_ = 0;
                         do_read_header();
                     }
                     else {
                         this->SetConnect(false);
-                        std::cout << "connection failed." << std::endl;
+                        std::cout << this->GetConnectName() << "\t" << "connection failed." << std::endl;
                         this->close();
                     }
                 });
