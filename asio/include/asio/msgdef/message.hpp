@@ -37,11 +37,11 @@ namespace asio {
 #pragma pack(push, 4)
 	typedef struct _TPkgHeader
 	{
-		int seq         = {0};
-		int body_len    = {0};
-		ProtoFormat format = ProtoFormat::Binary;
-		uint8 gateId;
-		uint8 dispatherId;
+		int seq           = {0};
+		int body_len      = {0};
+		ProtoFormat format= ProtoFormat::Binary;
+		uint8 gateId      = {0};
+		uint8 dispatherId = {0};
 	} MsgHeader;
 #pragma pack(pop)
 
