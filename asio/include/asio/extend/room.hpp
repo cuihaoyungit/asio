@@ -23,6 +23,7 @@ namespace asio {
 		typedef std::unordered_map<uint64, NetObjectPtr> SessionObjMap;// session id -> NetObject
 		typedef std::unordered_map<uint64, NetObjectPtr> UserObjMap;   // user id    -> NetObject
 		Room() {}
+		~Room() {}
 
 		void Init(int workId = 1, int subId = 1)
 		{
@@ -45,7 +46,7 @@ namespace asio {
 				obj->Deliver(msg);
 #endif
 			// generator guid for session id
-			const int64 sessionId = this->uuid_.nextid();
+			const uint64 sessionId = this->uuid_.nextid();
 			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
 		}
@@ -58,36 +59,39 @@ namespace asio {
 		}
 
 		// find Object by socket id
-		NetObjectPtr FindObjBySocketId(const uint64 &socketId)
+		bool FindObjBySocketId(NetObjectPtr &ptr, const uint64 &socketId)
 		{
 			auto it = this->socket_obj_map_.find(socketId);
 			if (it != this->socket_obj_map_.end())
 			{
-				return it->second;
+				ptr = it->second;
+				return true;
 			}
-			return NetObjectPtr();
+			return false;
 		}
 
 		// find Object by session id
-		NetObjectPtr FindObjBySessionId(const uint64& sessionId)
+		bool FindObjBySessionId(NetObjectPtr &ptr, const uint64& sessionId)
 		{
 			auto it = this->session_obj_map_.find(sessionId);
 			if (it != this->session_obj_map_.end())
 			{
-				return it->second;
+				ptr = it->second;
+				return true;
 			}
-			return NetObjectPtr();
+			return false;
 		}
 
 		// find Object by user id
-		NetObjectPtr FindObjByUserId(const uint64& userId)
+		bool FindObjByUserId(NetObjectPtr &ptr, const uint64& userId)
 		{
 			auto it = this->user_map_.find(userId);
 			if (it != this->user_map_.end())
 			{
-				return it->second;
+				ptr = it->second;
+				return true;
 			}
-			return NetObjectPtr();
+			return false;
 		}
 
 		ObjList& GetObjList() {

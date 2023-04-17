@@ -58,12 +58,11 @@ namespace asio {
 		{
 			// init snowflake generate session id
 			room_.Join(shared_from_this());
-			MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
-			header->sessionId = this->sessionId();
 			read_msg_.setNetObject(shared_from_this());
-
-			net_server_->Connect(shared_from_this());
+			// connect event
 			this->SetConnect(true);
+			net_server_->Connect(shared_from_this());
+			// start receive stream data
 			do_read_header();
 		}
 
@@ -107,6 +106,8 @@ namespace asio {
 				{
 					if (!ec && read_msg_.decode_header())
 					{
+						MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
+						header->sessionId = this->sessionId();
 						do_read_body();
 					}
 					else
@@ -128,7 +129,6 @@ namespace asio {
 					if (!ec)
 					{
 #if 0
-						read_msg_.setNetId(this->SocketId());
 						read_msg_.setNetObject(shared_from_this());
 #endif
 						//room_.Deliver(read_msg_);
@@ -234,7 +234,7 @@ namespace asio {
 			port_ = port;
 		}
 
-		const Room& getRoom() {
+		Room& getRoom() {
 			return this->room_;
 		}
 	private:

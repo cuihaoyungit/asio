@@ -59,11 +59,11 @@ namespace asio {
 		void SetConnect(const bool bConnect) {
 			this->is_connect_ = bConnect;
 		}
-		void setSessionId(const int64& sessionId)
+		void setSessionId(const uint64& sessionId)
 		{
 			this->session_id_ = sessionId;
 		}
-		const int64 sessionId() const
+		const uint64 sessionId() const
 		{
 			return this->session_id_;
 		}
@@ -79,7 +79,7 @@ namespace asio {
 		int type;
 		std::string connectName;
 		UserDataList userdata;
-		int64 session_id_;
+		uint64 session_id_;
 		int32 proxy_id_;
 	};
 
