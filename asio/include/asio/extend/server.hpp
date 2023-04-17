@@ -28,10 +28,10 @@ namespace asio {
         public std::enable_shared_from_this<NetObject>
     {
     public:
-        Session(tcp::socket socket, Room& room, NetServer* netserver) noexcept
+        Session(tcp::socket socket, Room& room, NetServer* server) noexcept
             : socket_(std::move(socket)),
             room_(room),
-            net_server_(netserver) 
+            server_(server)
         {
 
         }
@@ -52,7 +52,7 @@ namespace asio {
 			read_msg_.setNetObject(shared_from_this());
             // connect event
 			this->SetConnect(true);
-            net_server_->Connect(shared_from_this());
+            server_->Connect(shared_from_this());
             // start receive stream data
             do_read_header();
         }
@@ -97,14 +97,17 @@ namespace asio {
                 {
                     if (!ec && read_msg_.decode_header())
                     {
-						MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
-						header->sessionId = this->sessionId();
+                        if (server_->IsPackSessionId())
+                        {
+                            MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
+                            header->sessionId = this->sessionId();
+                        }
                         do_read_body();
                     }
                     else
                     {
                         room_.Leave(shared_from_this());
-                        net_server_->Disconnect(shared_from_this());
+                        server_->Disconnect(shared_from_this());
                         this->SetConnect(false);
                     }
                 });
@@ -120,16 +123,15 @@ namespace asio {
                     if (!ec)
                     {
 #if 0
-						read_msg_.setNetObject(shared_from_this());
+						room_.Deliver(read_msg_);
 #endif
-                        //room_.Deliver(read_msg_);
-                        net_server_->HandleMessage(read_msg_);
+                        server_->HandleMessage(read_msg_);
                         do_read_header();
                     }
                     else
                     {
                         room_.Leave(shared_from_this());
-                        net_server_->Disconnect(shared_from_this());
+                        server_->Disconnect(shared_from_this());
                         this->SetConnect(false);
                     }
                 });
@@ -154,7 +156,7 @@ namespace asio {
                     else
                     {
                         room_.Leave(shared_from_this());
-                        net_server_->Disconnect(shared_from_this());
+                        server_->Disconnect(shared_from_this());
                         this->SetConnect(false);
                     }
                 });
@@ -171,7 +173,7 @@ namespace asio {
         Room& room_;
         Message read_msg_;
         MessageQueue write_msgs_;
-        NetServer* net_server_;
+        NetServer* server_;
 		std::mutex mutex_;
     };
 

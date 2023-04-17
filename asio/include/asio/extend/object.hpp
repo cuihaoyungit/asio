@@ -106,7 +106,7 @@ namespace asio {
 	class NetServer
 	{
 	public:
-		NetServer():server_id_(0),server_sub_id_(0) {}
+		NetServer():server_id_(0),server_sub_id_(0), is_pack_session_id_(false) {}
 		virtual ~NetServer() {}
 		virtual void Init() {}
 		virtual void Exit() {}
@@ -130,9 +130,17 @@ namespace asio {
 		void SetServerSubId(const int subId) {
 			this->server_sub_id_ = subId;
 		}
+		bool IsPackSessionId() {
+			return this->is_pack_session_id_;
+		}
+		void SetPackSessionId(bool bPack)
+		{
+			this->is_pack_session_id_ = bPack;
+		}
 	private:
 		int server_id_;
 		int server_sub_id_;
+		bool is_pack_session_id_;
 	};
 
 	//--------------------------------------------------------------
