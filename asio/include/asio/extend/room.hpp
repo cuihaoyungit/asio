@@ -45,7 +45,7 @@ namespace asio {
 				obj->Deliver(msg);
 #endif
 			// generator guid for session id
-			const uint64 sessionId = this->uuid_.nextid();
+			const int64 sessionId = this->uuid_.nextid();
 			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
 		}

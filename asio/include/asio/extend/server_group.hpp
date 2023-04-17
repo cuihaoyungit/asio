@@ -56,12 +56,13 @@ namespace asio {
 
 		void Start()
 		{
+			// init snowflake generate session id
 			room_.Join(shared_from_this());
-			net_server_->Connect(shared_from_this());
-#if 1
-			read_msg_.setNetId(this->SocketId());
+			MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
+			header->sessionId = this->sessionId();
 			read_msg_.setNetObject(shared_from_this());
-#endif
+
+			net_server_->Connect(shared_from_this());
 			this->SetConnect(true);
 			do_read_header();
 		}
@@ -77,12 +78,17 @@ namespace asio {
 			}
 		}
 
-		void Send(const Message& msg) override
+		void Send(const Message& msg)    override
 		{
 			this->Deliver(msg);
 		}
 
-		void Post(const Message& msg) override
+		void Post(const Message& msg)    override
+		{
+			this->Deliver(msg);
+		}
+
+		void PostMsg(const Message& msg) override
 		{
 			this->Deliver(msg);
 		}
@@ -226,6 +232,10 @@ namespace asio {
 		void SetPort(int port)
 		{
 			port_ = port;
+		}
+
+		const Room& getRoom() {
+			return this->room_;
 		}
 	private:
 		void do_accept()

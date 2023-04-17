@@ -37,11 +37,16 @@ namespace asio {
 #pragma pack(push, 4)
 	typedef struct _TPkgHeader
 	{
-		int seq           = {0};
-		int body_len      = {0};
-		ProtoFormat format= ProtoFormat::Binary;
-		uint8 gateId      = {0};
-		uint8 dispatherId = {0};
+		int msgId           = {0};
+		int seq             = {0};
+		int body_len        = {0};
+		int crc             = {0};
+		int64 sessionId     = {0};
+		int time            = {0};
+		ProtoFormat format  = ProtoFormat::Binary;
+		uint8 gateId        = {0};
+		uint8 dispatherId   = {0};
+		uint8 encry         = {0};
 	} MsgHeader;
 #pragma pack(pop)
 
@@ -60,13 +65,11 @@ namespace asio {
 
 	  Message(Message& other)
 	  {
-		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 	  }
 	  Message(const Message& other) {
-		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
@@ -75,7 +78,6 @@ namespace asio {
 	  Message& operator=(Message& other) {
 		  if (this == &other)
 			  return *this;
-		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
@@ -84,14 +86,13 @@ namespace asio {
 	  const Message& operator=(const Message& other) {
 		  if (this == &other)
 			  return *this;
-		  this->net_id_ = other.net_id_;
 		  this->connect_object_ = other.connect_object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 		  return *this;
 	  }
 
-	  Message():body_length_(0), net_id_(0)
+	  Message():body_length_(0)
 	  {
 		  this->clear();
 	  }
@@ -150,22 +151,12 @@ namespace asio {
 		  return connect_object_;
 	  }
 
-	  void setNetId(const uint64 fdsocket) {
-		  this->net_id_ = fdsocket;
-	  }
-
-	  auto getNetId() {
-		  return net_id_; 
-	  }
-
 	  void clear() {
 		  std::memset(data_, 0, header_length + max_body_length);
-		  this->net_id_ = 0;
 		  this->body_length_ = 0;
 	  }
 	private:
 	  char data_[header_length + max_body_length];
-	  uint64 net_id_ = {0};
 	  int body_length_;
 	  NetObjectWeakPtr connect_object_;
 	};
