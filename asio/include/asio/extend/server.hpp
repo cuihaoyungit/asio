@@ -243,15 +243,8 @@ namespace asio {
 
         void AfterInit()  override
         {
-            int serverId = this->ServerId();
-            int subId = this->ServerSubId();
-            if (serverId == 0) {
-                serverId = 1;
-            }
-
-            if (subId == 0) {
-                subId = 1;
-            }
+            int serverId = this->ServerId() == 0 ? 1 : this->ServerId();
+            int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
             this->room_.Init(serverId, subId);
         }
 

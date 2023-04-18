@@ -255,7 +255,23 @@ namespace asio {
 				});
 		}
 	private:
+
+		void AfterInit() override
+		{
+
+		}
+
 		void Init() override
+		{
+
+		}
+
+		void BeforeExit() override
+		{
+
+		}
+
+		void Exit() override
 		{
 
 		}
@@ -263,11 +279,6 @@ namespace asio {
 		// single thread run
 		void Run() override {
 			io_context_.run();
-		}
-
-		void Exit() override
-		{
-
 		}
 
 	private:
