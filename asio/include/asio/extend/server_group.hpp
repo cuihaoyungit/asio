@@ -57,6 +57,9 @@ namespace asio {
 		void Start()
 		{
 			// init snowflake generate session id
+			const uint64 sessionId = this->server_->GenerateUUId();
+			this->setSessionId(sessionId);
+			// server room jion
 			room_.Join(shared_from_this());
 			read_msg_.setNetObject(shared_from_this());
 			// connect event
@@ -192,9 +195,9 @@ namespace asio {
 	{
 		friend class NetServerWorkGroup;
 	public:
-		SubServer(NetServer* netserver, const tcp::endpoint& endpoint)
+		SubServer(NetServer* server, const tcp::endpoint& endpoint)
 			: Worker(),
-			net_server_(netserver),
+			server_(server),
 			port_(0),
 			stoped_(false),
 			acceptor_(io_context_, endpoint),
@@ -248,7 +251,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						std::make_shared<Session>(std::move(socket), room_, net_server_)->Start();
+						std::make_shared<Session>(std::move(socket), room_, server_)->Start();
 					}
 
 					do_accept();
@@ -283,7 +286,7 @@ namespace asio {
 
 	private:
 		int port_;
-		NetServer* net_server_;
+		NetServer* server_;
 		// io_service
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
@@ -385,7 +388,9 @@ namespace asio {
 	private:
 		void Init() override
 		{
-		
+			int serverId = this->ServerId() == 0 ? 2 : this->ServerId();
+			int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
+			this->InitUUID(serverId, subId);
 		}
 		
 		void Exit() override
