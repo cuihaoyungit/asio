@@ -2,6 +2,9 @@
 #define __OBJECT_HPP__
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/base.hpp>
+#include <asio/extend/snowflake.hpp>
+#include <mutex>
+using SnowFlake = snowflake<1534832906275L, std::mutex>;
 #include <functional>
 #include <unordered_map>
 #include <memory>
@@ -63,7 +66,7 @@ namespace asio {
 		{
 			this->session_id_ = sessionId;
 		}
-		const uint64 sessionId() const
+		const uint64 getSessionId() const
 		{
 			return this->session_id_;
 		}
@@ -137,10 +140,27 @@ namespace asio {
 		{
 			this->is_pack_session_id_ = bPack;
 		}
+
+		void InitUUID(const int serverId, const int subId) {
+			try {
+				this->uuid_.init(serverId, subId); // default id start [1, 1]
+			}
+			catch (const std::exception& ex)
+			{
+				std::cout << ex.what() << std::endl;
+			}
+		}
+		uint64 GenerateUUId() {
+			const uint64 sessionId = this->uuid_.nextid();
+			return sessionId;
+		}
 	private:
 		int server_id_;
 		int server_sub_id_;
 		bool is_pack_session_id_;
+	private:
+		// guid snowflake
+		SnowFlake uuid_;
 	};
 
 	//--------------------------------------------------------------

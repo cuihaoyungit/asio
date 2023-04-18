@@ -48,6 +48,9 @@ namespace asio {
         void Start()
         {
             // init snowflake generate session id
+            const uint64 sessionId = this->server_->GenerateUUId();
+            this->setSessionId(sessionId);
+            // server room jion
             room_.Join(shared_from_this());
 			read_msg_.setNetObject(shared_from_this());
             // connect event
@@ -100,7 +103,7 @@ namespace asio {
                         if (server_->IsPackSessionId())
                         {
                             MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
-                            header->sessionId = this->sessionId();
+                            header->sessionId = this->getSessionId();
                         }
                         do_read_body();
                     }
@@ -245,7 +248,7 @@ namespace asio {
         {
             int serverId = this->ServerId() == 0 ? 1 : this->ServerId();
             int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
-            this->room_.Init(serverId, subId);
+            this->InitUUID(serverId, subId);
         }
 
         void BeforeExit() override

@@ -4,7 +4,6 @@
 #include <asio/extend/object.hpp>
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/base.hpp>
-#include <asio/extend/snowflake>
 #include <map>
 #include <unordered_map>
 
@@ -25,28 +24,16 @@ namespace asio {
 		Room() {}
 		~Room() {}
 
-		void Init(int workId = 1, int subId = 1)
-		{
-			try
-			{
-				this->uuid_.init(workId, subId); // default id start [1, 1]
-			}
-			catch (const std::exception &ex)
-			{
-				std::cout << ex.what() << std::endl;
-			}
-		}
-
 		void Join(NetObjectPtr obj)
 		{
 			obj_list_.insert(obj);
 			socket_obj_map_[obj->SocketId()] = obj;
 #if 0
-			for (const auto& msg : recent_msgs_)
+			for (const auto& msg : recent_msgs_) {
 				obj->Deliver(msg);
+			}
 #endif
-			// generator guid for session id
-			const uint64 sessionId = this->uuid_.nextid();
+			const uint64 sessionId = obj->getSessionId();
 			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
 		}
@@ -55,7 +42,7 @@ namespace asio {
 		{
 			obj_list_.erase(obj);
 			socket_obj_map_.erase(obj->SocketId());
-			session_obj_map_.erase(obj->sessionId());
+			session_obj_map_.erase(obj->getSessionId());
 		}
 
 		// find Object by socket id
@@ -109,9 +96,13 @@ namespace asio {
 		void Deliver(const Message& msg)
 		{
 			while (recent_msgs_.size() > max_recent_msgs)
+			{
 				recent_msgs_.pop_front();
+			}
 			for (auto& obj : obj_list_)
+			{
 				obj->Deliver(msg);
+			}
 		}
 
 	private:
@@ -122,8 +113,7 @@ namespace asio {
 		enum { max_recent_msgs = 100 };
 		MessageQueue recent_msgs_;
 
-		// guid snowflake
-		SnowFlake uuid_;
+		// guid session map
 		SessionObjMap session_obj_map_;
 
 		// user map

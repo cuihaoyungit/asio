@@ -109,7 +109,7 @@ namespace asio {
 						if (server_->IsPackSessionId())
 						{
 							MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
-							header->sessionId = this->sessionId();
+							header->sessionId = this->getSessionId();
 						}
 						do_read_body();
 					}
