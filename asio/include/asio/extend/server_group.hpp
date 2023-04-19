@@ -51,7 +51,10 @@ namespace asio {
 
 		void Close() override
 		{
-			this->socket_.close();
+			if (this->socket_.is_open())
+			{
+				this->socket_.close();
+			}
 		}
 
 		void Start()
@@ -93,6 +96,11 @@ namespace asio {
 		void PostMsg(const Message& msg) override
 		{
 			this->Deliver(msg);
+		}
+
+		std::string Ip() override
+		{
+			return this->socket_.remote_endpoint().address().to_string();
 		}
 
 		uint64 SocketId() override final

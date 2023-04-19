@@ -29,12 +29,12 @@ namespace asio {
 		}
 		virtual void Final() {}
 		virtual void Deliver(const Message& msg) {}
-		virtual void Send(const Message& msg) {};
-		virtual void Post(const Message& msg) {};
+		virtual void Send(const Message& msg) {}
+		virtual void Post(const Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
-
+		virtual std::string Ip() = 0;
 		virtual uint64 SocketId() = 0;
-		virtual void Close() = 0;
+		virtual void Close() = 0; // disconnect
 		void SetType(const int type) {
 			this->type = type;
 		}

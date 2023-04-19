@@ -73,6 +73,11 @@ namespace asio {
             this->write(msg);
         }
 
+        std::string Ip() override
+        {
+            return this->socket_.remote_endpoint().address().to_string();
+        }
+
         uint64 SocketId() override {
             return socket_.native_handle();
         }
