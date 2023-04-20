@@ -93,11 +93,6 @@ namespace asio {
 			this->Deliver(msg);
 		}
 
-		void PostMsg(const Message& msg) override
-		{
-			this->Deliver(msg);
-		}
-
 		std::string Ip() override
 		{
 			return this->socket_.remote_endpoint().address().to_string();

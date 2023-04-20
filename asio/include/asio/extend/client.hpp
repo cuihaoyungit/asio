@@ -112,10 +112,6 @@ namespace asio {
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}
 		void HandleMessage(NetObject* pObject, const Message& msg) override {}
-		void PostMsg(const Message& msg) override 
-        {
-            this->write(msg);
-        }
         void Post(const Message& msg) override
         {
             this->write(msg);
