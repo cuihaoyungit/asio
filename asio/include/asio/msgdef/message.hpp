@@ -61,7 +61,7 @@ namespace asio {
 	{
 	public:
 	  static constexpr int header_length   = sizeof(MsgHeader);
-	  static constexpr int max_body_length = 512;
+	  static constexpr int max_body_length = 4096;
 
 	  Message(Message& other)
 	  {
