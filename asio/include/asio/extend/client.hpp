@@ -112,6 +112,17 @@ namespace asio {
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}
 		void HandleMessage(NetObject* pObject, const Message& msg) override {}
+		void Reconnect() override
+		{
+			this->is_auto_reconnect_ = true;
+			this->reconnect();
+#if 0
+			if (this->numbers_reconnect_ > 30)
+			{
+				this->Shutdown();
+			}
+#endif
+		}
         void Post(const Message& msg) override
         {
             this->write(msg);
@@ -119,17 +130,6 @@ namespace asio {
         void Run() override
         {
             io_context_.run();
-        }
-        void Reconnect() override
-        {
-            this->is_auto_reconnect_ = true;
-            this->reconnect();
-#if 0
-            if (this->numbers_reconnect_ > 30)
-            {
-                this->Shutdown();
-            }
-#endif
         }
 	private:
         void write(const Message& msg)
