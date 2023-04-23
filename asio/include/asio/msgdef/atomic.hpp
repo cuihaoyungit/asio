@@ -7,6 +7,7 @@
 #define __ATOMIC_HPP__
 #include <queue>
 #include <mutex>
+#include <condition_variable>
 
 namespace asio {
 	class Message;
