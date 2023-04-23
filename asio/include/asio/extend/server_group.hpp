@@ -322,7 +322,7 @@ namespace asio {
 				worker.join();
 		}
 
-		void Startup(const std::vector<unsigned short>& vPorts, int threadWorks = 1) {
+		void Startup(const std::vector<int>& vPorts, int threadWorks = 1) {
 			// server port
 			this->Init();
 			for (auto port : vPorts)
