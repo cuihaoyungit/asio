@@ -15,8 +15,19 @@ namespace asio {
     public:
         Stopwatch() { start(); }
 
+        void reStart() 
+        {
+            this->start();
+        }
+        
+        void reset() 
+        {
+            this->start();
+        }
+    protected:
         void start() { m_start = clock(); }
 
+    public:
         // ms seconds
         double getElapsedSeconds()
         {
