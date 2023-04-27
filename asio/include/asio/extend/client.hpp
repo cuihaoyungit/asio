@@ -184,7 +184,7 @@ namespace asio {
 			this->numbers_reconnect_++;
             static std::mutex mtx;
             std::lock_guard lock(mtx);
-            std::cout << this->GetConnectName() <<"\t"<<"reconnecting" << std::endl;
+            std::cout << this->GetConnectName() <<":"<<"reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
             {
@@ -204,14 +204,14 @@ namespace asio {
                     {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         this->SetConnect(true);
-                        std::cout << this->GetConnectName() << "\t" << "connection succeeded." << std::endl;
+                        std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
                         this->Connect(this);
                         this->numbers_reconnect_ = 0;
                         do_read_header();
                     }
                     else {
                         this->SetConnect(false);
-                        std::cout << this->GetConnectName() << "\t" << "connection failed." << std::endl;
+                        std::cout << this->GetConnectName() << ":" << "connection failed." << std::endl;
                         this->close();
                     }
                 });

@@ -175,7 +175,6 @@ namespace asio {
 		virtual ~Dispatcher() 
 		{
 		}
-		virtual void Register() {}
 
 		bool BindMsg(const int& MsgId, TaskCallback fun) 
 		{
