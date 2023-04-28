@@ -58,11 +58,6 @@ namespace asio {
             this->Final();
         }
 
-        void Close() override 
-        {
-            this->disconnect();
-        }
-
         void Send(const Message& msg) override 
         {
 			this->write(msg);
@@ -94,11 +89,6 @@ namespace asio {
             this->StopContext();
         }
         
-        void ClearMsgQueue() {
-            std::lock_guard lock(this->mutex_);
-            this->write_msgs_.clear();
-        }
-
         void SetAutoReconnect(bool bAutoReconnect) 
         {
             this->is_auto_reconnect_ = bAutoReconnect;
@@ -112,11 +102,15 @@ namespace asio {
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}
 		void HandleMessage(NetObject* pObject, const Message& msg) override {}
-		void Reconnect() override
+		void Close() override
+		{
+			this->disconnect();
+		}
+        void Reconnect() override
 		{
 			this->is_auto_reconnect_ = true;
 			this->reconnect();
-#if 0
+#if 0 // test code
 			if (this->numbers_reconnect_ > 30)
 			{
 				this->Shutdown();
@@ -132,6 +126,11 @@ namespace asio {
             io_context_.run();
         }
 	private:
+        void clear()
+        {
+            std::lock_guard lock(this->mutex_);
+            this->write_msgs_.clear();
+        }
         void write(const Message& msg)
         {
 			std::lock_guard lock(this->mutex_);
@@ -156,7 +155,7 @@ namespace asio {
 			asio::post(io_context_, [this]() {
 				socket_.close();
 			    io_context_.stop();
-			    this->write_msgs_.clear();
+			    this->clear();
                 this->SetConnect(false);
 			    this->connect_state_ = ConnectState::ST_STOPPED;
 				});
@@ -167,7 +166,7 @@ namespace asio {
             this->connect_state_ = ConnectState::ST_STOPPING;
             asio::post(io_context_, [this]() {
                 socket_.close();
-                this->write_msgs_.clear();
+                this->clear();
                 this->SetConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
                 this->Disconnect(this);
