@@ -45,7 +45,7 @@ namespace asio {
 		int time            = {0};
 		ProtoFormat format  = ProtoFormat::Binary;
 		uint8 gateId        = {0};
-		uint8 dispatherId   = {0};
+		uint8 masterId      = {0};
 		uint8 encry         = {0};
 		uint8 appId         = {0};
 	} MsgHeader;
