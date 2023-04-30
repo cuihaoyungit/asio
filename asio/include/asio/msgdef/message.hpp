@@ -47,6 +47,7 @@ namespace asio {
 		uint8 gateId        = {0};
 		uint8 dispatherId   = {0};
 		uint8 encry         = {0};
+		uint8 appId         = {0};
 	} MsgHeader;
 #pragma pack(pop)
 
