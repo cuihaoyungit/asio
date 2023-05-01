@@ -23,7 +23,7 @@ namespace asio {
     class Client : public Worker,
         public NetClient,
 		public NetObject,
-        public std::enable_shared_from_this<Client>
+        public std::enable_shared_from_this<NetObject>
     {
     public:
         Client(const std::string &ip, const std::string &port)
@@ -53,7 +53,6 @@ namespace asio {
 					// call will exit.
 			        this->StopContext();
 				});
-
             do_connect(endpoints);
         }
 
@@ -184,8 +183,6 @@ namespace asio {
                 return;
             }
 			this->numbers_reconnect_++;
-            static std::mutex mtx;
-            std::lock_guard lock(mtx);
             std::cout << this->GetConnectName() <<":"<<"reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
@@ -200,8 +197,6 @@ namespace asio {
             asio::async_connect(socket_, endpoints,
                 [this](std::error_code ec, tcp::endpoint)
                 {
-					static std::mutex mtx;
-			        std::lock_guard lock(mtx);
                     if (!ec)
                     {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
@@ -245,6 +240,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
+                        this->read_msg_.setNetObject(shared_from_this());
                         this->HandleMessage(this, read_msg_);
                         do_read_header();
                     }
