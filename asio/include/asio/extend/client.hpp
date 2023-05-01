@@ -20,6 +20,7 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
+    // std::make_shared<Client>()
     class Client : public Worker,
         public NetClient,
 		public NetObject,
@@ -112,12 +113,6 @@ namespace asio {
 		{
 			this->is_auto_reconnect_ = true;
 			this->reconnect();
-#if 0 // test code
-			if (this->numbers_reconnect_ > 30)
-			{
-				this->Shutdown();
-			}
-#endif
 		}
         void Post(const Message& msg) override
         {
@@ -126,6 +121,15 @@ namespace asio {
         void Run() override
         {
             io_context_.run();
+        }
+    protected:
+        void AfterInit() override
+        {
+            this->read_msg_.setNetObject(shared_from_this());
+        }
+        void BeforeExit() override
+        {
+            this->read_msg_.setNetObject(nullptr);
         }
 	private:
         void clear()
@@ -240,7 +244,6 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        this->read_msg_.setNetObject(shared_from_this());
                         this->HandleMessage(this, read_msg_);
                         do_read_header();
                     }
