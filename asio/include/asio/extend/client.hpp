@@ -20,7 +20,10 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    class Client : public Worker, public NetObject, public NetClient
+    class Client : public Worker,
+        public NetClient,
+		public NetObject,
+        public std::enable_shared_from_this<Client>
     {
     public:
         Client(const std::string &ip, const std::string &port)
@@ -242,10 +245,6 @@ namespace asio {
                 {
                     if (!ec)
                     {
-#if 0
-                        std::cout.write(read_msg_.body(), read_msg_.body_length());
-                        std::cout << "\n";
-#endif
                         this->HandleMessage(this, read_msg_);
                         do_read_header();
                     }
