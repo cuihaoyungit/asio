@@ -121,8 +121,8 @@ namespace asio {
 					}
 					else
 					{
-						room_.Leave(shared_from_this());
 						server_->Disconnect(shared_from_this());
+						room_.Leave(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -145,8 +145,8 @@ namespace asio {
 					}
 					else
 					{
-						room_.Leave(shared_from_this());
 						server_->Disconnect(shared_from_this());
+						room_.Leave(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -170,8 +170,8 @@ namespace asio {
 					}
 					else
 					{
-						room_.Leave(shared_from_this());
 						server_->Disconnect(shared_from_this());
+						room_.Leave(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
