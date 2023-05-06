@@ -54,6 +54,9 @@ namespace asio {
 					// call will exit.
 			        this->StopContext();
 				});
+            // save ip remote address
+			std::string address = this->Ip();
+			this->setAddress(address);
             do_connect(endpoints);
         }
 

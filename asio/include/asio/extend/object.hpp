@@ -31,7 +31,6 @@ namespace asio {
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
 		virtual void Post(const Message& msg) {}
-		virtual std::string Ip() = 0;
 		virtual uint64 SocketId() = 0;
 		virtual void Close() = 0; // disconnect
 		void SetType(const int type) {
@@ -81,6 +80,14 @@ namespace asio {
 		const uint64 getUserId() {
 			return this->user_id_;
 		}
+		std::string Address() {
+			return remote_address_;
+		}
+	protected:
+		virtual std::string Ip() = 0;
+		void setAddress(const std::string& ip) {
+			this->remote_address_ = ip;
+		}
 	private:
 		bool is_connect_ = {false};
 		int type;
@@ -89,6 +96,7 @@ namespace asio {
 		uint64 session_id_;
 		uint64 user_id_;
 		int32 proxy_id_;
+		std::string remote_address_;
 	};
 
 	typedef std::shared_ptr<NetObject> NetObjectPtr;

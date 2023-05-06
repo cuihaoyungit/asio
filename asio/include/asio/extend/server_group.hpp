@@ -42,7 +42,8 @@ namespace asio {
 			room_(room),
 			server_(server)
 		{
-
+			std::string address = this->Ip();
+			this->setAddress(address);
 		}
 
 		virtual ~Session() {
@@ -93,6 +94,7 @@ namespace asio {
 			this->Deliver(msg);
 		}
 
+		// warning error 10009 scope NetObject socket
 		std::string Ip() override
 		{
 			return this->socket_.remote_endpoint().address().to_string();
