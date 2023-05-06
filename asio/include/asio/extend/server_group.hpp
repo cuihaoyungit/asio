@@ -42,8 +42,7 @@ namespace asio {
 			room_(room),
 			server_(server)
 		{
-			std::string address = this->Ip();
-			this->setAddress(address);
+
 		}
 
 		virtual ~Session() {

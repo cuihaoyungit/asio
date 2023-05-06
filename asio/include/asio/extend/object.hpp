@@ -31,6 +31,7 @@ namespace asio {
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
 		virtual void Post(const Message& msg) {}
+		virtual std::string Ip()  = 0;
 		virtual uint64 SocketId() = 0;
 		virtual void Close() = 0; // disconnect
 		void SetType(const int type) {
@@ -83,8 +84,6 @@ namespace asio {
 		std::string Address() {
 			return remote_address_;
 		}
-	protected:
-		virtual std::string Ip() = 0;
 		void setAddress(const std::string& ip) {
 			this->remote_address_ = ip;
 		}

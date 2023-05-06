@@ -54,9 +54,6 @@ namespace asio {
 					// call will exit.
 			        this->StopContext();
 				});
-            // save ip remote address
-			std::string address = this->Ip();
-			this->setAddress(address);
             do_connect(endpoints);
         }
 
@@ -74,6 +71,7 @@ namespace asio {
             this->write(msg);
         }
 
+        // warning error 10009 scope NetObject and socket
         std::string Ip() override
         {
             return this->socket_.remote_endpoint().address().to_string();
