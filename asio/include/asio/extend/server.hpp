@@ -126,9 +126,6 @@ namespace asio {
                 {
                     if (!ec)
                     {
-#if 0
-						room_.Deliver(read_msg_);
-#endif
                         server_->HandleMessage(read_msg_);
                         do_read_header();
                     }
