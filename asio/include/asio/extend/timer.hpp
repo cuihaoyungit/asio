@@ -20,16 +20,16 @@ namespace asio {
 	{
 		using io_timer = std::shared_ptr<asio::steady_timer>;
 	public:
-		AsioTimer() noexcept
-			:io_worker_(ioc_) {}
+		AsioTimer() noexcept {}
 		~AsioTimer() {}
 
 		void Stop() {
-			if (!io_worker_.get_io_context().stopped())
+			if (!this->ioc_.stopped())
 			{
-				io_worker_.get_io_context().stop();
+				this->ioc_.stop();
 			}
 			this->Clear();
+			this->WaitStop();
 		}
 
 		asio::io_context& GetContext() {
@@ -76,7 +76,6 @@ namespace asio {
 
 	private:
 		asio::io_context ioc_;
-		asio::io_context::work io_worker_;
 		std::unordered_map<std::string, io_timer> timer_list_;
 	};
 
