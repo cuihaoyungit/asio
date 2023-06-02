@@ -37,22 +37,23 @@ namespace asio {
 #pragma pack(push, 4)
 	typedef struct _TPkgHeader
 	{
-		int msgId           = {0};
-		int seq             = {0};
-		int body_len        = {0};
-		int crc             = {0};
-		int64 sessionId     = {0};
-		int time            = {0};
+		int msgId           = 0;
+		int seq             = 0;
+		int body_len        = 0;
+		int crc             = 0;
+		int64 sessionId     = 0;
+		int time            = 0;
 		ProtoFormat format  = ProtoFormat::Binary;
-		uint8 gateId        = {0};
-		uint8 encry         = {0};
-		uint8 appId         = {0};
+		uint8 gateId        = 0;
+		uint8 encry         = 0;
+		uint8 appId         = 0;
+		uint8 dest          = 0; // enum send to dest server type
 	} MsgHeader;
 #pragma pack(pop)
 
 	// NetPacket
 	struct NetPacket {
-		int msgId     = {0};
+		int length    = {0};
 		Message* buff = {nullptr};
 	};
 
