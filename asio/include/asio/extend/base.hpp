@@ -24,6 +24,7 @@ typedef unsigned char       uint8;
 typedef float               float32;
 typedef double              float64;
 
+// stl basic type
 #if 0
 	typedef std::int64_t  int64;
 	typedef std::int32_t  int32;
