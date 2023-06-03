@@ -15,7 +15,6 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    // std::make_shared<Client>()
     class Client : public Worker,
         public NetClient,
 		public NetObject,
