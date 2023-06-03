@@ -33,7 +33,8 @@ namespace asio {
 
         }
 
-        virtual ~Session() {
+        virtual ~Session() 
+        {
             this->Final();
         }
 
@@ -210,7 +211,8 @@ namespace asio {
             this->do_accept();
         }
 
-        virtual ~Server() {
+        virtual ~Server() 
+        {
             this->Final();
         }
 
@@ -228,9 +230,11 @@ namespace asio {
 			}
         }
 
-        Room& getRoom() {
+        Room& getRoom() 
+        {
             return this->room_;
         }
+
     public:
 		void Connect(NetObjectPtr pNetObj)    override {}
 		void Disconnect(NetObjectPtr pNetObj) override {}

@@ -46,7 +46,8 @@ namespace asio {
 		}
 
 	private:
-		void RunThread() {
+		void RunThread() 
+		{
 			this->Init();
 			this->AfterInit();
 			this->Run();
@@ -58,7 +59,7 @@ namespace asio {
 		virtual void Exit() = 0;
 		virtual void Run() {}
 
-		virtual void AfterInit() {}
+		virtual void AfterInit()  {}
 		virtual void BeforeExit() {}
 
 		Worker(const Worker&) = delete;
