@@ -47,7 +47,7 @@ namespace asio {
 		uint8 gateId        = 0;
 		uint8 encry         = 0;
 		uint8 appId         = 0;
-		uint8 dest          = 0; // enum send to dest server type
+		uint8 destination   = 0; // enum send to destination server type
 	} MsgHeader;
 #pragma pack(pop)
 
