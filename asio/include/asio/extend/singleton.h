@@ -85,7 +85,7 @@ protected:
 	// TODO: This super-nasty piece of nastiness was put in for continued
 	// TODO: compatability with MSVC++ and MinGW - the latter apparently
 	// TODO: needs this.
-	static T* ms_Singleton;
+	static T* ms_Singleton = nullptr;
 public:
 	Singleton(void)
 	{
@@ -94,11 +94,13 @@ public:
 	}
 	~Singleton(void)
 	{
-		assert(ms_Singleton);  ms_Singleton = 0;
+		assert(ms_Singleton);  
+		ms_Singleton = nullptr;
 	}
 	static T& getSingleton(void)
 	{
-		assert(ms_Singleton);  return (*ms_Singleton);
+		assert(ms_Singleton);  
+		return (*ms_Singleton);
 	}
 	static T* getSingletonPtr(void)
 	{
