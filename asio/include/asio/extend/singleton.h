@@ -77,7 +77,8 @@ private:
 
 
 //----------------------------------------------------------------------
-template <typename T> class Singleton
+template <typename T> 
+class Singleton
 {
 protected:
 	// TODO: Come up with something better than this!
