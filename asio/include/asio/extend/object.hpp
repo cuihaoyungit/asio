@@ -113,7 +113,7 @@ namespace asio {
 		virtual void Connect(NetObject* pNetObj) {}
 		virtual void Disconnect(NetObject* pNetObj) {}
 		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) {}
-		virtual void Reconnect() {}
+		virtual void Reconnect(NetObject* pNetObj) {}
 	};
 
 	//--------------------------------------------------------------

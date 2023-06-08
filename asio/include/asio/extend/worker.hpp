@@ -57,7 +57,7 @@ namespace asio {
 	protected:
 		virtual void Init() = 0;
 		virtual void Exit() = 0;
-		virtual void Run() {}
+		virtual void Run()  = 0;
 
 		virtual void AfterInit()  {}
 		virtual void BeforeExit() {}

@@ -100,14 +100,10 @@ namespace asio {
 		void Connect(NetObject* pObject) override {}
 		void Disconnect(NetObject* pObject) override {}
 		void HandleMessage(NetObject* pObject, const Message& msg) override {}
+		void Reconnect(NetObject* pNetObj) override {}
 		void Close() override
 		{
 			this->disconnect();
-		}
-        void Reconnect() override
-		{
-			this->is_auto_reconnect_ = true;
-			this->reconnect();
 		}
         void Post(const Message& msg) override
         {
@@ -175,6 +171,7 @@ namespace asio {
                 });
         }
 
+    public:
         void reconnect()
         {
             if (!is_auto_reconnect_)
@@ -186,10 +183,11 @@ namespace asio {
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
             {
+                this->Reconnect(this);
                 do_connect(endpoints_);
             }
         }
-
+    private:
         void do_connect(const tcp::resolver::results_type& endpoints)
         {
             this->connect_state_ = ConnectState::ST_STARTED;
