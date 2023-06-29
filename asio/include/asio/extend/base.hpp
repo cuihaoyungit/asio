@@ -24,6 +24,14 @@ typedef unsigned char       uint8;
 typedef float               float32;
 typedef double              float64;
 
+#include <iostream>
+//Typedefs
+#ifdef _UNICODE
+using String = std::wstring;
+#else
+using String = std::string;
+#endif //#ifdef _UNICODE
+
 // stl basic type
 #if 0
 	typedef std::int64_t  int64;
