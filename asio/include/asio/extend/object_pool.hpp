@@ -31,7 +31,7 @@ namespace asio {
 			return object_pool<Object>::alloc();
 		}
 
-		// constructe with arg
+		// constructe with args
 		template <typename Arg>
 		Object* alloc(Arg arg) {
 			std::lock_guard lock(this->mutex_);
