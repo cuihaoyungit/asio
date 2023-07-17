@@ -55,6 +55,11 @@ private:
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop;
+public:
+    void Stop() {
+		std::unique_lock<std::mutex> lock(queue_mutex);
+		stop = true;
+    }
 };
  
 // the constructor just launches some amount of workers
@@ -141,6 +146,11 @@ private:
 	std::mutex queue_mutex;
 	std::condition_variable condition;
 	bool stop;
+public:
+	void Stop() {
+		std::unique_lock<std::mutex> lock(queue_mutex);
+		stop = true;
+	}
 };
 
 // the constructor just launches some amount of workers
