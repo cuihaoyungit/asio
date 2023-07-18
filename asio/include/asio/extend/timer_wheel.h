@@ -41,7 +41,7 @@ namespace TimerWheel {
 
 		TimerManager& manager_;
 		TimerType timerType_;
-		std::function<void(int)> timerFun_;
+		std::function<void(int)> timerTask_;
 		unsigned interval_;
 		unsigned long long expires_;
 

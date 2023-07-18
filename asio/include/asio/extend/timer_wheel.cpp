@@ -51,7 +51,7 @@ namespace TimerWheel {
 		{
 			vecIndex_ = -1;
 		}
-		timerFun_(this->id_);
+		timerTask_(this->id_);
 	}
 
 	// TimerManager
