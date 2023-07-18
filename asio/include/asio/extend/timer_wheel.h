@@ -75,10 +75,10 @@ namespace TimerWheel {
 	inline void Timer::Start(const Fun& fun, unsigned interval, TimerType timeType)
 	{
 		Stop();
-		interval_ = interval;
-		timerFun_ = fun;
+		interval_  = interval;
+		timerTask_ = fun;
 		timerType_ = timeType;
-		expires_ = interval_ + TimerManager::GetCurrentMillisecs();
+		expires_   = interval_ + TimerManager::GetCurrentMillisecs();
 		manager_.AddTimer(this);
 	}
 }
