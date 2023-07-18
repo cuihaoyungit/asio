@@ -7,14 +7,21 @@
 #define __NoCopyObj_HPP__
 namespace asio {
 
-	class NoCopyObj {
+	//! Base class for types that should not be assigned.
+	class NoAssign {
 	public:
-		NoCopyObj() {}
-		~NoCopyObj() {}
-	private:
-		NoCopyObj(const NoCopyObj&) = delete;
-		const NoCopyObj& operator =(const NoCopyObj&) = delete;
+		NoAssign& operator=(const NoAssign&) = delete;
+		NoAssign(const NoAssign&) = default;
+		NoAssign() = default;
 	};
+
+	//! Base class for types that should not be copied or assigned.
+	class NoCopyObj : NoAssign {
+	public:
+		NoCopyObj(const NoCopyObj&) = delete;
+		NoCopyObj() = default;
+	};
+
 
 }
 
