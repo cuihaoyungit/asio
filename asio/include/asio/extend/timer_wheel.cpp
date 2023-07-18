@@ -22,6 +22,7 @@ namespace TimerWheel {
 		, interval_(0)
 		, expires_(0)
 		, timerType_(Timer::ONCE)
+		, id_(0)
 	{
 	}
 
@@ -50,7 +51,7 @@ namespace TimerWheel {
 		{
 			vecIndex_ = -1;
 		}
-		timerFun_();
+		timerFun_(this->id_);
 	}
 
 	// TimerManager

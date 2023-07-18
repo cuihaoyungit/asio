@@ -6,6 +6,9 @@
 #include <functional>
 
 //### 时间轮计时器 ###
+// 参考概念资料
+// https://blog.csdn.net/u011726005/article/details/108926184
+//
 namespace TimerWheel {
 
 	class TimerManager;
@@ -19,9 +22,17 @@ namespace TimerWheel {
 		~Timer();
 
 		template<typename Fun>
-		void Start(Fun fun, unsigned interval, TimerType timeType = CIRCLE);
+		void Start(const Fun& fun, unsigned interval, TimerType timeType = CIRCLE);
 		void Stop();
 
+		int Id()
+		{
+			return this->id_;
+		}
+		void SetId(const int id)
+		{
+			this->id_ = id;
+		}
 	private:
 		void OnTimer(unsigned long long now);
 
@@ -30,12 +41,13 @@ namespace TimerWheel {
 
 		TimerManager& manager_;
 		TimerType timerType_;
-		std::function<void(void)> timerFun_;
+		std::function<void(int)> timerFun_;
 		unsigned interval_;
 		unsigned long long expires_;
 
 		int vecIndex_;
 		std::list<Timer*>::iterator itr_;
+		int id_;
 	};
 
 	class TimerManager
@@ -60,7 +72,7 @@ namespace TimerWheel {
 	};
 
 	template<typename Fun>
-	inline void Timer::Start(Fun fun, unsigned interval, TimerType timeType)
+	inline void Timer::Start(const Fun& fun, unsigned interval, TimerType timeType)
 	{
 		Stop();
 		interval_ = interval;
