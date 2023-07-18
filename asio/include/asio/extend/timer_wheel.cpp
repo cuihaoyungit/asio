@@ -110,7 +110,7 @@ namespace TimerWheel {
 
 	void TimerManager::DetectTimers()
 	{
-		unsigned long long now = GetCurrentMillisecs();
+		unsigned long long now = TimerManager::GetCurrentMillisecs();
 		while (checkTime_ <= now)
 		{
 			int index = checkTime_ & TVR_MASK;
