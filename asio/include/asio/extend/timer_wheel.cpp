@@ -58,7 +58,7 @@ namespace TimerWheel {
 	TimerManager::TimerManager()
 	{
 		tvec_.resize(TVR_SIZE + 4 * TVN_SIZE);
-		checkTime_ = GetCurrentMillisecs();
+		checkTime_ = TimerManager::GetCurrentMillisecs();
 	}
 
 	void TimerManager::AddTimer(Timer* timer)
