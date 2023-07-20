@@ -41,6 +41,11 @@ namespace asio {
 			}
 		}
 
+		tcp::socket& Socket()
+		{
+			return *this->socket_;
+		}
+
 		uint64 SocketId() override {
 			return socket_->native_handle();
 		}
@@ -50,8 +55,8 @@ namespace asio {
 			is_close_ = true;
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
-				socket_->close();
-				io_context_.stop();
+				this->socket_->close();
+				this->io_context_.stop();
 				this->write_msgs_.clear();
 				this->is_connect_ = false;
 				this->connect_state_ = ConnectState::ST_STOPPED;
@@ -110,7 +115,7 @@ namespace asio {
 					if (!ec)
 					{
 						this->connect_state_ = ConnectState::ST_CONNECTED;
-						is_connect_ = true;
+						this->is_connect_ = true;
 						std::cout << "connection succeeded. " << socket_->native_handle() << std::endl;
 						this->handle_event_->Connect(this);
 						do_read_header();
@@ -206,7 +211,7 @@ namespace asio {
 				[this, msg]()
 				{
 					bool write_in_progress = !write_msgs_.empty();
-					write_msgs_.push_back(msg);
+					this->write_msgs_.push_back(msg);
 					if (!write_in_progress && is_connect_)
 					{
 						do_write();

@@ -38,6 +38,11 @@ namespace asio {
             this->Final();
         }
 
+        tcp::socket& Socket()
+        {
+            return this->socket_;
+        }
+
         void Close() override
         {
             if (this->socket_.is_open())
@@ -52,11 +57,11 @@ namespace asio {
             const uint64 sessionId = this->server_->GenerateUUId();
             this->setSessionId(sessionId);
             // server room jion
-            room_.Join(shared_from_this());
-			read_msg_.setNetObject(shared_from_this());
+            this->room_.Join(shared_from_this());
+			this->read_msg_.setNetObject(shared_from_this());
             // connect event
 			this->SetConnect(true);
-            server_->Connect(shared_from_this());
+            this->server_->Connect(shared_from_this());
             // start receive stream data
             do_read_header();
         }
@@ -65,7 +70,7 @@ namespace asio {
         {
 			std::lock_guard lock(this->mutex_);
             bool write_in_progress = !write_msgs_.empty();
-            write_msgs_.push_back(msg);
+            this->write_msgs_.push_back(msg);
             if (!write_in_progress)
             {
                 do_write();
@@ -102,7 +107,7 @@ namespace asio {
                 {
                     if (!ec && read_msg_.decode_header())
                     {
-                        if (server_->IsPackSessionId())
+                        if (this->server_->IsPackSessionId())
                         {
                             MsgHeader* header = (MsgHeader*)(this->read_msg_.data());
                             header->sessionId = this->getSessionId();
@@ -111,8 +116,8 @@ namespace asio {
                     }
                     else
                     {
-						server_->Disconnect(shared_from_this());
-                        room_.Leave(shared_from_this());
+						this->server_->Disconnect(shared_from_this());
+                        this->room_.Leave(shared_from_this());
                         this->SetConnect(false);
                     }
                 });
@@ -127,13 +132,13 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        server_->HandleMessage(read_msg_);
+                        this->server_->HandleMessage(read_msg_);
                         do_read_header();
                     }
                     else
                     {
-						server_->Disconnect(shared_from_this());
-                        room_.Leave(shared_from_this());
+						this->server_->Disconnect(shared_from_this());
+                        this->room_.Leave(shared_from_this());
                         this->SetConnect(false);
                     }
                 });
@@ -149,7 +154,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        write_msgs_.pop_front();
+                        this->write_msgs_.pop_front();
                         if (!write_msgs_.empty())
                         {
                             do_write();
@@ -157,8 +162,8 @@ namespace asio {
                     }
                     else
                     {
-						server_->Disconnect(shared_from_this());
-                        room_.Leave(shared_from_this());
+						this->server_->Disconnect(shared_from_this());
+                        this->room_.Leave(shared_from_this());
                         this->SetConnect(false);
                     }
                 });

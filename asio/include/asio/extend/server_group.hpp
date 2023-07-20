@@ -49,6 +49,11 @@ namespace asio {
 			this->Final();
 		}
 
+		tcp::socket& Socket()
+		{
+			return this->socket_;
+		}
+
 		void Close() override
 		{
 			if (this->socket_.is_open())
@@ -76,7 +81,7 @@ namespace asio {
 		{
 			std::lock_guard lock(this->mutex_);
 			bool write_in_progress = !write_msgs_.empty();
-			write_msgs_.push_back(msg);
+			this->write_msgs_.push_back(msg);
 			if (!write_in_progress)
 			{
 				do_write();
@@ -122,8 +127,8 @@ namespace asio {
 					}
 					else
 					{
-						server_->Disconnect(shared_from_this());
-						room_.Leave(shared_from_this());
+						this->server_->Disconnect(shared_from_this());
+						this->room_.Leave(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -143,8 +148,8 @@ namespace asio {
 					}
 					else
 					{
-						server_->Disconnect(shared_from_this());
-						room_.Leave(shared_from_this());
+						this->server_->Disconnect(shared_from_this());
+						this->room_.Leave(shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -168,8 +173,8 @@ namespace asio {
 					}
 					else
 					{
-						server_->Disconnect(shared_from_this());
-						room_.Leave(shared_from_this());
+						this->server_->Disconnect(shared_from_this());
+						this->room_.Leave(shared_from_this());
 						this->SetConnect(false);
 					}
 				});

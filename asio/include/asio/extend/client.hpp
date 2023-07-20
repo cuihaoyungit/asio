@@ -55,6 +55,11 @@ namespace asio {
             this->Final();
         }
 
+        tcp::socket& Socket()
+        {
+            return this->socket_;
+        }
+
         void Send(const Message& msg) override 
         {
 			this->write(msg);
@@ -137,7 +142,7 @@ namespace asio {
             asio::post(io_context_,
                 [this, msg]() {
                 bool write_in_progress = !write_msgs_.empty();
-                write_msgs_.push_back(msg);
+                this->write_msgs_.push_back(msg);
                 if (!write_in_progress && this->IsConnect())
                 {
                     do_write();
@@ -150,8 +155,8 @@ namespace asio {
             is_auto_reconnect_ = false;
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
-				socket_.close();
-			    io_context_.stop();
+				this->socket_.close();
+			    this->io_context_.stop();
 			    this->clear();
                 this->SetConnect(false);
 			    this->connect_state_ = ConnectState::ST_STOPPED;
@@ -162,7 +167,7 @@ namespace asio {
         {
             this->connect_state_ = ConnectState::ST_STOPPING;
             asio::post(io_context_, [this]() {
-                socket_.close();
+                this->socket_.close();
                 this->clear();
                 this->SetConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
@@ -257,7 +262,7 @@ namespace asio {
                     if (!ec)
                     {
                         if (!write_msgs_.empty()) {
-                            write_msgs_.pop_front();
+                            this->write_msgs_.pop_front();
                         }
 
                         if (!write_msgs_.empty()) {
