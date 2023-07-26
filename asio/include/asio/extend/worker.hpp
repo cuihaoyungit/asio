@@ -43,10 +43,13 @@ namespace asio {
 
 		// wait thread exit
 		void WaitStop() {
-			if (thread_->joinable())
-			{
-				thread_->join();
+			try {
+				if (thread_->joinable())
+				{
+					thread_->join();
+				}
 			}
+			catch (...) { std::cout << "system error" << std::endl; }
 		}
 
 		std::thread::id GetThreadId() {
