@@ -73,19 +73,26 @@ namespace asio {
 			switch (priority)
 			{
 			case Priority_Realtime:
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL) != 0;
+				break;
 			case Priority_Highest:
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST) != 0;
+				break;
 			case Priority_High:
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL) != 0;
+				break;
 			case Priority_Normal:
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_NORMAL) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_NORMAL) != 0;
+				break;
 			case Priority_Low: 
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL) != 0;
+				break;
 			case Priority_Lowest:
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST) != 0;
+				break;
 			case Priority_Idle:
-				ret = SetThreadPriority(handle, THREAD_PRIORITY_IDLE) != 0; break;
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_IDLE) != 0;
+				break;
 			}
 #endif
 			return ret;
