@@ -4,10 +4,26 @@
 #include <iostream>
 #include <functional>
 
+#if defined(_WIN32)
+#include <Windows.h>
+#endif
+
 namespace asio {
 	class Message;
 	class Worker
 	{
+	public:
+		enum Priority
+		{
+			Priority_Idle,
+			Priority_Lowest,
+			Priority_Low,
+			Priority_Normal,
+			Priority_High,
+			Priority_Highest,
+			Priority_Realtime,
+		};
+
 	public:
 		Worker() = default;
 
@@ -45,6 +61,32 @@ namespace asio {
 			this->name_ = name;
 		}
 
+		// Windows support modify thread priority
+		bool SetPriority(Priority priority)
+		{
+			std::thread::native_handle_type handle = this->thread_->native_handle();
+			bool ret = true;
+#if defined(_WIN32)
+			switch (priority)
+			{
+			case Priority_Realtime:
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_TIME_CRITICAL) != 0; break;
+			case Priority_Highest:
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_HIGHEST) != 0; break;
+			case Priority_High:
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL) != 0; break;
+			case Priority_Normal:
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_NORMAL) != 0; break;
+			case Priority_Low: 
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL) != 0; break;
+			case Priority_Lowest:
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST) != 0; break;
+			case Priority_Idle:
+				ret = SetThreadPriority(handle, THREAD_PRIORITY_IDLE) != 0; break;
+			}
+#endif
+			return ret;
+		}
 	private:
 		void RunThread() 
 		{
