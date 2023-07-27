@@ -1,4 +1,4 @@
-#ifndef __WORKER_HPP__
+﻿#ifndef __WORKER_HPP__
 #define __WORKER_HPP__
 #include <thread>
 #include <iostream>
@@ -13,6 +13,7 @@ namespace asio {
 	class Worker
 	{
 	public:
+		// https://blog.csdn.net/zhu2695/article/details/9256149
 		enum Priority
 		{
 			Priority_Idle,
