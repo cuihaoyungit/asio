@@ -17,6 +17,7 @@ namespace asio {
 		}
 
 		void Post(Message* msg) {
+			try
 			{
 				std::unique_lock<std::mutex> lock(this->mutex_);
 				if (stop) {
@@ -24,6 +25,8 @@ namespace asio {
 				}
 				msg_queue.emplace(std::move(msg));
 			}
+			catch (std::exception& ex) { std::cout << ex.what() << std::endl; }
+			// notify activate thread
 			condition.notify_one();
 		}
 
