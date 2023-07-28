@@ -53,6 +53,18 @@ namespace asio {
 			}
 		}
 
+		void AfterInit()  override
+		{
+			//
+		}
+		void BeforeExit() override
+		{
+			while (!this->msg_queue.empty())
+			{
+				this->msg_queue.pop();
+			}
+		}
+
 		virtual void HandleMessage(Message* msg) {}
 	private:
 		std::queue<Message*> msg_queue;
