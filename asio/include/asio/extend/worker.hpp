@@ -44,6 +44,12 @@ namespace asio {
 
 		// wait thread exit
 		void WaitStop() {
+			//can not stop self
+			if (this->id_ == std::thread::id())
+			{
+				return;
+			}
+			//
 			try {
 				if (thread_->joinable())
 				{
@@ -51,6 +57,8 @@ namespace asio {
 				}
 			}
 			catch (...) { std::cout << "system error" << std::endl; }
+			// save id
+			this->id_= std::this_thread::get_id();
 		}
 
 		std::thread::id GetThreadId() {
@@ -106,6 +114,10 @@ namespace asio {
 	private:
 		void RunThread() 
 		{
+			if (this->thread_)
+			{
+				this->id_ = this->thread_->get_id();
+			}
 			this->Init();
 			this->AfterInit();
 			this->Run();
@@ -125,6 +137,7 @@ namespace asio {
 	private:
 		std::unique_ptr<std::thread> thread_;
 		std::string name_;
+		std::thread::id id_;
 	};
 }
 
