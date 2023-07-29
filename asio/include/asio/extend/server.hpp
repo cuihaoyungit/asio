@@ -194,6 +194,7 @@ namespace asio {
             , signals_(io_context)
             , stoped_(false)
         {
+            // ensure one signals handler application
 			//signals_.add(SIGINT);
 			//signals_.add(SIGTERM);
 #if defined(SIGQUIT)

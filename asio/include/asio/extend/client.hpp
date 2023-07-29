@@ -34,8 +34,9 @@ namespace asio {
             auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
 
-			signals_.add(SIGINT); // ctrl + c
-			signals_.add(SIGTERM);// kill process
+            // ensure one signals handler in application
+			//signals_.add(SIGINT); // ctrl + c
+			//signals_.add(SIGTERM);// kill process
 #if defined(SIGQUIT)
 			signals_.add(SIGQUIT);// posix linux
 #endif // defined(SIGQUIT)
