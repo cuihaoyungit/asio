@@ -3,7 +3,7 @@
 #include <thread>
 #include <iostream>
 #include <functional>
-
+#include <mutex>
 #if defined(_WIN32)
 #include <Windows.h>
 #endif
@@ -45,13 +45,12 @@ namespace asio {
 		// wait thread exit
 		void WaitStop() {
 			//can not stop self
-			if (this->id_ == std::thread::id())
+			if (this->id_ == std::this_thread::get_id())
 			{
 				return;
 			}
-			//
 			try {
-				if (thread_->joinable())
+				if (this->thread_ && thread_->joinable())
 				{
 					thread_->join();
 				}

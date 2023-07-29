@@ -194,8 +194,8 @@ namespace asio {
             , signals_(io_context)
             , stoped_(false)
         {
-			signals_.add(SIGINT);
-			signals_.add(SIGTERM);
+			//signals_.add(SIGINT);
+			//signals_.add(SIGTERM);
 #if defined(SIGQUIT)
 			signals_.add(SIGQUIT);
 #endif // defined(SIGQUIT)
@@ -229,6 +229,14 @@ namespace asio {
 
         void Shutdown()
         {
+            // close acceptor
+            this->io_context.post([this]() {
+				if (this->acceptor_.is_open())
+				{
+					this->acceptor_.close();
+				}
+            });
+            // io service
 			if (!io_context.stopped())
 			{
 				io_context.stop();
