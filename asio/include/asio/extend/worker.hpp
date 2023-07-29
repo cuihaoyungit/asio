@@ -98,6 +98,11 @@ namespace asio {
 #endif
 			return ret;
 		}
+		//
+		void Sleep(unsigned long msecs)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(msecs));
+		}
 	private:
 		void RunThread() 
 		{
