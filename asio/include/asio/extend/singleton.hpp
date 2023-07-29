@@ -78,7 +78,7 @@ private:
 
 //----------------------------------------------------------------------
 template <typename T> 
-class Singleton
+class PSingleton
 {
 protected:
 	// TODO: Come up with something better than this!
@@ -88,12 +88,12 @@ protected:
 	// TODO: needs this.
 	static T* ms_Singleton = nullptr;
 public:
-	Singleton(void)
+	PSingleton(void)
 	{
 		assert(!ms_Singleton);
 		ms_Singleton = static_cast<T*>(this);
 	}
-	~Singleton(void)
+	~PSingleton(void)
 	{
 		assert(ms_Singleton);  
 		ms_Singleton = nullptr;
@@ -109,8 +109,8 @@ public:
 	}
 
 private:
-	Singleton& operator=(const Singleton&) { return this; }
-	Singleton(const Singleton&) {}
+	PSingleton& operator=(const PSingleton&) { return this; }
+	PSingleton(const PSingleton&) {}
 };
 
 //----------------------------------------------------------------------
