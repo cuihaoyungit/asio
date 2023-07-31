@@ -27,7 +27,6 @@ namespace asio {
 		// constructe without args
 		Object* alloc() {
 			std::lock_guard lock(this->mutex_);
-			this->alloc_count_++;
 			return object_pool<Object>::alloc();
 		}
 
@@ -35,18 +34,17 @@ namespace asio {
 		template <typename Arg>
 		Object* alloc(Arg arg) {
 			std::lock_guard lock(this->mutex_);
-			this->alloc_count_++;
 			return object_pool<Object>::alloc(arg);
 		}
 
 		void free(Object* o) {
 			std::lock_guard lock(this->mutex_);
-			this->free_cout_++;
 			object_pool<Object>::free(o);
 		}
 
 		// used size
 		int live_size() {
+			std::lock_guard lock(this->mutex_);
 			int count = 0;
 			auto obj = this->first();
 			while (obj)
@@ -56,15 +54,8 @@ namespace asio {
 			}
 			return count;
 		}
-
-		// total size
-		int size() {
-			return this->alloc_count_;
-		}
 	private:
 		std::mutex mutex_;
-		std::atomic<int> alloc_count_ = {0};
-		std::atomic<int> free_cout_   = {0};
 	};
 
 }
