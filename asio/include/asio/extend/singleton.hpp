@@ -102,6 +102,8 @@ template <typename T>
 class SSingleton
 {
 protected:
+	SSingleton() {};
+	~SSingleton() {};
 	// Move constructor
 	SSingleton(SSingleton&&) = delete;
 	// Move assignment
@@ -111,8 +113,6 @@ private:
 	SSingleton(const SSingleton&) = delete;
 	// Copy assignment
 	const SSingleton& operator =(const SSingleton&) = delete;
-	SSingleton() {};
-	~SSingleton() {};
 public:
 	static T& Instance() {
 		static T instance;
@@ -146,7 +146,7 @@ public:
 
 protected:
 	DSingleton() {}
-	~DSingleton() {}
+	virtual ~DSingleton() {}
 
 private:
 	static T* m_instance;
