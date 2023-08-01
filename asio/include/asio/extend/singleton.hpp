@@ -4,6 +4,7 @@
 
 //------------------------------------------------------------------
 // dynamic create object
+/*
 template<class T>
 class DSingleton
 {
@@ -49,17 +50,57 @@ T* DSingleton<T>::instance = nullptr;
 template<class T>
 std::mutex DSingleton<T>::mtx;
 
+*/
 //----------------------------------------------------------------------
-// static create object
+//Safe thread dynamic create object
+#include <mutex>
+template <typename T>
+class SafeSingleton {
+public:
+	static T* getInstance() {
+		if (!m_instance) {
+			std::lock_guard<std::mutex> lock(m_mutex);
+
+			if (!m_instance) {
+				m_instance = new T();
+			}
+		}
+		return m_instance;
+	}
+
+	static void Delete()
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		if (m_instance)
+		{
+			delete m_instance;
+			m_instance = nullptr;
+		}
+	}
+
+	SafeSingleton(const SafeSingleton&) = delete;
+	SafeSingleton& operator=(const SafeSingleton&) = delete;
+
+protected:
+	SafeSingleton() {}
+	~SafeSingleton() {}
+
+private:
+	static T* m_instance;
+	static std::mutex m_mutex;
+};
+
+template <typename T>
+T* SafeSingleton<T>::m_instance = nullptr;
+
+template <typename T>
+std::mutex SafeSingleton<T>::m_mutex;
+
+//----------------------------------------------------------------------
+// Static create object
 template <typename T>
 class SSingleton
 {
-public:
-	static T& Instance() {
-		static T instance;
-		return instance;
-	}
-	
 protected:
 	// Move constructor
 	SSingleton(SSingleton&&) = delete;
@@ -72,11 +113,50 @@ private:
 	const SSingleton& operator =(const SSingleton&) = delete;
 	SSingleton() {};
 	~SSingleton() {};
+public:
+	static T& Instance() {
+		static T instance;
+		return instance;
+	}
 };
 
+//-------------------------------------------------------------------------
+// Dynamic create object
+template <typename T>
+class DSingleton {
+public:
+	static T* getInstance() {
+		if (!m_instance) {
+			m_instance = new T();
+		}
+		return m_instance;
+	}
 
+	static void Delete()
+	{
+		if (m_instance)
+		{
+			delete m_instance;
+			m_instance = nullptr;
+		}
+	}
+
+	DSingleton(const DSingleton&) = delete;
+	DSingleton& operator=(const DSingleton&) = delete;
+
+protected:
+	DSingleton() {}
+	~DSingleton() {}
+
+private:
+	static T* m_instance;
+};
+
+template <typename T>
+T* DSingleton<T>::m_instance = nullptr;
 
 //----------------------------------------------------------------------
+//Save pointer of object
 template <typename T> 
 class PSingleton
 {
