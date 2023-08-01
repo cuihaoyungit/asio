@@ -53,7 +53,6 @@ std::mutex DSingleton<T>::mtx;
 */
 //----------------------------------------------------------------------
 //Safe thread dynamic create object
-#include <mutex>
 template <typename T>
 class SafeSingleton {
 public:
