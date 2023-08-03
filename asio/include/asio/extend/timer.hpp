@@ -16,6 +16,32 @@
 
 namespace asio {
 
+	//
+	class Timer
+	{
+		using clock_type =
+			std::chrono::system_clock;
+
+		clock_type::time_point when_;
+
+	public:
+		using duration =
+			clock_type::duration;
+
+		Timer()
+			: when_(clock_type::now())
+		{
+		}
+
+		duration
+			elapsed() const
+		{
+			return clock_type::now() - when_;
+		}
+	};
+	// duration_cast<milliseconds>(t.elapsed()).count() << "ms";
+
+	// Async timer
 	class AsioTimer : public Worker
 	{
 		using io_timer = std::shared_ptr<asio::steady_timer>;
