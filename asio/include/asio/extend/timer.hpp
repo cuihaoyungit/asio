@@ -13,9 +13,12 @@
 #include <optional>
 #include <cstddef>
 #include <iostream>
+#include <chrono>
 
 namespace asio {
 
+	using namespace std::chrono;
+	using clock_type = std::chrono::high_resolution_clock;
 	//
 	class Timer
 	{
