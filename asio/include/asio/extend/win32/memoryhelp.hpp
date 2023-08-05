@@ -2,8 +2,10 @@
 #ifndef __DbgMemLeak_H__
 #define __DbgMemLeak_H__
 
+//
+// only included in cpp file
+//
 #if defined(WIN32) && defined(_MSC_VER) &&  defined(_DEBUG)
-#include <stdlib.h>
 #include <crtdbg.h>
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
@@ -52,9 +54,6 @@ public:
 			_CrtMemState diffMemState;
 			_CrtMemDifference(&diffMemState, &startMemState, &endMemState);
 			_CrtMemDumpStatistics(&diffMemState);
-			//{
-			//	int leaksBeforeExit = _CrtDumpMemoryLeaks();
-			//}
 		}
 #endif
 	}
