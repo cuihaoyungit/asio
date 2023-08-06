@@ -33,8 +33,7 @@ namespace asio {
 	//----------------------------------------------------------------------
 	// Session GroupServer
 	class Session
-		: public NetObject,
-		public std::enable_shared_from_this<NetObject>
+		: public NetObject
 	{
 	public:
 		Session(tcp::socket socket, Room& room, NetServer* server) noexcept
@@ -68,8 +67,8 @@ namespace asio {
 			const uint64 sessionId = this->server_->GenerateUUId();
 			this->setSessionId(sessionId);
 			// server room jion
-			room_.Join(shared_from_this());
-			read_msg_.setNetObject(shared_from_this());
+			room_.Join(this->shared_from_this());
+			read_msg_.setNetObject(this->weak_from_this());
 			// connect event
 			this->SetConnect(true);
 			server_->Connect(shared_from_this());
@@ -128,7 +127,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(shared_from_this());
+						this->room_.Leave(this->shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -149,7 +148,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(shared_from_this());
+						this->room_.Leave(this->shared_from_this);
 						this->SetConnect(false);
 					}
 				});
@@ -174,7 +173,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(shared_from_this());
+						this->room_.Leave(this->shared_from_this());
 						this->SetConnect(false);
 					}
 				});

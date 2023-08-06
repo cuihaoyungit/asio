@@ -17,7 +17,7 @@ namespace asio {
 	//--------------------------------------------------------------
 	// NetObject
 	class Message;
-	class NetObject
+	class NetObject : public std::enable_shared_from_this<NetObject>
 	{
 	public:
 		typedef std::unordered_map<std::string, std::string> UserDataList;

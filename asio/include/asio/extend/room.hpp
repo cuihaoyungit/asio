@@ -18,9 +18,9 @@ namespace asio {
 		typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 		typedef std::set<NetObjectPtr> ObjList;
-		typedef std::unordered_map<uint64, NetObjectPtr> SocketObjMap; // socket     -> NetObject
-		typedef std::unordered_map<uint64, NetObjectPtr> SessionObjMap;// session id -> NetObject
-		typedef std::unordered_map<uint64, NetObjectPtr> UserObjMap;   // user id    -> NetObject
+		typedef std::unordered_map<uint64, NetObjectWeakPtr> SocketObjMap; // socket     -> NetObject
+		typedef std::unordered_map<uint64, NetObjectWeakPtr> SessionObjMap;// session id -> NetObject
+		typedef std::unordered_map<uint64, NetObjectWeakPtr> UserObjMap;   // user id    -> NetObject
 		Room() {}
 		~Room() {}
 
@@ -46,7 +46,7 @@ namespace asio {
 		}
 
 		// find Object by socket id
-		bool FindObjBySocketId(NetObjectPtr &ptr, const uint64 &socketId)
+		bool FindObjBySocketId(NetObjectWeakPtr ptr, const uint64 &socketId)
 		{
 			auto it = this->socket_obj_map_.find(socketId);
 			if (it != this->socket_obj_map_.end())
@@ -58,7 +58,7 @@ namespace asio {
 		}
 
 		// find Object by session id
-		bool FindObjBySessionId(NetObjectPtr &ptr, const uint64& sessionId)
+		bool FindObjBySessionId(NetObjectWeakPtr ptr, const uint64& sessionId)
 		{
 			auto it = this->session_obj_map_.find(sessionId);
 			if (it != this->session_obj_map_.end())
@@ -70,7 +70,7 @@ namespace asio {
 		}
 
 		// find Object by user id
-		bool FindObjByUserId(NetObjectPtr &ptr, const uint64& userId)
+		bool FindObjByUserId(NetObjectWeakPtr ptr, const uint64& userId)
 		{
 			auto it = this->user_map_.find(userId);
 			if (it != this->user_map_.end())
@@ -99,9 +99,13 @@ namespace asio {
 			{
 				recent_msgs_.pop_front();
 			}
+			// message boardcast
 			for (auto& obj : obj_list_)
 			{
-				obj->Deliver(msg);
+				if (auto p = obj->weak_from_this().lock())
+				{
+					p->Deliver(msg);
+				}
 			}
 		}
 

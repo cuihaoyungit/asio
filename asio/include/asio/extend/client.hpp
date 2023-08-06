@@ -15,10 +15,10 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    class Client : public Worker,
+    class Client :
+        public Worker,
         public NetClient,
-		public NetObject,
-        public std::enable_shared_from_this<NetObject>
+		public NetObject
     {
     public:
         Client(const std::string &ip, const std::string &port)
@@ -122,11 +122,11 @@ namespace asio {
     protected:
         void AfterInit() override
         {
-            this->read_msg_.setNetObject(shared_from_this());
+            this->read_msg_.setNetObject(this->weak_from_this());
         }
         void BeforeExit() override
         {
-            this->read_msg_.setNetObject(nullptr);
+            this->read_msg_.setNetObject(this->weak_from_this());
         }
 	private:
         void clear()
