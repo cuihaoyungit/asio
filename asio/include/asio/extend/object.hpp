@@ -27,6 +27,10 @@ namespace asio {
 		{
 			userdata.clear();
 		}
+		std::shared_ptr<NetObject> GetPtr()
+		{
+			return this->shared_from_this();
+		}
 		virtual void Final() {}
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
