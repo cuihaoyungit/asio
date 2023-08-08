@@ -256,6 +256,18 @@ namespace asio {
         // single thread run
         void Run() override
         {
+            // multi thread
+		    // Run the I/O service on the requested number of threads
+			/*
+            std::vector<std::thread> v;
+			v.reserve(threads - 1);
+			for (auto i = threads - 1; i > 0; --i)
+				v.emplace_back(
+					[&ioc]
+					{
+						ioc.run();
+					});
+            */
             io_context.run();
         }
 
