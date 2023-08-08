@@ -44,7 +44,8 @@ namespace asio {
 
 		}
 
-		virtual ~Session() {
+		virtual ~Session()
+		{
 			this->Final();
 		}
 
@@ -227,11 +228,13 @@ namespace asio {
 		}
 		~SubServer() {}
 
-		void StopContext() {
+		void StopContext()
+		{
 			this->Shutdown();
 		}
 
-		void Shutdown() {
+		void Shutdown()
+		{
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
@@ -244,7 +247,8 @@ namespace asio {
 			port_ = port;
 		}
 
-		Room& getRoom() {
+		Room& getRoom()
+		{
 			return this->room_;
 		}
 	private:
@@ -285,7 +289,8 @@ namespace asio {
 		}
 
 		// single thread run
-		void Run() override {
+		void Run() override
+		{
 			io_context_.run();
 		}
 
@@ -306,7 +311,8 @@ namespace asio {
 	{
 	public:
 		NetGroupServer() : m_stop(false) {}
-		virtual ~NetGroupServer() {
+		virtual ~NetGroupServer()
+		{
 			for (const auto& it : m_vSubServers) {
 				delete it;
 			}
@@ -324,7 +330,8 @@ namespace asio {
 				worker.join();
 		}
 
-		void Startup(const std::vector<int>& vPorts, int threadWorks = 1) {
+		void Startup(const std::vector<int>& vPorts, int threadWorks = 1)
+		{
 			// server port
 			this->Init();
 			for (auto port : vPorts)
@@ -362,7 +369,8 @@ namespace asio {
 			}
 		}
 
-		void WaitStop() {
+		void WaitStop()
+		{
 			for (const auto it : m_vSubServers) {
 				it->WaitStop();
 			}

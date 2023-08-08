@@ -77,18 +77,21 @@ namespace asio {
             return this->socket_.remote_endpoint().address().to_string();
         }
 
-        uint64 SocketId() override {
+        uint64 SocketId() override
+        {
             return socket_.native_handle();
         }
 
-		void StopContext() {
+		void StopContext()
+        {
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
 			}
 		}
 
-        void Shutdown() {
+        void Shutdown()
+        {
             this->Close();
             this->StopContext();
         }
