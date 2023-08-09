@@ -167,7 +167,7 @@ namespace asio {
 				});
 		}
 
-        void close()
+        void reset()
         {
             this->connect_state_ = ConnectState::ST_STOPPING;
             asio::post(io_context_, [this]() {
@@ -215,7 +215,7 @@ namespace asio {
                     else {
                         this->SetConnect(false);
                         std::cout << this->GetConnectName() << ":" << "connection failed." << std::endl;
-                        this->close();
+                        this->reset();
                     }
                 });
             this->connect_state_ = ConnectState::ST_CONNECTING;
@@ -233,7 +233,7 @@ namespace asio {
                     }
                     else
                     {
-                        this->close();
+                        this->reset();
                     }
                 });
         }
@@ -251,7 +251,7 @@ namespace asio {
                     }
                     else
                     {
-                        this->close();
+                        this->reset();
                     }
                 });
         }
@@ -275,7 +275,7 @@ namespace asio {
                     }
                     else
                     {
-                        this->close();
+                        this->reset();
                     }
                 });
         }
