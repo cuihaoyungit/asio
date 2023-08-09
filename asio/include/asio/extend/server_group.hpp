@@ -3,8 +3,8 @@
 // add by [11/21/2022 cuihaoyun]
 //
 
-#ifndef __SERVER_GROUP_HPP__
-#define __SERVER_GROUP_HPP__
+#ifndef __TCP_SERVER_GROUP_HPP__
+#define __TCP_SERVER_GROUP_HPP__
 
 #include <cstdlib>
 #include <deque>
@@ -196,12 +196,12 @@ namespace asio {
 	};
 
 	//----------------------------------------------------------------------
-	// SubServer
-	class SubServer : public Worker
+	// TcpSubServer
+	class TcpSubServer : public Worker
 	{
 		friend class NetServerWorkGroup;
 	public:
-		SubServer(NetServer* server, const tcp::endpoint& endpoint)
+		TcpSubServer(NetServer* server, const tcp::endpoint& endpoint)
 			: Worker(),
 			server_(server),
 			port_(0),
@@ -226,7 +226,7 @@ namespace asio {
 				});
 			this->do_accept();
 		}
-		~SubServer() {}
+		~TcpSubServer() {}
 
 		void StopContext()
 		{
@@ -336,7 +336,7 @@ namespace asio {
 			this->Init();
 			for (auto port : vPorts)
 			{
-				SubServer* pSubServer = new SubServer(dynamic_cast<NetServer*>(this), tcp::endpoint(tcp::v4(), port));
+				TcpSubServer* pSubServer = new TcpSubServer(dynamic_cast<NetServer*>(this), tcp::endpoint(tcp::v4(), port));
 				pSubServer->SetPort(port);
 				m_vSubServers.push_back(pSubServer);
 				pSubServer->Startup();
@@ -414,7 +414,7 @@ namespace asio {
 		NetGroupServer(const NetGroupServer&) = delete;
 		const NetGroupServer operator = (const NetGroupServer&) = delete;
 	private:
-		typedef std::vector<SubServer*>  ServerList;
+		typedef std::vector<TcpSubServer*> ServerList;
 		ServerList m_vSubServers;
 
 		typedef std::vector<std::thread> ThreadList;
@@ -433,4 +433,4 @@ namespace asio {
 }
 
 
-#endif // __SERVER_GROUP_HPP__
+#endif // __TCP_SERVER_GROUP_HPP__
