@@ -96,6 +96,12 @@ namespace asio {
             return this->socket_.native_handle();
         }
 
+        void clear()
+        {
+            std::lock_guard lock(this->mutex_);
+            this->write_msgs_.clear();
+        }
+
     private:
         void do_read_header()
         {

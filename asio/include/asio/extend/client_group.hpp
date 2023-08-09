@@ -190,8 +190,18 @@ namespace asio {
 				});
 		}
 
+		void clear()
+		{
+			std::lock_guard lock(this->mutex_);
+			this->write_msgs_.clear();
+		}
+
 		void write(const Message& msg)
 		{
+			{
+				std::lock_guard lock(this->mutex_);
+				this->write_msgs_.push_back(msg);
+			}
 			if (!this->is_connect_) {
 				return;
 			}
@@ -199,7 +209,7 @@ namespace asio {
 				[this, msg]()
 				{
 					bool write_in_progress = !write_msgs_.empty();
-					this->write_msgs_.push_back(msg);
+					//this->write_msgs_.push_back(msg);
 					if (!write_in_progress && is_connect_)
 					{
 						do_write();
@@ -216,6 +226,7 @@ namespace asio {
 		std::atomic<bool> is_close_;
 		ConnectState connect_state_;
 		NetClientEvent* handle_event_;
+		std::mutex mutex_;
 	};
 
 
