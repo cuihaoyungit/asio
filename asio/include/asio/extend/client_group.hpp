@@ -15,10 +15,10 @@ namespace asio {
 
 	using asio::ip::tcp;
 	class NetClientEvent;
-	class NetClient : public Worker, public NetObject
+	class NetTcpClient : public Worker, public NetObject
 	{
 	public:
-		NetClient(NetClientEvent* event, const std::string& address, const int port) ASIO_NOEXCEPT
+		explicit NetTcpClient(NetClientEvent* event, const std::string& address, const int port) ASIO_NOEXCEPT
 			: Worker(),
 			handle_event_(event),
 			is_connect_(false), is_close_(false), connect_state_(ConnectState::ST_STOPPED), socket_(nullptr)
@@ -30,7 +30,7 @@ namespace asio {
 			this->socket_ = new tcp::socket(this->io_context_);
 			do_connect(endpoints);
 		}
-		~NetClient() {
+		~NetTcpClient() {
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
@@ -77,7 +77,7 @@ namespace asio {
 			this->io_context_.run();
 		}
 
-		void close()
+		void reset()
 		{
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
@@ -123,7 +123,7 @@ namespace asio {
 					else {
 						is_connect_ = false;
 						std::cout << "connection failed." << std::endl;
-						this->close();
+						this->reset();
 					}
 				});
 			this->connect_state_ = ConnectState::ST_CONNECTING;
@@ -141,7 +141,7 @@ namespace asio {
 					}
 					else
 					{
-						this->close();
+						this->reset();
 					}
 				});
 		}
@@ -154,24 +154,12 @@ namespace asio {
 				{
 					if (!ec)
 					{
-#if _DEBUG
-						{
-							static std::mutex mtx;
-							std::lock_guard lock(mtx);
-							std::cout.write(read_msg_.body(), read_msg_.body_length());
-							std::cout << "\n";
-						}
-#else
-						std::cout.write(read_msg_.body(), read_msg_.body_length());
-						std::cout << std::this_thread::get_id() << "\n";
-#endif
 						this->handle_message(this, read_msg_);
-
 						do_read_header();
 					}
 					else
 					{
-						this->close();
+						this->reset();
 					}
 				});
 		}
@@ -197,7 +185,7 @@ namespace asio {
 					}
 					else
 					{
-						this->close();
+						this->reset();
 					}
 				});
 		}
@@ -244,7 +232,7 @@ namespace asio {
 
 		void Startup(const std::string& address, const int port, int numClients) {
 			for (int i = 0; i < numClients; i++) {
-				NetClient* pNetClient = new NetClient(this, address, port);
+				NetTcpClient* pNetClient = new NetTcpClient(this, address, port);
 				net_clients_.push_back(pNetClient);
 				pNetClient->Startup();
 			}
@@ -257,7 +245,7 @@ namespace asio {
 			}
 		}
 
-		NetClient* GetNetClient(int index) {
+		NetTcpClient* GetNetTcpClient(int index) {
 			if (index < net_clients_.size()) {
 				return net_clients_[index];
 			}
@@ -266,7 +254,7 @@ namespace asio {
 
 		void PostMsg(const Message& msg) override
 		{
-			NetClient* pClient = net_clients_[std::rand() % net_clients_.size()];
+			NetTcpClient* pClient = net_clients_[std::rand() % net_clients_.size()];
 			if (pClient)
 			{
 				pClient->Send(msg);
@@ -287,7 +275,7 @@ namespace asio {
 		NetClientWorkGroup(const NetClientWorkGroup&) = delete;
 		NetClientWorkGroup operator = (const NetClientWorkGroup&) = delete;
 	private:
-		std::vector<NetClient*> net_clients_;
+		std::vector<NetTcpClient*> net_clients_;
 	};
 
 	using NetClientGroup = NetClientWorkGroup;
