@@ -19,12 +19,12 @@ namespace asio {
     class Room;
 
     //----------------------------------------------------------------------
-    // Session Server
-    class Session
+    // Tcp Session Server
+    class TcpSession
         : public NetObject
     {
     public:
-        Session(tcp::socket socket, Room& room, NetServer* server) noexcept
+        TcpSession(tcp::socket socket, Room& room, NetServer* server) noexcept
             : socket_(std::move(socket)),
             room_(room),
             server_(server)
@@ -32,7 +32,7 @@ namespace asio {
 
         }
 
-        virtual ~Session() 
+        virtual ~TcpSession() 
         {
             this->Final();
         }
@@ -291,7 +291,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        std::make_shared<Session>(std::move(socket), room_, dynamic_cast<NetServer*>(this))->Start();
+                        std::make_shared<TcpSession>(std::move(socket), room_, dynamic_cast<NetServer*>(this))->Start();
                     }
 
                     this->do_accept();

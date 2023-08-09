@@ -1,5 +1,5 @@
-#ifndef __CLIENT_HPP__
-#define __CLIENT_HPP__
+#ifndef __TCP_CLIENT_HPP__
+#define __TCP_CLIENT_HPP__
 #include <deque>
 #include <mutex>
 #include <asio.hpp>
@@ -15,13 +15,13 @@ namespace asio {
     class NetObject;
     // Single Client
     //--------------------------------------------------------------
-    class Client :
+    class TcpClient :
         public Worker,
         public NetClient,
 		public NetObject
     {
     public:
-        Client(const std::string &ip, const std::string &port)
+        TcpClient(const std::string &ip, const std::string &port)
             :socket_(io_context_),
              signals_(io_context_),
              is_auto_reconnect_(false),
@@ -52,7 +52,7 @@ namespace asio {
             do_connect(endpoints);
         }
 
-        virtual ~Client() {
+        virtual ~TcpClient() {
             this->Final();
         }
 
@@ -293,9 +293,8 @@ namespace asio {
 		std::mutex mutex_;
     };
 
-
-
+    //////////////////////////////////////////////////////////////////////////
 }
 
 
-#endif // __CLIENT_HPP__
+#endif // __TCP_CLIENT_HPP__
