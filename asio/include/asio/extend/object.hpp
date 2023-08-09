@@ -38,19 +38,24 @@ namespace asio {
 		virtual std::string Ip()  = 0;
 		virtual uint64 SocketId() = 0;
 		virtual void Close() = 0; // disconnect
-		void SetType(const int type) {
+		void SetType(const int type)
+		{
 			this->type = type;
 		}
-		void SetConnectName(const std::string &name) {
+		void SetConnectName(const std::string &name)
+		{
 			this->connectName = name;
 		}
-		std::string& GetConnectName() {
+		std::string& GetConnectName()
+		{
 			return this->connectName;
 		}
-		void SetUserData(const std::string &key, const std::string &value) {
+		void SetUserData(const std::string &key, const std::string &value)
+		{
 			this->userdata[key] = value;
 		}
-		bool UserData(const std::string &key, std::string &out) {
+		bool UserData(const std::string &key, std::string &out)
+		{
 			auto it = userdata.find(key);
 			if (it != userdata.end())
 			{
@@ -59,10 +64,12 @@ namespace asio {
 			}
 			return false;
 		}
-		bool IsConnect() {
+		bool IsConnect()
+		{
 			return is_connect_;
 		}
-		void SetConnect(const bool bConnect) {
+		void SetConnect(const bool bConnect)
+		{
 			this->is_connect_ = bConnect;
 		}
 		void setSessionId(const uint64& sessionId)
@@ -73,22 +80,28 @@ namespace asio {
 		{
 			return this->session_id_;
 		}
-		void setProxyId(const int32& proxyId) {
+		void setProxyId(const int32& proxyId)
+		{
 			this->proxy_id_ = proxyId;
 		}
-		const int32 getProxyId() const {
+		const int32 getProxyId() const
+		{
 			return this->proxy_id_;
 		}
-		void setUserId(const uint64& userId) {
+		void setUserId(const uint64& userId)
+		{
 			this->user_id_ = userId;
 		}
-		const uint64 getUserId() {
+		const uint64 getUserId()
+		{
 			return this->user_id_;
 		}
-		std::string Address() {
+		std::string Address()
+		{
 			return remote_address_;
 		}
-		void setAddress(const std::string& ip) {
+		void setAddress(const std::string& ip)
+		{
 			this->remote_address_ = ip;
 		}
 	private:
@@ -136,20 +149,25 @@ namespace asio {
 		virtual void PostMsg(const Message& msg) {}
 
 		// Server ID card
-		const int ServerId() const {
+		const int ServerId() const
+		{
 			return server_id_;
 		}
-		void SetServerId(const int id) {
+		void SetServerId(const int id)
+		{
 			this->server_id_ = id;
 		}
 		// Server sub ID card
-		const int ServerSubId() const {
+		const int ServerSubId() const
+		{
 			return server_sub_id_;
 		}
-		void SetServerSubId(const int subId) {
+		void SetServerSubId(const int subId)
+		{
 			this->server_sub_id_ = subId;
 		}
-		bool IsPackSessionId() {
+		bool IsPackSessionId()
+		{
 			return this->is_pack_session_id_;
 		}
 		void SetPackSessionId(bool bPack)
@@ -157,7 +175,8 @@ namespace asio {
 			this->is_pack_session_id_ = bPack;
 		}
 
-		void InitUUID(const int serverId, const int subId) {
+		void InitUUID(const int serverId, const int subId)
+		{
 			try {
 				this->uuid_.init(serverId, subId); // default id start [1, 1]
 			}
@@ -166,7 +185,8 @@ namespace asio {
 				std::cout << ex.what() << std::endl;
 			}
 		}
-		uint64 GenerateUUId() {
+		uint64 GenerateUUId()
+		{
 			const uint64 sessionId = this->uuid_.nextid();
 			return sessionId;
 		}
@@ -208,7 +228,8 @@ namespace asio {
 			return m_taskList;
 		}
 
-		TaskCallback FindCallback(const int &key) {
+		TaskCallback FindCallback(const int &key)
+		{
 			auto it = m_taskList.find(key);
 			if (it != m_taskList.end())
 			{
