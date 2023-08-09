@@ -1,5 +1,5 @@
-﻿#ifndef __SERVER_HPP__
-#define __SERVER_HPP__
+﻿#ifndef __TCP_SERVER_HPP__
+#define __TCP_SERVER_HPP__
 #include <set>
 #include <mutex>
 #include <asio.hpp>
@@ -185,10 +185,10 @@ namespace asio {
 
     //----------------------------------------------------------------------
     // Singleton Server Basic class
-    class Server : public Worker, public NetServer
+    class TcpServer : public Worker, public NetServer
     {
     public:
-        Server(const tcp::endpoint& endpoint)
+        TcpServer(const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
             , signals_(io_context)
             , stoped_(false)
@@ -216,7 +216,7 @@ namespace asio {
             this->do_accept();
         }
 
-        virtual ~Server() 
+        virtual ~TcpServer() 
         {
             this->Final();
         }
@@ -312,4 +312,4 @@ namespace asio {
 
 }
 
-#endif // __SERVER_HPP__
+#endif // __TCP_SERVER_HPP__
