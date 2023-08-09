@@ -139,17 +139,14 @@ namespace asio {
         }
         void write(const Message& msg)
         {
-            {
-                std::lock_guard lock(this->mutex_);
-                this->write_msgs_.push_back(msg);
-            }
+            std::lock_guard lock(this->mutex_);
             if (!this->IsConnect()) {
                 return;
             }
             asio::post(io_context_,
                 [this, msg]() {
                 bool write_in_progress = !write_msgs_.empty();
-                //this->write_msgs_.push_back(msg);
+                this->write_msgs_.push_back(msg);
                 if (!write_in_progress && this->IsConnect())
                 {
                     do_write();
