@@ -36,7 +36,7 @@ namespace asio {
 		: public NetObject
 	{
 	public:
-		TcpSession(tcp::socket socket, Room& room, NetServer* server) noexcept
+		explicit TcpSession(tcp::socket socket, Room& room, NetServer* server) noexcept
 			: socket_(std::move(socket)),
 			room_(room),
 			server_(server)
@@ -201,7 +201,7 @@ namespace asio {
 	{
 		friend class NetServerWorkGroup;
 	public:
-		TcpSubServer(NetServer* server, const tcp::endpoint& endpoint)
+		explicit TcpSubServer(NetServer* server, const tcp::endpoint& endpoint)
 			: Worker(),
 			server_(server),
 			port_(0),
