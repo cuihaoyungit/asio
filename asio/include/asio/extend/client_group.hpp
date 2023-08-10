@@ -30,7 +30,8 @@ namespace asio {
 			this->socket_ = new tcp::socket(this->io_context_);
 			do_connect(endpoints);
 		}
-		~NetTcpClient() {
+		~NetTcpClient()
+		{
 			if (!io_context_.stopped())
 			{
 				io_context_.stop();
@@ -46,7 +47,8 @@ namespace asio {
 			return *this->socket_;
 		}
 
-		uint64 SocketId() override {
+		uint64 SocketId() override
+		{
 			return socket_->native_handle();
 		}
 
@@ -62,11 +64,24 @@ namespace asio {
 				this->connect_state_ = ConnectState::ST_STOPPED;
 				});
 		}
-
-		void Send(const Message& msg) override {
-			this->write(msg);
+		void Close() override
+		{
+			this->disconnect();
+		}
+		// warning error 10009 scope NetObject and socket
+		std::string Ip() override
+		{
+			return this->socket_->remote_endpoint().address().to_string();
 		}
 
+		void Send(const Message& msg) override
+		{
+			this->write(msg);
+		}
+		void Post(const Message& mgs) override
+		{
+			this->write(msg);
+		}
 	protected:
 		void handle_message(NetObject* pObject, const Message& msg) {
 			this->handle_event_->HandleMessage(this, msg);
@@ -198,10 +213,7 @@ namespace asio {
 
 		void write(const Message& msg)
 		{
-			{
-				std::lock_guard lock(this->mutex_);
-				this->write_msgs_.push_back(msg);
-			}
+			std::lock_guard lock(this->mutex_);
 			if (!this->is_connect_) {
 				return;
 			}
@@ -209,7 +221,7 @@ namespace asio {
 				[this, msg]()
 				{
 					bool write_in_progress = !write_msgs_.empty();
-					//this->write_msgs_.push_back(msg);
+					this->write_msgs_.push_back(msg);
 					if (!write_in_progress && is_connect_)
 					{
 						do_write();
@@ -234,14 +246,16 @@ namespace asio {
 	{
 	public:
 		NetClientWorkGroup() ASIO_NOEXCEPT {}
-		~NetClientWorkGroup() {
+		~NetClientWorkGroup()
+		{
 			for (const auto& it : net_clients_) {
 				delete it;
 			}
 			net_clients_.clear();
 		}
 
-		void Startup(const std::string& address, const int port, int numClients) {
+		void Startup(const std::string& address, const int port, int numClients)
+		{
 			for (int i = 0; i < numClients; i++) {
 				NetTcpClient* pNetClient = new NetTcpClient(this, address, port);
 				net_clients_.push_back(pNetClient);
@@ -249,14 +263,16 @@ namespace asio {
 			}
 		}
 
-		void WaitStop() {
+		void WaitStop()
+		{
 			for (const auto it : net_clients_) {
 				it->disconnect();
 				it->WaitStop();
 			}
 		}
 
-		NetTcpClient* GetNetTcpClient(int index) {
+		NetTcpClient* GetNetTcpClient(int index)
+		{
 			if (index < net_clients_.size()) {
 				return net_clients_[index];
 			}

@@ -79,6 +79,7 @@ namespace asio {
 
 		void Deliver(const Message& msg) override
 		{
+			/*
 			std::lock_guard lock(this->mutex_);
 			bool write_in_progress = !write_msgs_.empty();
 			this->write_msgs_.push_back(msg);
@@ -86,16 +87,20 @@ namespace asio {
 			{
 				do_write();
 			}
+			*/
+			this->write(msg);
 		}
 
 		void Send(const Message& msg)    override
 		{
-			this->Deliver(msg);
+			//this->Deliver(msg);
+			this->write(msg);
 		}
 
 		void Post(const Message& msg)    override
 		{
-			this->Deliver(msg);
+			//this->Deliver(msg);
+			this->write(msg);
 		}
 
 		// warning error 10009 scope NetObject socket
@@ -107,6 +112,22 @@ namespace asio {
 		uint64 SocketId() override final
 		{
 			return this->socket_.native_handle();
+		}
+	private:
+		void clear()
+		{
+			std::lock_guard lock(this->mutex_);
+			this->write_msgs_.clear();
+		}
+		void write(const Message& msg)
+		{
+			std::lock_guard lock(this->mutex_);
+			bool write_in_progress = !write_msgs_.empty();
+			this->write_msgs_.push_back(msg);
+			if (!write_in_progress)
+			{
+				do_write();
+			}
 		}
 	private:
 		void do_read_header()

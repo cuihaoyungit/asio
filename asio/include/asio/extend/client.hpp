@@ -13,7 +13,7 @@ namespace asio {
 
     using asio::ip::tcp;
     class NetObject;
-    // Single Client
+    // Single TcpClient
     //--------------------------------------------------------------
     class TcpClient :
         public Worker,
@@ -52,7 +52,8 @@ namespace asio {
             do_connect(endpoints);
         }
 
-        virtual ~TcpClient() {
+        virtual ~TcpClient()
+        {
             this->Final();
         }
 
@@ -64,6 +65,11 @@ namespace asio {
         void Send(const Message& msg) override 
         {
 			this->write(msg);
+        }
+
+        void Post(const Message& msg) override
+        {
+            this->write(msg);
         }
 
         void Deliver(const Message& msg) override
@@ -114,10 +120,6 @@ namespace asio {
 		{
 			this->disconnect();
 		}
-        void Post(const Message& msg) override
-        {
-            this->write(msg);
-        }
         void Run() override
         {
             io_context_.run();
@@ -132,12 +134,12 @@ namespace asio {
             this->read_msg_.setNetObject(this->weak_from_this());
         }
 	private:
-        void clear()
+        void clear() // need lock ? 2023-08-10
         {
             std::lock_guard lock(this->mutex_);
             this->write_msgs_.clear();
         }
-        void write(const Message& msg)
+        void write(const Message& msg) // async write keep sequence with lock
         {
             std::lock_guard lock(this->mutex_);
             if (!this->IsConnect()) {
