@@ -102,7 +102,7 @@ namespace asio {
             this->write_msgs_.push_back(msg);
             if (!write_in_progress)
             {
-                do_write();
+                this->do_write();
             }
         }
     private:

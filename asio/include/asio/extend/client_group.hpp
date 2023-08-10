@@ -224,7 +224,7 @@ namespace asio {
 					this->write_msgs_.push_back(msg);
 					if (!write_in_progress && is_connect_)
 					{
-						do_write();
+						this->do_write();
 					}
 				});
 		}
