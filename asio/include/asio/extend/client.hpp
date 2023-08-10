@@ -177,7 +177,7 @@ namespace asio {
                 this->clear();
                 this->SetConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
-                this->Disconnect(this);
+                this->Disconnect(dynamic_cast<NetObject*>(this));
                 this->reconnect();
                 });
         }
@@ -194,7 +194,7 @@ namespace asio {
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
             {
-                this->Reconnect(this);
+                this->Reconnect(dynamic_cast<NetObject*>(this));
                 do_connect(endpoints_);
             }
         }
@@ -210,7 +210,7 @@ namespace asio {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         this->SetConnect(true);
                         std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
-                        this->Connect(this);
+                        this->Connect(dynamic_cast<NetObject*>(this));
                         this->numbers_reconnect_ = 0;
                         do_read_header();
                     }
@@ -248,7 +248,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        this->HandleMessage(this, read_msg_);
+                        this->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
                         do_read_header();
                     }
                     else

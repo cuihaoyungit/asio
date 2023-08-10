@@ -60,7 +60,7 @@ namespace asio {
 			this->read_msg_.setNetObject(this->weak_from_this());
             // connect event
 			this->SetConnect(true);
-            this->server_->Connect(shared_from_this());
+            this->server_->Connect(this->shared_from_this());
             // start receive stream data
             do_read_header();
         }
@@ -124,7 +124,7 @@ namespace asio {
                     }
                     else
                     {
-						this->server_->Disconnect(shared_from_this());
+						this->server_->Disconnect(this->shared_from_this());
                         this->room_.Leave(this->shared_from_this());
                         this->SetConnect(false);
                     }
@@ -145,7 +145,7 @@ namespace asio {
                     }
                     else
                     {
-						this->server_->Disconnect(shared_from_this());
+						this->server_->Disconnect(this->shared_from_this());
                         this->room_.Leave(this->shared_from_this());
                         this->SetConnect(false);
                     }
@@ -170,7 +170,7 @@ namespace asio {
                     }
                     else
                     {
-						this->server_->Disconnect(shared_from_this());
+						this->server_->Disconnect(this->shared_from_this());
                         this->room_.Leave(this->shared_from_this());
                         this->SetConnect(false);
                     }
