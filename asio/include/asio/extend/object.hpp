@@ -125,8 +125,8 @@ namespace asio {
 	public:
 		NetClient() = default;
 		virtual ~NetClient() {}
-		virtual void Init() {}
-		virtual void Exit() {}
+		//virtual void Init() {}
+		//virtual void Exit() {}
 		virtual void Connect(NetObject* pNetObj) {}
 		virtual void Disconnect(NetObject* pNetObj) {}
 		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) {}
