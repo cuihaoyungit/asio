@@ -170,7 +170,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(this->shared_from_this);
+						this->room_.Leave(this->shared_from_this());
 						this->SetConnect(false);
 					}
 				});

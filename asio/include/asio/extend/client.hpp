@@ -24,7 +24,7 @@ namespace asio {
         TcpClient(const std::string &ip, const std::string &port)
             :socket_(io_context_),
              signals_(io_context_),
-             is_auto_reconnect_(false),
+             auto_reconnect_(false),
              numbers_reconnect_(0),
              connect_state_(ConnectState::ST_STOPPED)
         {
@@ -104,7 +104,7 @@ namespace asio {
         
         void SetAutoReconnect(bool bAutoReconnect) 
         {
-            this->is_auto_reconnect_ = bAutoReconnect;
+            this->auto_reconnect_ = bAutoReconnect;
         }
         
         int NumberOfReconnect() const
@@ -158,7 +158,7 @@ namespace asio {
 
 		void disconnect()
 		{
-            is_auto_reconnect_ = false;
+            auto_reconnect_ = false;
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
 				this->socket_.close();
@@ -185,7 +185,7 @@ namespace asio {
     public:
         void reconnect()
         {
-            if (!is_auto_reconnect_)
+            if (!auto_reconnect_)
             {
                 return;
             }
@@ -290,7 +290,7 @@ namespace asio {
         MessageQueue write_msgs_;
         tcp::resolver::results_type endpoints_;
         int numbers_reconnect_;
-        bool is_auto_reconnect_;
+        bool auto_reconnect_;
         ConnectState connect_state_;
 		std::mutex mutex_;
     };
