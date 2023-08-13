@@ -227,7 +227,7 @@ namespace asio {
 
         virtual ~TcpServer() 
         {
-            this->Final();
+            /*this->Final();*/
         }
 
         // stop asio io_content
