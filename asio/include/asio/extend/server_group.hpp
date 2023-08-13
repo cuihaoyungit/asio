@@ -310,7 +310,7 @@ namespace asio {
 		}
 
 		// single thread run
-		void Run() override
+		void Exec() override
 		{
 			io_context_.run();
 		}
@@ -398,7 +398,7 @@ namespace asio {
 			this->Exit();
 		}
 
-		auto GetServer(int index) -> SubServer* {
+		auto GetServer(int index) -> TcpSubServer* {
 			if (index < m_vSubServers.size()) {
 				return m_vSubServers[index];
 			}
@@ -420,14 +420,14 @@ namespace asio {
 		}
 
 	private:
-		void Init() override
+		void Init() /*override*/
 		{
 			int serverId = this->ServerId() == 0 ? 2 : this->ServerId();
 			int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
 			this->InitUUID(serverId, subId);
 		}
 		
-		void Exit() override
+		void Exit() /*override*/
 		{
 		
 		}

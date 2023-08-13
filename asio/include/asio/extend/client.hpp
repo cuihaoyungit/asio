@@ -16,17 +16,16 @@ namespace asio {
     // Single TcpClient
     //--------------------------------------------------------------
     class TcpClient :
-        public Worker,
-        public NetClient,
 		public NetObject
     {
     public:
-        TcpClient(const std::string &ip, const std::string &port)
-            :socket_(io_context_),
-             signals_(io_context_),
-             auto_reconnect_(false),
-             numbers_reconnect_(0),
-             connect_state_(ConnectState::ST_STOPPED)
+        TcpClient(NetEvent* event, const std::string &ip, const std::string &port)
+            :socket_(io_context_)
+            ,signals_(io_context_)
+            ,auto_reconnect_(false)
+            ,numbers_reconnect_(0)
+            ,connect_state_(ConnectState::ST_STOPPED)
+            ,net_client_(event)
         {
             this->SetConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
@@ -112,27 +111,15 @@ namespace asio {
             return this->numbers_reconnect_;
         }
     public:
-		void Connect(NetObject* pObject) override {}
-		void Disconnect(NetObject* pObject) override {}
-		void HandleMessage(NetObject* pObject, const Message& msg) override {}
-		void Reconnect(NetObject* pNetObj) override {}
 		void Close() override
 		{
 			this->disconnect();
 		}
-        void Run() override
+        void Run()
         {
             io_context_.run();
         }
     protected:
-        void AfterInit() override
-        {
-            this->read_msg_.setNetObject(this->weak_from_this());
-        }
-        void BeforeExit() override
-        {
-            this->read_msg_.setNetObject(this->weak_from_this());
-        }
 	private:
         void clear() // need lock ? 2023-08-10
         {
@@ -177,7 +164,7 @@ namespace asio {
                 this->clear();
                 this->SetConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
-                this->Disconnect(dynamic_cast<NetObject*>(this));
+				this->net_client_->Disconnect(dynamic_cast<NetObject*>(this));
                 this->reconnect();
                 });
         }
@@ -194,7 +181,7 @@ namespace asio {
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
             {
-                this->Reconnect(dynamic_cast<NetObject*>(this));
+                this->net_client_->Reconnect(dynamic_cast<NetObject*>(this));
                 do_connect(endpoints_);
             }
         }
@@ -210,8 +197,9 @@ namespace asio {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         this->SetConnect(true);
                         std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
-                        this->Connect(dynamic_cast<NetObject*>(this));
+                        this->net_client_->Connect(dynamic_cast<NetObject*>(this));
                         this->numbers_reconnect_ = 0;
+                        this->read_msg_.setNetObject(this->weak_from_this());
                         do_read_header();
                     }
                     else {
@@ -248,7 +236,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        this->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
+                        this->net_client_->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
                         do_read_header();
                     }
                     else
@@ -293,8 +281,10 @@ namespace asio {
         bool auto_reconnect_;
         ConnectState connect_state_;
 		std::mutex mutex_;
+        NetEvent* net_client_;
     };
-
+    //
+	typedef std::shared_ptr<TcpClient> TcpClientPtr;
     //////////////////////////////////////////////////////////////////////////
 }
 

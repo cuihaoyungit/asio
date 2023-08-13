@@ -93,7 +93,7 @@ namespace asio {
 		}
 
 	protected:
-		void Run() override {
+		void Exec() override {
 			this->Init();
 			ioc_.run();
 			this->Exit();

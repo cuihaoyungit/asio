@@ -120,13 +120,15 @@ namespace asio {
 
 	//--------------------------------------------------------------
 	// NetClient Event
-	class NetClient
+	class NetEvent
 	{
 	public:
-		NetClient() = default;
-		virtual ~NetClient() {}
+		NetEvent() = default;
+		virtual ~NetEvent() {}
 		//virtual void Init() {}
 		//virtual void Exit() {}
+		virtual void Post(const Message& msg) {}
+		virtual void Send(const Message& msg) {}
 		virtual void Connect(NetObject* pNetObj) {}
 		virtual void Disconnect(NetObject* pNetObj) {}
 		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) {}
@@ -140,14 +142,14 @@ namespace asio {
 	public:
 		NetServer():server_id_(0),server_sub_id_(0), is_pack_session_id_(false) {}
 		virtual ~NetServer() {}
-		virtual void Init() {}
-		virtual void Exit() {}
+		//virtual void Init() {}
+		//virtual void Exit() {}
 		virtual void Final() {}
 		virtual void Connect(NetObjectPtr pNetObj) {}
 		virtual void Disconnect(NetObjectPtr pNetObj) {}
 		virtual void HandleMessage(Message& msg) {}
 		virtual void PostMsg(const Message& msg) {}
-
+	public:
 		// Server ID card
 		const int ServerId() const
 		{

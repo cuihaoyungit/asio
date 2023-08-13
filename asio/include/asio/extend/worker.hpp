@@ -119,14 +119,14 @@ namespace asio {
 			}
 			this->Init();
 			this->AfterInit();
-			this->Run();
+			this->Exec();
 			this->BeforeExit();
 			this->Exit();
 		}
 	protected:
 		virtual void Init() = 0;
 		virtual void Exit() = 0;
-		virtual void Run()  = 0;
+		virtual void Exec() = 0;
 
 		virtual void AfterInit()  {}
 		virtual void BeforeExit() {}

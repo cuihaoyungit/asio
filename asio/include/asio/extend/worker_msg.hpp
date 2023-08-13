@@ -39,7 +39,7 @@ namespace asio {
 		}
 
 	protected:
-		void Run() override {
+		void Exec() override {
 			for (;;)
 			{
 				std::unique_lock<std::mutex> lock(this->mutex_);
