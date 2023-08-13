@@ -359,10 +359,12 @@ public:
 		}
 	}
 protected:
+	/*
 	void Connect(asio::NetObject* pNetObj) {}
 	void Disconnect(asio::NetObject* pNetObj) {}
 	void HandleMessage(asio::NetObject* pNetObj, const asio::Message& msg) {}
 	void Reconnect(asio::NetObject* pNetObj) {}
+	*/
 private:
 	void Init() override
 	{
