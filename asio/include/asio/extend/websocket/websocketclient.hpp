@@ -175,15 +175,6 @@ private:
 				}
 			});
 	}
-	void do_read()
-	{
-		// Read a message into our buffer
-		ws_.async_read(
-			buffer_,
-			beast::bind_front_handler(
-				&WebSession::on_read,
-				/*shared_from_this()*/this));
-	}
 private:
 	void on_resolve(
 		beast::error_code ec,
@@ -266,7 +257,7 @@ private:
 		this->Post(msg);
 
 		// Read a message
-		this->do_read();
+		this->read();
 	}
 
 	void on_write(
@@ -278,6 +269,16 @@ private:
 		if (ec)
 			return fail(ec, "write");
 
+		// Read a message into our buffer
+		ws_.async_read(
+			buffer_,
+			beast::bind_front_handler(
+				&WebSession::on_read,
+				/*shared_from_this()*/this));
+	}
+
+	void read()
+	{
 		// Read a message into our buffer
 		ws_.async_read(
 			buffer_,
@@ -304,6 +305,8 @@ private:
 
 		// handle message
 		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), msg);
+
+		// read
 
 		// Close the WebSocket connection
 		if (ws_.is_open()) {
@@ -369,12 +372,6 @@ public:
 		}
 	}
 protected:
-	/*
-	void Connect(asio::NetObject* pNetObj) {}
-	void Disconnect(asio::NetObject* pNetObj) {}
-	void HandleMessage(asio::NetObject* pNetObj, const asio::Message& msg) {}
-	void Reconnect(asio::NetObject* pNetObj) {}
-	*/
 private:
 	void Init() override
 	{
