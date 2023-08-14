@@ -28,6 +28,7 @@
 #include <asio/extend/object>
 #include <asio/extend/typedef>
 #include <asio/extend/worker>
+#include <asio/extend/websocket/websocketroom>
 //using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -37,13 +38,12 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //------------------------------------------------------------------------------
-
-// Report a failure
-void
-fail(beast::error_code ec, char const* what)
+class Error
 {
-	std::cerr << what << ": " << ec.message() << "\n";
-}
+public:
+protected:
+private:
+};
 
 // Sends a WebSocket message and prints the response
 class WebClientWorker;
@@ -60,6 +60,7 @@ class WebSession :
 	asio::MessageQueue write_msgs_;
 	std::mutex mutex_;
 	asio::NetEvent* net_event_;
+	WebSocketRoom room_;
 	friend class WebClientWorker;
 public:
 	// Resolver and socket require an io_context
@@ -238,6 +239,9 @@ private:
 		// websocket connect
 		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
+		// add websocket room
+		this->room_.join(this);
+
 		// step 3
 		/*
 		std::string text = "hello";
@@ -310,7 +314,7 @@ private:
 		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), *msg);
 
 		// The make_printable() function helps print a ConstBufferSequence
-		std::cout << beast::make_printable(buffer_.data()) << std::endl;
+		// std::cout << beast::make_printable(buffer_.data()) << std::endl;
 
 		// Clear the buffer
 		buffer_.consume(buffer_.size());
@@ -341,6 +345,13 @@ private:
 		// std::cout << beast::make_printable(buffer_.data()) << std::endl;
 
 		std::cout << "websocket close" << std::endl;
+	}
+	// Report a failure
+	void fail(beast::error_code ec, char const* what)
+	{
+		this->room_.leave(this);
+		// error
+		std::cerr << what << ": " << ec.message() << "\n";
 	}
 };
 
