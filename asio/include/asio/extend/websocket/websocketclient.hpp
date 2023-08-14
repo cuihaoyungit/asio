@@ -315,7 +315,7 @@ private:
 		// Clear the buffer
 		buffer_.consume(buffer_.size());
 
-		// read
+		// receive data
 		this->read();
 
 		// Close the WebSocket connection
