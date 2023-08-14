@@ -46,6 +46,7 @@ fail(beast::error_code ec, char const* what)
 }
 
 // Sends a WebSocket message and prints the response
+class WebClientWorker;
 class WebSession :
 	public asio::NetObject
 {
@@ -54,10 +55,11 @@ class WebSession :
 	websocket::stream<beast::tcp_stream> ws_;
 	beast::flat_buffer buffer_; // read buffer
 	std::string host_;
-	std::string text_;
+	std::string port_;
 	asio::MessageQueue write_msgs_;
 	std::mutex mutex_;
 	asio::NetEvent* net_event_;
+	friend class WebClientWorker;
 public:
 	// Resolver and socket require an io_context
 	explicit
@@ -74,17 +76,15 @@ public:
 	{
 		this->Final();
 	}
-
+private:
 	// Start the asynchronous operation
 	void run(
 		char const* host,
-		char const* port,
-		char const* text)
+		char const* port)
 	{
 		// Save these for later
 		host_ = host;
-		text_ = text;
-
+		port_ = port;
 		// Look up the domain name
 		resolver_.async_resolve(
 			host,
@@ -243,9 +243,10 @@ private:
 		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
 		// step 3
+		std::string text = "hello";
 		static asio::Message msg;
-		msg.body_length(text_.length());
-		std::memcpy(msg.body(), text_.data(), text_.size());
+		msg.body_length(text.length());
+		std::memcpy(msg.body(), text.data(), text.size());
 		asio::MsgHeader header;
 		header.seq = 50002;
 		header.body_len = msg.body_length();
@@ -343,6 +344,11 @@ public:
 	{
 		this->auto_reconnect_ = bAutoReconnect;
 	}
+	void SetEndpoint(const std::string_view& host, const std::string_view& port)
+	{
+		this->host_ = host;
+		this->port_ = port;
+	}
 public:
 	void Post(const asio::Message& msg) override
 	{
@@ -376,10 +382,13 @@ private:
 	}
 	void Exec() override
 	{
+		if (this->host_.empty() || this->port_.empty()) {
+			return;
+		}
 		do
 		{
 			this->session_ = std::make_shared<WebSession>(this);
-			this->session_->run("127.0.0.1", "8000", "hello");
+			this->session_->run(host_.c_str(), port_.c_str());
 			this->session_->Run();
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		} while (this->auto_reconnect_);
@@ -387,6 +396,8 @@ private:
 private:
 	bool auto_reconnect_ = { false };
 	std::shared_ptr<WebSession> session_;
+	std::string host_;
+	std::string port_;
 };
 
 #endif // __WEBSOCKET_CLIENT_HPP__
