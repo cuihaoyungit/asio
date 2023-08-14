@@ -56,6 +56,7 @@ class WebSession :
 	beast::flat_buffer buffer_; // read buffer
 	std::string host_;
 	std::string port_;
+	asio::Message read_msg_;
 	asio::MessageQueue write_msgs_;
 	std::mutex mutex_;
 	asio::NetEvent* net_event_;
@@ -238,6 +239,7 @@ private:
 		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
 		// step 3
+		/*
 		std::string text = "hello";
 		static asio::Message msg;
 		msg.body_length(text.length());
@@ -246,6 +248,8 @@ private:
 		header.seq = 50002;
 		header.body_len = msg.body_length();
 		msg.encode_header(header);
+		this->Post(msg);
+		*/
 
 		// Send the message
 		//ws_.async_write(
@@ -254,7 +258,6 @@ private:
 		//		&session::on_write,
 		//		/*shared_from_this()*/this));
 		//
-		this->Post(msg);
 
 		// Read a message
 		this->read();
@@ -298,16 +301,19 @@ private:
 
 		// step 4 check
 		int header_size = sizeof(asio::MsgHeader);
-		asio::Message msg;
-		std::memcpy(msg.data(), buffer_.data().data(), buffer_.size());
-		msg.decode_header();
-		asio::MsgHeader* header((asio::MsgHeader*)msg.data());
+		asio::Message *msg = &this->read_msg_;
+		std::memcpy(msg->data(), buffer_.data().data(), buffer_.size());
+		msg->decode_header();
+		asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
 		// handle message
-		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), msg);
+		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), *msg);
 
 		// The make_printable() function helps print a ConstBufferSequence
 		std::cout << beast::make_printable(buffer_.data()) << std::endl;
+
+		// Clear the buffer
+		buffer_.consume(buffer_.size());
 
 		// read
 		this->read();
