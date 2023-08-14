@@ -306,15 +306,19 @@ private:
 		// handle message
 		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), msg);
 
+		// The make_printable() function helps print a ConstBufferSequence
+		std::cout << beast::make_printable(buffer_.data()) << std::endl;
+
 		// read
+		this->read();
 
 		// Close the WebSocket connection
-		if (ws_.is_open()) {
-			ws_.async_close(websocket::close_code::normal,
-				beast::bind_front_handler(
-					&WebSession::on_close,
-					/*shared_from_this()*/this));
-		}
+		//if (ws_.is_open()) {
+		//	ws_.async_close(websocket::close_code::normal,
+		//		beast::bind_front_handler(
+		//			&WebSession::on_close,
+		//			/*shared_from_this()*/this));
+		//}
 	}
 
 	void on_close(beast::error_code ec)
@@ -328,7 +332,9 @@ private:
 		// If we get here then the connection is closed gracefully
 
 		// The make_printable() function helps print a ConstBufferSequence
-		std::cout << beast::make_printable(buffer_.data()) << std::endl;
+		// std::cout << beast::make_printable(buffer_.data()) << std::endl;
+
+		std::cout << "websocket close" << std::endl;
 	}
 };
 
@@ -342,6 +348,7 @@ public:
 	virtual ~WebClientWorker() {}
 	void Stop()
 	{
+		this->SetAutoReconnect(false);
 		if (this->session_)
 		{
 			this->session_->StopContext();
