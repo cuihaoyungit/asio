@@ -86,6 +86,12 @@ namespace asio {
             return this->socket_.remote_endpoint().address().to_string();
         }
 
+        std::string Port() override
+        {
+            unsigned short port = this->socket_.remote_endpoint().port();
+            return std::to_string(port);
+        }
+
         uint64 SocketId() override final {
             return this->socket_.native_handle();
         }

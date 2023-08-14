@@ -63,7 +63,7 @@ class WebSession :
 public:
 	// Resolver and socket require an io_context
 	explicit
-		WebSession(asio::NetEvent* event/*net::io_context& ioc*//*const std::string& host, const std::string& port*/)
+		WebSession(asio::NetEvent* event)
 		: resolver_(net::make_strand(ioc_))
 		, ws_(net::make_strand(ioc_))
 		, net_event_(event)
@@ -105,6 +105,10 @@ public: // NetObject
 	std::string Ip() override
 	{
 		return this->host_;
+	}
+	std::string Port() override
+	{
+		return this->port_;
 	}
 	uint64 SocketId() override
 	{

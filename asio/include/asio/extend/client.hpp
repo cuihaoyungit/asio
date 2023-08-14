@@ -32,6 +32,8 @@ namespace asio {
             tcp::resolver resolver(io_context_);
             auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
+            this->host_ = ip;
+            this->port_ = port;
 
             // ensure one signals handler in application
 			//signals_.add(SIGINT); // ctrl + c
@@ -80,6 +82,11 @@ namespace asio {
         std::string Ip() override
         {
             return this->socket_.remote_endpoint().address().to_string();
+        }
+
+        std::string Port() override
+        {
+            return this->port_;
         }
 
         uint64 SocketId() override
@@ -282,6 +289,8 @@ namespace asio {
         ConnectState connect_state_;
 		std::mutex mutex_;
         NetEvent* net_client_;
+        std::string host_;
+        std::string port_;
     };
     //
 	typedef std::shared_ptr<TcpClient> TcpClientPtr;
