@@ -32,7 +32,8 @@
 #include <asio/extend/object.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/extend/typedef.hpp>
-#include <asio/extend/websocket/websocketroom.hpp>
+//#include <asio/extend/websocket/websocketroom.hpp>
+#include <asio/extend/room.hpp>
 using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -51,18 +52,23 @@ class WebSession
     Message read_msg_;
     MessageQueue write_msgs_;
     std::mutex mutex_;
+    Room &room_;
 public:
     // Take ownership of the socket
-    explicit WebSession(tcp::socket&& socket)
+    explicit WebSession(tcp::socket&& socket, Room& room)
         : ws_(std::move(socket))
+        , room_(room)
     {
         // step 2
         ws_.binary(true);
+        
+        //
+        //this->room_.Join(this->shared_from_this());
     }
 
     virtual ~WebSession()
     {
-
+        //this->room_.Leave(this->shared_from_this());
     }
 
     void Close() override
@@ -138,6 +144,8 @@ public:
         if (ec)
             return fail(ec, "accept");
 
+        //
+        //this->room_.Join(this->shared_from_this());
         // Read a message
         this->do_read();
     }
@@ -235,6 +243,7 @@ public:
     // Report a failure
     void fail(beast::error_code ec, char const* what)
     {
+        //this->room_.Leave(this->shared_from_this());
         std::cerr << what << ": " << ec.message() << "\n";
     }
     private:
@@ -246,9 +255,9 @@ public:
 // Accepts incoming connections and launches the sessions
 class WebSocketServer : public Worker, public NetServer
 {
-    net::io_context ioc_;
+    net::io_context ioc_{1};
     tcp::acceptor acceptor_;
-    WebSocketRoom room_;
+    Room room_;
 public:
     WebSocketServer(
         /*net::io_context& ioc, */
@@ -318,6 +327,14 @@ private:
     void HandleMessage(Message& msg)      override {}
     void Exec() override
     {
+        //std::vector<std::thread> v;
+        //v.reserve(1);
+        //for (auto i = threads - 1; i > 0; --i)
+        //    v.emplace_back(
+        //        [&ioc]
+        //        {
+        //            ioc.run();
+        //        });
         this->ioc_.run();
     }
     void Init() override
@@ -348,7 +365,7 @@ private:
         else
         {
             // Create the session and run it
-            std::make_shared<WebSession>(std::move(socket))->run();
+            std::make_shared<WebSession>(std::move(socket), this->room_)->run();
         }
 
         // Accept another connection
