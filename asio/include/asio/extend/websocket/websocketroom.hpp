@@ -10,7 +10,7 @@
 namespace asio {
     class NetObject;
 }
-// using namespace asio;
+using namespace asio;
 
 // Represents the shared server state
 class WebSocketRoom
