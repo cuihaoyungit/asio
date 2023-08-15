@@ -60,7 +60,7 @@ class WebSession :
 	asio::MessageQueue write_msgs_;
 	std::mutex mutex_;
 	asio::NetEvent* net_event_;
-	WebSocketRoom room_;
+	//WebSocketRoom room_;
 	friend class WebClientWorker;
 public:
 	// Resolver and socket require an io_context
@@ -240,7 +240,7 @@ private:
 		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
 		// add websocket room
-		this->room_.join(this);
+		// this->room_.join(this);
 
 		// step 3
 		/*
@@ -349,7 +349,7 @@ private:
 	// Report a failure
 	void fail(beast::error_code ec, char const* what)
 	{
-		this->room_.leave(this);
+		// this->room_.leave(this);
 		// error
 		std::cerr << what << ": " << ec.message() << "\n";
 	}
