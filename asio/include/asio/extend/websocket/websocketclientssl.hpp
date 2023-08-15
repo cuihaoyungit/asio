@@ -66,7 +66,6 @@ class WebSessionSSL :
     beast::flat_buffer buffer_;
     std::string host_;
     std::string port_;
-    std::string text_;
     asio::Message read_msg_;
     asio::MessageQueue write_msgs_;
     std::mutex mutex_;
@@ -86,13 +85,11 @@ public:
     // Start the asynchronous operation
     void run(
         char const* host,
-        char const* port,
-        char const* text)
+        char const* port)
     {
         // Save these for later
         host_ = host;
         port_ = port;
-        text_ = text;
 
         // Look up the domain name
         resolver_.async_resolve(
@@ -281,7 +278,7 @@ private:
         // websocket connect
         this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
-        std::string text = this->text_;
+        std::string text = "hello";
         static asio::Message msg;
         msg.body_length(text.length());
         std::memcpy(msg.body(), text.data(), text.size());
@@ -442,7 +439,7 @@ private:
 
             // Websocket instance
             this->session_ = std::make_shared<WebSessionSSL>(this, ctx);
-            this->session_->run(host_.c_str(), port_.c_str(), "hello world");
+            this->session_->run(host_.c_str(), port_.c_str());
             this->session_->Run();
             std::this_thread::sleep_for(std::chrono::seconds(1));
         } while (this->auto_reconnect_);
