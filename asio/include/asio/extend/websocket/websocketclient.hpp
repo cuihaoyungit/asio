@@ -38,13 +38,6 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //------------------------------------------------------------------------------
-class Error
-{
-public:
-protected:
-private:
-};
-
 // Sends a WebSocket message and prints the response
 class WebClientWorker;
 class WebSession :

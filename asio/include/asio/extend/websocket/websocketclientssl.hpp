@@ -268,6 +268,7 @@ private:
         // websocket connect
         this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
+        /*
         std::string text = "hello";
         static asio::Message msg;
         msg.body_length(text.length());
@@ -277,6 +278,7 @@ private:
         header.body_len = msg.body_length();
         msg.encode_header(header);
         this->Post(msg);
+        */
 
         // Send the message
         //ws_.async_write(
@@ -363,7 +365,7 @@ private:
 //------------------------------------------------------------------------------
 
 /// <summary>
-/// WebClientWorker thread
+/// WebClientSSLWorker thread
 /// </summary>
 class WebClientSSLWorker :
     public asio::Worker,
