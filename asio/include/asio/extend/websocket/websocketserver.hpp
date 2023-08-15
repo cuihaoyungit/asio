@@ -28,7 +28,11 @@
 #include <thread>
 #include <vector>
 // step 1
-#include <asio/msgdef/message>
+#include <asio/msgdef/message.hpp>
+#include <asio/extend/object.hpp>
+#include <asio/extend/worker.hpp>
+#include <asio/extend/typedef.hpp>
+using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -37,21 +41,59 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //------------------------------------------------------------------------------
-
 // Echoes back all received WebSocket messages
-class WebSession : public std::enable_shared_from_this<WebSession>
+class WebSession
+    : public NetObject
 {
     websocket::stream<beast::tcp_stream> ws_;
     beast::flat_buffer buffer_;
-
+    Message read_msg_;
+    MessageQueue write_msgs_;
+    std::mutex mutex_;
 public:
     // Take ownership of the socket
-    explicit
-        WebSession(tcp::socket&& socket)
+    explicit WebSession(tcp::socket&& socket)
         : ws_(std::move(socket))
     {
         // step 2
         ws_.binary(true);
+    }
+
+    virtual ~WebSession()
+    {
+
+    }
+
+    void Close() override
+    {
+
+    }
+
+    void Send(const Message& msg) override
+    {
+        this->write(msg);
+    }
+
+    void Post(const Message& msg) override
+    {
+        this->write(msg);
+    }
+
+    // warning error 10009 scope NetObject and socket
+    std::string Ip() override
+    {
+        return "";
+    }
+
+    std::string Port() override
+    {
+        unsigned short port = 0;
+        return std::to_string(port);
+    }
+
+    uint64 SocketId() override final
+    {
+        return 0;
     }
 
     // Get on the correct executor
@@ -64,7 +106,7 @@ public:
         net::dispatch(ws_.get_executor(),
             beast::bind_front_handler(
                 &WebSession::on_run,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     // Start the asynchronous operation
@@ -87,7 +129,7 @@ public:
         ws_.async_accept(
             beast::bind_front_handler(
                 &WebSession::on_accept,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     void on_accept(beast::error_code ec)
@@ -96,7 +138,7 @@ public:
             return fail(ec, "accept");
 
         // Read a message
-        do_read();
+        this->do_read();
     }
 
     void do_read()
@@ -106,7 +148,7 @@ public:
             buffer_,
             beast::bind_front_handler(
                 &WebSession::on_read,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     void on_read(
@@ -130,12 +172,14 @@ public:
         asio::MsgHeader* header((asio::MsgHeader*)msg.data());
 
         // Echo the message
-        ws_.text(ws_.got_text());
-        ws_.async_write(
-            buffer_.data(),
-            beast::bind_front_handler(
-                &WebSession::on_write,
-                shared_from_this()));
+        //ws_.text(ws_.got_text());
+        //ws_.async_write(
+        //    buffer_.data(),
+        //    beast::bind_front_handler(
+        //        &WebSession::on_write,
+        //        /*shared_from_this()*/this));
+
+        this->do_read();
     }
 
     void on_write(
@@ -154,27 +198,61 @@ public:
         do_read();
     }
 
+    void write(const asio::Message& msg)
+    {
+        std::lock_guard lock(this->mutex_);
+        bool write_in_progress = !write_msgs_.empty();
+        this->write_msgs_.push_back(msg);
+        if (!write_in_progress) {
+            this->do_write();
+        }
+    }
+
+    void do_write()
+    {
+        // Send the message
+        ws_.async_write(
+            net::buffer(write_msgs_.front().data(),
+                write_msgs_.front().length()),
+            [this](beast::error_code ec, std::size_t bytes_transferred)
+            {
+                boost::ignore_unused(bytes_transferred);
+                if (ec) {
+                    return fail(ec, "write");
+                }
+                else {
+                    if (!write_msgs_.empty()) {
+                        this->write_msgs_.pop_front();
+                    }
+
+                    if (!write_msgs_.empty()) {
+                        do_write();
+                    }
+                }
+            });
+    }
     // Report a failure
     void fail(beast::error_code ec, char const* what)
     {
         std::cerr << what << ": " << ec.message() << "\n";
     }
+    private:
+
 };
 
 //------------------------------------------------------------------------------
 
 // Accepts incoming connections and launches the sessions
-class listener : public std::enable_shared_from_this<listener>
+class WebSocketServer : public Worker, public NetServer
 {
-    net::io_context& ioc_;
+    net::io_context ioc_;
     tcp::acceptor acceptor_;
 
 public:
-    listener(
-        net::io_context& ioc,
+    WebSocketServer(
+        /*net::io_context& ioc, */
         tcp::endpoint endpoint)
-        : ioc_(ioc)
-        , acceptor_(ioc)
+        : acceptor_(ioc_)
     {
         beast::error_code ec;
 
@@ -210,14 +288,45 @@ public:
             fail(ec, "listen");
             return;
         }
+
+        //
+        this->run();
     }
 
+    virtual ~WebSocketServer()
+    {
+
+    }
+    // stop asio io_content
+    void StopContext()
+    {
+        if (!this->ioc_.stopped())
+        {
+            this->ioc_.stop();
+        }
+    }
+private:
     // Start accepting incoming connections
     void run()
     {
         do_accept();
     }
+private:
+    void Connect(NetObjectPtr pNetObj)    override {}
+    void Disconnect(NetObjectPtr pNetObj) override {}
+    void HandleMessage(Message& msg)      override {}
+    void Exec() override
+    {
+        this->ioc_.run();
+    }
+    void Init() override
+    {
 
+    }
+    void Exit() override
+    {
+
+    }
 private:
     void do_accept()
     {
@@ -225,8 +334,8 @@ private:
         acceptor_.async_accept(
             net::make_strand(ioc_),
             beast::bind_front_handler(
-                &listener::on_accept,
-                shared_from_this()));
+                &WebSocketServer::on_accept,
+                /*shared_from_this()*/this));
     }
 
     void on_accept(beast::error_code ec, tcp::socket socket)
@@ -251,16 +360,6 @@ private:
         std::cerr << what << ": " << ec.message() << "\n";
     }
 };
-
-
-
-
-
-
-
-
-
-
 
 
 

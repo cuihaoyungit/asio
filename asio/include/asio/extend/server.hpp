@@ -92,7 +92,8 @@ namespace asio {
             return std::to_string(port);
         }
 
-        uint64 SocketId() override final {
+        uint64 SocketId() override final
+        {
             return this->socket_.native_handle();
         }
     private:
