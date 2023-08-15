@@ -419,4 +419,78 @@ private:
 	std::string port_;
 };
 
+//-------------------------------------------------------------------------
+/*
+#use example
+
+class WebSocketClient : public WebClientWorker
+{
+public:
+	WebSocketClient() {}
+	virtual ~WebSocketClient() {}
+protected:
+	void Connect(NetObject* pNetObj) {}
+	void Disconnect(NetObject* pNetObj) {}
+	void HandleMessage(NetObject* pNetObj, const Message& msg)
+	{
+		printf("%.*s\n", msg.body_length(), msg.body());
+	}
+	void Reconnect(NetObject* pNetObj) {}
+private:
+};
+
+int main(int argc, char** argv)
+{
+#if defined(WIN32) && defined(_MSC_VER) && defined(_DEBUG)
+	_CrtDumpMemoryLeaks();
+	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
+#endif
+	// Check command line arguments.
+	if (argc != 4)
+	{
+		std::cerr <<
+			"Usage: websocket-client-async <host> <port> <text>\n" <<
+			"Example:\n" <<
+			"    websocket-client-async echo.websocket.org 80 \"Hello, world!\"\n";
+		return EXIT_FAILURE;
+	}
+	auto const host = argv[1];
+	auto const port = argv[2];
+	auto const text = argv[3];
+
+	auto ws = std::make_shared<WebSocketClient>();
+	ws->SetEndpoint("127.0.0.1", "8000");
+	ws->SetAutoReconnect(false);
+	ws->Startup();
+
+	std::string input;
+	while (std::cin >> input)
+	{
+		if (input == "quit")
+			break;
+		else
+		{
+			std::string text = input;
+			static asio::Message msg;
+			msg.body_length(text.length());
+			std::memcpy(msg.body(), text.data(), text.size());
+			asio::MsgHeader header;
+			header.seq = 50002;
+			header.body_len = msg.body_length();
+			msg.encode_header(header);
+			ws->Post(msg);
+		}
+	}
+
+	if (ws)
+	{
+		ws->Stop();
+		ws->WaitStop();
+	}
+	return EXIT_SUCCESS;
+}
+
+*/
+//-------------------------------------------------------------------------
+
 #endif // __WEBSOCKET_CLIENT_HPP__
