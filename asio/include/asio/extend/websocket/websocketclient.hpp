@@ -28,7 +28,6 @@
 #include <asio/extend/object>
 #include <asio/extend/typedef>
 #include <asio/extend/worker>
-#include <asio/extend/websocket/websocketroom>
 //using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>

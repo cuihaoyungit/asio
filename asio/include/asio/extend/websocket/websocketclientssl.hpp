@@ -72,6 +72,11 @@ public:
         ws_.binary(true);
     }
 
+    virtual ~WebSessionSSL()
+    {
+        this->Final();
+    }
+
     // Start the asynchronous operation
     void run(
         char const* host,
