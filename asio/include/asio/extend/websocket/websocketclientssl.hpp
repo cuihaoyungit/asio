@@ -1,0 +1,7 @@
+#ifndef __WEBSOCKET_CLIENT_SSL_HPP__
+#define __WEBSOCKET_CLIENT_SSL_HPP__
+
+
+
+
+#endif // __WEBSOCKET_CLIENT_SSL_HPP__
