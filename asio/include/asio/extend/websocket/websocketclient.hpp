@@ -39,8 +39,9 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 //------------------------------------------------------------------------------
 // Sends a WebSocket message and prints the response
 class WebClientWorker;
-class WebSession :
-	public asio::NetObject
+class WebSession 
+	: public asio::NetObject
+	, public std::enable_shared_from_this<WebSession>
 {
 	net::io_context ioc_;
 	tcp::resolver resolver_;
@@ -114,7 +115,7 @@ public: // NetObject
 			ws_.async_close(websocket::close_code::normal,
 				beast::bind_front_handler(
 					&WebSession::on_close,
-					/*shared_from_this()*/this));
+					shared_from_this()/*this*/));
 		}
 	}
 	void StopContext()
@@ -219,7 +220,7 @@ private:
 		ws_.async_handshake(host_, "/",
 			beast::bind_front_handler(
 				&WebSession::on_handshake,
-				/*shared_from_this()*/this));
+				shared_from_this()/*this*/));
 	}
 
 	void on_handshake(beast::error_code ec)
@@ -269,7 +270,7 @@ private:
 			buffer_,
 			beast::bind_front_handler(
 				&WebSession::on_read,
-				/*shared_from_this()*/this));
+				shared_from_this()/*this*/));
 	}
 
 	void read()
@@ -279,7 +280,7 @@ private:
 			buffer_,
 			beast::bind_front_handler(
 				&WebSession::on_read,
-				/*shared_from_this()*/this));
+				shared_from_this()/*this*/));
 	}
 
 	void on_read(
