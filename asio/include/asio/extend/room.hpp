@@ -5,6 +5,7 @@
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/base.hpp>
 #include <map>
+#include <set>
 #include <unordered_map>
 
 namespace asio {

@@ -28,7 +28,6 @@
 #include <asio/extend/object>
 #include <asio/extend/typedef>
 #include <asio/extend/worker>
-#include <asio/extend/websocket/websocketroom>
 //using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -38,13 +37,6 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //------------------------------------------------------------------------------
-class Error
-{
-public:
-protected:
-private:
-};
-
 // Sends a WebSocket message and prints the response
 class WebClientWorker;
 class WebSession :
@@ -60,6 +52,7 @@ class WebSession :
 	asio::MessageQueue write_msgs_;
 	std::mutex mutex_;
 	asio::NetEvent* net_event_;
+	//WebSocketRoom room_;
 	friend class WebClientWorker;
 public:
 	// Resolver and socket require an io_context
@@ -238,6 +231,9 @@ private:
 		// websocket connect
 		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
+		// add websocket room
+		// this->room_.join(this);
+
 		// step 3
 		/*
 		std::string text = "hello";
@@ -345,6 +341,7 @@ private:
 	// Report a failure
 	void fail(beast::error_code ec, char const* what)
 	{
+		// this->room_.leave(this);
 		// error
 		std::cerr << what << ": " << ec.message() << "\n";
 	}
@@ -419,5 +416,79 @@ private:
 	std::string host_;
 	std::string port_;
 };
+
+//-------------------------------------------------------------------------
+/*
+#use example
+
+class WebSocketClient : public WebClientWorker
+{
+public:
+	WebSocketClient() {}
+	virtual ~WebSocketClient() {}
+protected:
+	void Connect(NetObject* pNetObj) {}
+	void Disconnect(NetObject* pNetObj) {}
+	void HandleMessage(NetObject* pNetObj, const Message& msg)
+	{
+		printf("%.*s\n", msg.body_length(), msg.body());
+	}
+	void Reconnect(NetObject* pNetObj) {}
+private:
+};
+
+int main(int argc, char** argv)
+{
+#if defined(WIN32) && defined(_MSC_VER) && defined(_DEBUG)
+	_CrtDumpMemoryLeaks();
+	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
+#endif
+	// Check command line arguments.
+	if (argc != 4)
+	{
+		std::cerr <<
+			"Usage: websocket-client-async <host> <port> <text>\n" <<
+			"Example:\n" <<
+			"    websocket-client-async echo.websocket.org 80 \"Hello, world!\"\n";
+		return EXIT_FAILURE;
+	}
+	auto const host = argv[1];
+	auto const port = argv[2];
+	auto const text = argv[3];
+
+	auto ws = std::make_shared<WebSocketClient>();
+	ws->SetEndpoint("127.0.0.1", "8000");
+	ws->SetAutoReconnect(false);
+	ws->Startup();
+
+	std::string input;
+	while (std::cin >> input)
+	{
+		if (input == "quit")
+			break;
+		else
+		{
+			std::string text = input;
+			static asio::Message msg;
+			msg.body_length(text.length());
+			std::memcpy(msg.body(), text.data(), text.size());
+			asio::MsgHeader header;
+			header.seq = 50002;
+			header.body_len = msg.body_length();
+			msg.encode_header(header);
+			ws->Post(msg);
+		}
+	}
+
+	if (ws)
+	{
+		ws->Stop();
+		ws->WaitStop();
+	}
+	return EXIT_SUCCESS;
+}
+
+*/
+//-------------------------------------------------------------------------
 
 #endif // __WEBSOCKET_CLIENT_HPP__
