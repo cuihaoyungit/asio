@@ -22,6 +22,7 @@ namespace asio {
     // Tcp Session Server
     class TcpSession
         : public NetObject
+        , public std::enable_shared_from_this<TcpSession>
     {
     public:
         explicit TcpSession(tcp::socket socket, Room& room, NetServer* server) noexcept

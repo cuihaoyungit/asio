@@ -16,7 +16,8 @@ namespace asio {
     // Single TcpClient
     //--------------------------------------------------------------
     class TcpClient :
-		public NetObject
+        public NetObject, 
+        public std::enable_shared_from_this<TcpClient>
     {
     public:
         TcpClient(NetEvent* event, const std::string &ip, const std::string &port)

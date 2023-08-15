@@ -17,7 +17,7 @@ namespace asio {
 	//--------------------------------------------------------------
 	// NetObject
 	class Message;
-	class NetObject : public std::enable_shared_from_this<NetObject>
+	class NetObject // : public std::enable_shared_from_this<NetObject>
 	{
 	public:
 		typedef std::unordered_map<std::string, std::string> UserDataList;
@@ -27,10 +27,10 @@ namespace asio {
 		{
 			userdata.clear();
 		}
-		std::shared_ptr<NetObject> GetPtr()
-		{
-			return this->shared_from_this();
-		}
+		//std::shared_ptr<NetObject> GetPtr()
+		//{
+		//	return this->shared_from_this();
+		//}
 		virtual void Final() {}
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
@@ -116,8 +116,8 @@ namespace asio {
 		std::string remote_address_;
 	};
 
-	typedef std::shared_ptr<NetObject> NetObjectPtr;
-	typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
+	//typedef std::shared_ptr<NetObject> NetObjectPtr;
+	//typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 	//--------------------------------------------------------------
 	// NetClient Event

@@ -103,9 +103,9 @@ namespace asio {
 			// message boardcast
 			for (auto& obj : obj_list_)
 			{
-				if (auto p = obj->weak_from_this().lock())
+				if (obj)
 				{
-					p->Deliver(msg);
+					obj->Deliver(msg);
 				}
 			}
 		}
