@@ -32,6 +32,7 @@
 #include <asio/extend/object.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/extend/typedef.hpp>
+#include <asio/extend/websocket/websocketroom.hpp>
 using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -247,7 +248,7 @@ class WebSocketServer : public Worker, public NetServer
 {
     net::io_context ioc_;
     tcp::acceptor acceptor_;
-
+    WebSocketRoom room_;
 public:
     WebSocketServer(
         /*net::io_context& ioc, */
