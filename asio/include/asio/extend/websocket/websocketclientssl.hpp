@@ -45,11 +45,11 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //////////////////////////////////////////////////////////////////////////
 #if defined(WIN32) && defined(_MSC_VER) &&  defined(_DEBUG)
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#define DEBUG_NEW new( _NORMAL_BLOCK, __FILE__, __LINE__ )
-#define new DEBUG_NEW
+    #define _CRTDBG_MAP_ALLOC
+    #include <stdlib.h>
+    #include <crtdbg.h>
+    #define DEBUG_NEW new( _NORMAL_BLOCK, __FILE__, __LINE__ )
+    #define new DEBUG_NEW
 #endif
 //////////////////////////////////////////////////////////////////////////
 
@@ -440,7 +440,7 @@ private:
             // This holds the root certificate used for verification
             load_root_certificates(ctx);
 
-            // web instance
+            // Websocket instance
             this->session_ = std::make_shared<WebSessionSSL>(this, ctx);
             this->session_->run(host_.c_str(), port_.c_str(), "hello world");
             this->session_->Run();
@@ -473,6 +473,6 @@ protected:
 private:
 };
 */
-
+//-----------------------------------------------------------------------
 
 #endif // __WEBSOCKET_CLIENT_SSL_HPP__
