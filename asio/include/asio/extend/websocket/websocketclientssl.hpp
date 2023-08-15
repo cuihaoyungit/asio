@@ -372,9 +372,7 @@ private:
 /// <summary>
 /// WebClientSSLWorker thread
 /// </summary>
-class WebClientSSLWorker :
-    public asio::Worker,
-    public asio::NetEvent
+class WebClientSSLWorker : public asio::Worker, public asio::NetEvent
 {
 public:
     WebClientSSLWorker() {}

@@ -350,9 +350,7 @@ private:
 /// <summary>
 /// WebClientWorker thread
 /// </summary>
-class WebClientWorker : 
-	public asio::Worker, 
-	public asio::NetEvent
+class WebClientWorker : public asio::Worker, public asio::NetEvent
 {
 public:
 	WebClientWorker() {}
