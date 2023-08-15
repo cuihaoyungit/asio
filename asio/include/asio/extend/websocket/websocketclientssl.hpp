@@ -43,16 +43,6 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-//////////////////////////////////////////////////////////////////////////
-#if defined(WIN32) && defined(_MSC_VER) &&  defined(_DEBUG)
-    #define _CRTDBG_MAP_ALLOC
-    #include <stdlib.h>
-    #include <crtdbg.h>
-    #define DEBUG_NEW new( _NORMAL_BLOCK, __FILE__, __LINE__ )
-    #define new DEBUG_NEW
-#endif
-//////////////////////////////////////////////////////////////////////////
-
 //------------------------------------------------------------------------------
 
 // Sends a WebSocket message and prints the response
