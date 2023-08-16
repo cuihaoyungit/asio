@@ -104,10 +104,6 @@ public: // NetObject
 	{
 		return this->port_;
 	}
-	uint64 SocketId() override
-	{
-		return 0;
-	}
 	void Close() override
 	{
 		// Close the WebSocket connection

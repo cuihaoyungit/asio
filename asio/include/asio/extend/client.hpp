@@ -90,16 +90,11 @@ namespace asio {
             return this->port_;
         }
 
-        uint64 SocketId() override
-        {
-            return socket_.native_handle();
-        }
-
 		void StopContext()
         {
-			if (!io_context_.stopped())
+			if (!this->io_context_.stopped())
 			{
-				io_context_.stop();
+				this->io_context_.stop();
 			}
 		}
 
@@ -190,7 +185,7 @@ namespace asio {
             if (!this->IsConnect())
             {
                 this->net_client_->Reconnect(dynamic_cast<NetObject*>(this));
-                do_connect(endpoints_);
+                this->do_connect(endpoints_);
             }
         }
     private:
@@ -208,7 +203,7 @@ namespace asio {
                         this->net_client_->Connect(dynamic_cast<NetObject*>(this));
                         this->numbers_reconnect_ = 0;
                         this->read_msg_.setNetObject(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
-                        do_read_header();
+                        this->do_read_header();
                     }
                     else {
                         this->SetConnect(false);
@@ -227,7 +222,7 @@ namespace asio {
                 {
                     if (!ec && read_msg_.decode_header())
                     {
-                        do_read_body();
+                        this->do_read_body();
                     }
                     else
                     {
@@ -245,7 +240,7 @@ namespace asio {
                     if (!ec)
                     {
                         this->net_client_->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
-                        do_read_header();
+                        this->do_read_header();
                     }
                     else
                     {
@@ -268,7 +263,7 @@ namespace asio {
                         }
 
                         if (!write_msgs_.empty()) {
-                            do_write();
+                            this->do_write();
                         }
                     }
                     else
@@ -293,7 +288,6 @@ namespace asio {
         std::string host_;
         std::string port_;
     };
-    //
 	typedef std::shared_ptr<TcpClient> TcpClientPtr;
     //////////////////////////////////////////////////////////////////////////
 }

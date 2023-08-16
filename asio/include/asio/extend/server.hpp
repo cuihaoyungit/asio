@@ -92,11 +92,6 @@ namespace asio {
             unsigned short port = this->socket_.remote_endpoint().port();
             return std::to_string(port);
         }
-
-        uint64 SocketId() override final
-        {
-            return this->socket_.native_handle();
-        }
     private:
         void clear()
         {
@@ -233,10 +228,7 @@ namespace asio {
             this->do_accept();
         }
 
-        virtual ~TcpServer() 
-        {
-            /*this->Final();*/
-        }
+        virtual ~TcpServer() {}
 
         // stop asio io_content
 		void StopContext() 
@@ -254,9 +246,9 @@ namespace asio {
 				}
             });
             // io service
-			if (!io_context.stopped())
+			if (!this->io_context.stopped())
 			{
-				io_context.stop();
+				this->io_context.stop();
 			}
         }
 
@@ -288,16 +280,16 @@ namespace asio {
             io_context.run();
         }
 
-        void AfterInit()  override
+        void AfterInit()  override final
         {
             int serverId = this->ServerId() == 0 ? 1 : this->ServerId();
             int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
             this->InitUUID(serverId, subId);
         }
 
-        void BeforeExit() override
+        void BeforeExit() override final
         {
-            //
+
         }
 
         // accept

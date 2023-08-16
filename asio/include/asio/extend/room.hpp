@@ -19,7 +19,6 @@ namespace asio {
 		typedef std::weak_ptr<NetObject>   NetObjectWeakPtr;
 
 		typedef std::set<NetObjectPtr> ObjList;
-		typedef std::unordered_map<uint64, NetObjectWeakPtr> SocketObjMap; // socket     -> NetObject
 		typedef std::unordered_map<uint64, NetObjectWeakPtr> SessionObjMap;// session id -> NetObject
 		typedef std::unordered_map<uint64, NetObjectWeakPtr> UserObjMap;   // user id    -> NetObject
 		Room() {}
@@ -28,7 +27,6 @@ namespace asio {
 		void Join(NetObjectPtr obj)
 		{
 			obj_list_.insert(obj);
-			socket_obj_map_[obj->SocketId()] = obj;
 #if 0
 			for (const auto& msg : recent_msgs_) {
 				obj->Deliver(msg);
@@ -42,20 +40,7 @@ namespace asio {
 		void Leave(NetObjectPtr obj)
 		{
 			obj_list_.erase(obj);
-			socket_obj_map_.erase(obj->SocketId());
 			session_obj_map_.erase(obj->getSessionId());
-		}
-
-		// find Object by socket id
-		bool FindObjBySocketId(NetObjectWeakPtr ptr, const uint64 &socketId)
-		{
-			auto it = this->socket_obj_map_.find(socketId);
-			if (it != this->socket_obj_map_.end())
-			{
-				ptr = it->second;
-				return true;
-			}
-			return false;
 		}
 
 		// find Object by session id
@@ -113,8 +98,6 @@ namespace asio {
 	private:
 		// net user
 		ObjList   obj_list_;
-		// user socket
-		SocketObjMap socket_obj_map_;
 		enum { max_recent_msgs = 100 };
 		MessageQueue recent_msgs_;
 

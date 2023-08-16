@@ -17,7 +17,7 @@ namespace asio {
 	//--------------------------------------------------------------
 	// NetObject
 	class Message;
-	class NetObject // : public std::enable_shared_from_this<NetObject>
+	class NetObject
 	{
 	public:
 		typedef std::unordered_map<std::string, std::string> UserDataList;
@@ -33,7 +33,7 @@ namespace asio {
 		virtual void Post(const Message& msg) {}
 		virtual std::string Ip() { return ""; }
 		virtual std::string Port() { return ""; }
-		virtual uint64 SocketId() { return 0; }
+		//virtual uint64 SocketId() { return 0; }
 		virtual void Close() {} // disconnect
 		void SetType(const int type)
 		{
@@ -141,7 +141,7 @@ namespace asio {
 		virtual ~NetServer() {}
 		//virtual void Init() {}
 		//virtual void Exit() {}
-		//virtual void Final() = 0;
+		//virtual void Final() {};
 		virtual void Connect(NetObjectPtr pNetObj) = 0;
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
 		virtual void HandleMessage(Message& msg) = 0;
