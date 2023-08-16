@@ -47,7 +47,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 // Sends a WebSocket message and prints the response
 class WebSessionSSL
     : public asio::NetObject
-    , std::enable_shared_from_this<WebSessionSSL> 
+    , std::enable_shared_from_this<WebSessionSSL>
 {
     net::io_context ioc_;
     tcp::resolver resolver_;
@@ -60,6 +60,7 @@ class WebSessionSSL
     asio::MessageQueue write_msgs_;
     std::mutex mutex_;
     asio::NetEvent* net_event_;
+    friend class WebClientSSLWorker;
 public:
     // Resolver and socket require an io_context
     explicit
@@ -92,7 +93,7 @@ public:
             port,
             beast::bind_front_handler(
                 &WebSessionSSL::on_resolve,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 public: // NetObject
     void Send(const asio::Message& msg) override
@@ -122,7 +123,7 @@ public: // NetObject
             ws_.async_close(websocket::close_code::normal,
                 beast::bind_front_handler(
                     &WebSessionSSL::on_close,
-                    /*shared_from_this()*/this));
+                    this->shared_from_this()));
         }
     }
     void StopContext()
@@ -183,7 +184,7 @@ private:
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 private:
     void on_resolve(
@@ -201,7 +202,7 @@ private:
             results,
             beast::bind_front_handler(
                 &WebSessionSSL::on_connect,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
@@ -232,7 +233,7 @@ private:
             ssl::stream_base::client,
             beast::bind_front_handler(
                 &WebSessionSSL::on_ssl_handshake,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_ssl_handshake(beast::error_code ec)
@@ -262,7 +263,7 @@ private:
         ws_.async_handshake(host_, "/",
             beast::bind_front_handler(
                 &WebSessionSSL::on_handshake,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_handshake(beast::error_code ec)
@@ -309,7 +310,7 @@ private:
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_read(
@@ -433,9 +434,10 @@ private:
             load_root_certificates(ctx);
 
             // Websocket instance
-            this->session_ = std::make_shared<WebSessionSSL>(this, ctx);
-            this->session_->run(host_.c_str(), port_.c_str());
-            this->session_->Run();
+            auto ws = std::make_shared<WebSessionSSL>(this, ctx);
+            this->session_ = ws;
+            ws->run(host_.c_str(), port_.c_str());
+            ws->Run();
             std::this_thread::sleep_for(std::chrono::seconds(1));
         } while (this->auto_reconnect_);
     }
@@ -445,78 +447,5 @@ private:
     std::string host_;
     std::string port_;
 };
-//-----------------------------------------------------------------------
-
-/*
-* use example
-class WebSocketSSLClient : public WebClientSSLWorker
-{
-public:
-    WebSocketSSLClient() {}
-    virtual ~WebSocketSSLClient() {}
-protected:
-    void Connect(NetObject* pNetObj) {}
-    void Disconnect(NetObject* pNetObj) {}
-    void HandleMessage(NetObject* pNetObj, const Message& msg)
-    {
-        printf("%.*s\n", msg.body_length(), msg.body());
-    }
-    void Reconnect(NetObject* pNetObj) {}
-private:
-};
-
-int main(int argc, char** argv)
-{
-#if defined(WIN32) && defined(_MSC_VER) && defined(_DEBUG)
-    _CrtDumpMemoryLeaks();
-    _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
-#endif
-    // Check command line arguments.
-    if (argc != 4)
-    {
-        std::cerr <<
-            "Usage: websocket-client-async-ssl <host> <port> <text>\n" <<
-            "Example:\n" <<
-            "    websocket-client-async-ssl echo.websocket.org 443 \"Hello, world!\"\n";
-        return EXIT_FAILURE;
-    }
-    auto const host = argv[1];
-    auto const port = argv[2];
-    auto const text = argv[3];
-
-    auto ws = std::make_shared<WebSocketSSLClient>();
-    ws->SetEndpoint("127.0.0.1", "5000");
-    ws->SetAutoReconnect(false);
-    ws->Startup();
-
-    std::string input;
-    while (std::cin >> input)
-    {
-        if (input == "quit")
-            break;
-        else
-        {
-            std::string text = input;
-            static asio::Message msg;
-            msg.body_length(text.length());
-            std::memcpy(msg.body(), text.data(), text.size());
-            asio::MsgHeader header;
-            header.seq = 50002;
-            header.body_len = msg.body_length();
-            msg.encode_header(header);
-            ws->Post(msg);
-        }
-    }
-
-    if (ws)
-    {
-        ws->Stop();
-        ws->WaitStop();
-    }
-    return EXIT_SUCCESS;
-}
-*/
-
-//-----------------------------------------------------------------------
 
 #endif // __WEBSOCKET_CLIENT_SSL_HPP__

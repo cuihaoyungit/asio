@@ -125,7 +125,7 @@ namespace asio {
 		}
         void Run()
         {
-            io_context_.run();
+            this->io_context_.run();
         }
     protected:
 	private:
@@ -207,7 +207,7 @@ namespace asio {
                         std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
                         this->net_client_->Connect(dynamic_cast<NetObject*>(this));
                         this->numbers_reconnect_ = 0;
-                        this->read_msg_.setNetObject(this->weak_from_this());
+                        this->read_msg_.setNetObject(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         do_read_header();
                     }
                     else {
