@@ -85,7 +85,7 @@ private:
 			port,
 			beast::bind_front_handler(
 				&WebSession::on_resolve,
-				/*shared_from_this()*/this));
+				shared_from_this()));
 	}
 public: // NetObject
 	void Send(const asio::Message& msg) override
@@ -115,7 +115,7 @@ public: // NetObject
 			ws_.async_close(websocket::close_code::normal,
 				beast::bind_front_handler(
 					&WebSession::on_close,
-					shared_from_this()/*this*/));
+					shared_from_this()));
 		}
 	}
 	void StopContext()
@@ -185,7 +185,7 @@ private:
 			results,
 			beast::bind_front_handler(
 				&WebSession::on_connect,
-				/*shared_from_this()*/this));
+				shared_from_this()));
 	}
 
 	void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
@@ -220,7 +220,7 @@ private:
 		ws_.async_handshake(host_, "/",
 			beast::bind_front_handler(
 				&WebSession::on_handshake,
-				shared_from_this()/*this*/));
+				shared_from_this()));
 	}
 
 	void on_handshake(beast::error_code ec)
@@ -249,7 +249,7 @@ private:
 		//	net::buffer(msg.data(), msg.length()),
 		//	beast::bind_front_handler(
 		//		&session::on_write,
-		//		/*shared_from_this()*/this));
+		//		shared_from_this()));
 		//
 
 		// Read a message
@@ -270,7 +270,7 @@ private:
 			buffer_,
 			beast::bind_front_handler(
 				&WebSession::on_read,
-				shared_from_this()/*this*/));
+				shared_from_this()));
 	}
 
 	void read()
@@ -280,7 +280,7 @@ private:
 			buffer_,
 			beast::bind_front_handler(
 				&WebSession::on_read,
-				shared_from_this()/*this*/));
+				shared_from_this()));
 	}
 
 	void on_read(
@@ -316,7 +316,7 @@ private:
 		//	ws_.async_close(websocket::close_code::normal,
 		//		beast::bind_front_handler(
 		//			&WebSession::on_close,
-		//			/*shared_from_this()*/this));
+		//			shared_from_this()));
 		//}
 	}
 

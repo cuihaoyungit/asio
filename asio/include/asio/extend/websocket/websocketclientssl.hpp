@@ -33,7 +33,6 @@
 #include <asio/extend/object>
 #include <asio/extend/typedef>
 #include <asio/extend/worker>
-#include <asio/extend/websocket/websocketroom>
 //using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -46,8 +45,9 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 //------------------------------------------------------------------------------
 
 // Sends a WebSocket message and prints the response
-class WebSessionSSL :
-    public asio::NetObject // std::enable_shared_from_this<WebSessionSSL>
+class WebSessionSSL
+    : public asio::NetObject
+    , std::enable_shared_from_this<WebSessionSSL> 
 {
     net::io_context ioc_;
     tcp::resolver resolver_;
@@ -92,7 +92,7 @@ public:
             port,
             beast::bind_front_handler(
                 &WebSessionSSL::on_resolve,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 public: // NetObject
     void Send(const asio::Message& msg) override
@@ -122,7 +122,7 @@ public: // NetObject
             ws_.async_close(websocket::close_code::normal,
                 beast::bind_front_handler(
                     &WebSessionSSL::on_close,
-                    /*shared_from_this()*/this));
+                    this->shared_from_this()));
         }
     }
     void StopContext()
@@ -183,7 +183,7 @@ private:
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 private:
     void on_resolve(
@@ -201,7 +201,7 @@ private:
             results,
             beast::bind_front_handler(
                 &WebSessionSSL::on_connect,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
@@ -232,7 +232,7 @@ private:
             ssl::stream_base::client,
             beast::bind_front_handler(
                 &WebSessionSSL::on_ssl_handshake,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_ssl_handshake(beast::error_code ec)
@@ -262,7 +262,7 @@ private:
         ws_.async_handshake(host_, "/",
             beast::bind_front_handler(
                 &WebSessionSSL::on_handshake,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_handshake(beast::error_code ec)
@@ -290,7 +290,7 @@ private:
         //    net::buffer(text_),
         //    beast::bind_front_handler(
         //        &WebSessionSSL::on_write,
-        //        /*shared_from_this()*/this));
+        //        shared_from_this()));
 
         this->read();
     }
@@ -309,7 +309,7 @@ private:
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                /*shared_from_this()*/this));
+                shared_from_this()));
     }
 
     void on_read(
@@ -341,7 +341,7 @@ private:
         //ws_.async_close(websocket::close_code::normal,
         //    beast::bind_front_handler(
         //        &WebSessionSSL::on_close,
-        //        /*shared_from_this()*/this));
+        //        shared_from_this()));
     }
 
     void on_close(beast::error_code ec)

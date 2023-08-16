@@ -21,7 +21,7 @@ class WebSocketRoom
     std::mutex mutex_;
 
     // Keep a list of all the connected clients
-    std::unordered_set<asio::NetObject*> sessions_;
+    std::unordered_set<std::weak_ptr<asio::NetObject>> sessions_;
 
 public:
     explicit WebSocketRoom() {}
@@ -32,12 +32,12 @@ public:
         return doc_root_;
     }
 
-    void join(asio::NetObject* session)
+    void join(std::weak_ptr<asio::NetObject> session)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         sessions_.insert(session);
     }
-    void leave(asio::NetObject* session)
+    void leave(std::weak_ptr<asio::NetObject> session)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         sessions_.erase(session);
@@ -55,7 +55,7 @@ public:
             std::lock_guard<std::mutex> lock(mutex_);
             v.reserve(sessions_.size());
             for (auto p : sessions_)
-                v.emplace_back(p->weak_from_this());
+                v.emplace_back(p);
         }
 
         // For each session in our local list, try to acquire a strong
