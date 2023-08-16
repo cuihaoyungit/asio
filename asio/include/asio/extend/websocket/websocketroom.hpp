@@ -5,7 +5,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_set>
-
+#include <asio/msgdef/message>
 // Forward declaration
 namespace asio {
     class NetObject;
@@ -21,7 +21,7 @@ class WebSocketRoom
     std::mutex mutex_;
 
     // Keep a list of all the connected clients
-    std::unordered_set<std::weak_ptr<asio::NetObject>> sessions_;
+    std::unordered_set<std::shared_ptr<asio::NetObject>> sessions_;
 
 public:
     explicit WebSocketRoom() {}
@@ -32,12 +32,12 @@ public:
         return doc_root_;
     }
 
-    void join(std::weak_ptr<asio::NetObject> session)
+    void join(std::shared_ptr<asio::NetObject> session)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         sessions_.insert(session);
     }
-    void leave(std::weak_ptr<asio::NetObject> session)
+    void leave(std::shared_ptr<asio::NetObject> session)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         sessions_.erase(session);

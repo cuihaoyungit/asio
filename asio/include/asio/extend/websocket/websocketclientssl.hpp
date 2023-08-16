@@ -92,7 +92,7 @@ public:
             port,
             beast::bind_front_handler(
                 &WebSessionSSL::on_resolve,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 public: // NetObject
     void Send(const asio::Message& msg) override
@@ -122,7 +122,7 @@ public: // NetObject
             ws_.async_close(websocket::close_code::normal,
                 beast::bind_front_handler(
                     &WebSessionSSL::on_close,
-                    this->shared_from_this()));
+                    /*shared_from_this()*/this));
         }
     }
     void StopContext()
@@ -183,7 +183,7 @@ private:
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 private:
     void on_resolve(
@@ -201,7 +201,7 @@ private:
             results,
             beast::bind_front_handler(
                 &WebSessionSSL::on_connect,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
@@ -232,7 +232,7 @@ private:
             ssl::stream_base::client,
             beast::bind_front_handler(
                 &WebSessionSSL::on_ssl_handshake,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     void on_ssl_handshake(beast::error_code ec)
@@ -262,7 +262,7 @@ private:
         ws_.async_handshake(host_, "/",
             beast::bind_front_handler(
                 &WebSessionSSL::on_handshake,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     void on_handshake(beast::error_code ec)
@@ -309,7 +309,7 @@ private:
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                shared_from_this()));
+                /*shared_from_this()*/this));
     }
 
     void on_read(
