@@ -27,18 +27,14 @@ namespace asio {
 		{
 			userdata.clear();
 		}
-		//std::shared_ptr<NetObject> GetPtr()
-		//{
-		//	return this->shared_from_this();
-		//}
 		virtual void Final() {}
 		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
 		virtual void Post(const Message& msg) {}
-		virtual std::string Ip()   = 0;
-		virtual std::string Port() = 0;
-		virtual uint64 SocketId() = 0;
-		virtual void Close() = 0; // disconnect
+		virtual std::string Ip() { return ""; }
+		virtual std::string Port() { return ""; }
+		virtual uint64 SocketId() { return 0; }
+		virtual void Close() {} // disconnect
 		void SetType(const int type)
 		{
 			this->type = type;
