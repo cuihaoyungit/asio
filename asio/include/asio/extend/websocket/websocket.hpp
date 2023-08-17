@@ -23,12 +23,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-// step 1
-#include <asio/msgdef/message>
-#include <asio/extend/object>
-#include <asio/extend/typedef>
-#include <asio/extend/worker>
-//using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -37,11 +31,10 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //------------------------------------------------------------------------------
+#include <asio/extend/object>
+#include <asio/extend/typedef>
 // Sends a WebSocket message and prints the response
-class WebClientWorker;
-class WebSession 
-	: public asio::NetObject
-	, public std::enable_shared_from_this<WebSession>
+class WebSession : public std::enable_shared_from_this<WebSession>, public asio::NetObject
 {
 	tcp::resolver resolver_;
 	websocket::stream<beast::tcp_stream> ws_;
@@ -311,9 +304,12 @@ private:
 	}
 };
 
+//--------------------------------------------------------------------------------
+
 /// <summary>
 /// WebClientWorker thread
 /// </summary>
+#include <asio/extend/worker>
 class WebSocketWorker : public asio::Worker, public asio::NetEvent
 {
 public:
