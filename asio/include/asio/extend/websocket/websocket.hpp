@@ -347,6 +347,12 @@ public:
 		}
 	}
 protected:
+	virtual void Connect(asio::NetObject* pNetObj) override {}
+	virtual void Disconnect(asio::NetObject* pNetObj) override {}
+	virtual void HandleMessage(asio::NetObject* pNetObj, const asio::Message& msg) override
+	{
+		printf("%.*s\n", msg.body_length(), msg.body());
+	}
 private:
 	void Init() override
 	{
