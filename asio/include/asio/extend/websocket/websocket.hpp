@@ -43,7 +43,6 @@ class WebSession
 	: public asio::NetObject
 	, public std::enable_shared_from_this<WebSession>
 {
-	net::io_context ioc_;
 	tcp::resolver resolver_;
 	websocket::stream<beast::tcp_stream> ws_;
 	beast::flat_buffer buffer_; // read buffer
@@ -84,9 +83,9 @@ public:
 public:
 	// Resolver and socket require an io_context
 	explicit
-		WebSession(asio::NetEvent* event)
-		: resolver_(net::make_strand(ioc_))
-		, ws_(net::make_strand(ioc_))
+		WebSession(net::io_context& ioc, asio::NetEvent* event)
+		: resolver_(net::make_strand(ioc))
+		, ws_(net::make_strand(ioc))
 		, net_event_(event)
 	{
 		// step 2
@@ -110,11 +109,6 @@ public:
 			beast::bind_front_handler(
 				&WebSession::on_resolve,
 				shared_from_this()));
-	}
-public:
-	void Run()
-	{
-		this->ioc_.run();
 	}
 private:
 	void clear()
@@ -328,9 +322,8 @@ public:
 	void Stop()
 	{
 		this->SetAutoReconnect(false);
-		if (this->session_)
-		{
-			this->session_->Close();
+		if (this->ws_) {
+			this->ws_->Close();
 		}
 	}
 	void SetAutoReconnect(bool bAutoReconnect)
@@ -345,16 +338,16 @@ public:
 public:
 	void Post(const asio::Message& msg) override
 	{
-		if (this->session_)
+		if (this->ws_)
 		{
-			this->session_->Post(msg);
+			this->ws_->Post(msg);
 		}
 	}
 	void Send(const asio::Message& msg) override
 	{
-		if (this->session_)
+		if (this->ws_)
 		{
-			this->session_->Post(msg);
+			this->ws_->Post(msg);
 		}
 	}
 protected:
@@ -374,15 +367,25 @@ private:
 		}
 		do
 		{
-			this->session_ = std::make_shared<WebSession>(this);
-			this->session_->run(host_.c_str(), port_.c_str());
-			this->session_->Run();
-			std::this_thread::sleep_for(std::chrono::seconds(1));
+			// The io_context is required for all I/O
+			net::io_context ioc;
+
+			auto ws = std::make_shared<WebSession>(ioc, this);
+			this->ws_ = ws;
+			ws->run(host_.c_str(), port_.c_str());
+
+			// Run the I/O service. The call will return when
+			// the socket is closed.
+			ioc.run();
+
+			// Release local scope session reference of io_context
+			this->ws_ = nullptr;
+			std::this_thread::sleep_for(std::chrono::seconds(3));
 		} while (this->auto_reconnect_);
 	}
 private:
 	bool auto_reconnect_ = { false };
-	std::shared_ptr<WebSession> session_;
+	std::shared_ptr<WebSession> ws_;
 	std::string host_;
 	std::string port_;
 };
