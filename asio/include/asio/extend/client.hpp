@@ -15,9 +15,9 @@ namespace asio {
     class NetObject;
     // Single TcpClient
     //--------------------------------------------------------------
-    class TcpClient :
-        public NetObject, 
-        public std::enable_shared_from_this<TcpClient>
+    class TcpClient
+        : public std::enable_shared_from_this<TcpClient>
+        , public NetObject
     {
     public:
         TcpClient(NetEvent* event, const std::string &ip, const std::string &port)
@@ -49,7 +49,7 @@ namespace asio {
 					// The server is stopped by cancelling all outstanding asynchronous
 					// operations. Once all operations have finished the io_context::run()
 					// call will exit.
-			        this->StopContext();
+			        this->Stop();
 				});
             do_connect(endpoints);
         }
@@ -85,7 +85,7 @@ namespace asio {
             return this->port_;
         }
 
-		void StopContext()
+		void Stop()
         {
 			if (!this->io_context_.stopped())
 			{
@@ -96,7 +96,7 @@ namespace asio {
         void Shutdown()
         {
             this->Close();
-            this->StopContext();
+            this->Stop();
         }
         
         void SetAutoReconnect(bool bAutoReconnect) 
