@@ -222,7 +222,7 @@ namespace asio {
 					{
 						acceptor_.close();
 					}
-					this->StopContext();
+					this->Stop();
 					this->stoped_ = true;
 				});
             this->do_accept();
@@ -231,26 +231,21 @@ namespace asio {
         virtual ~TcpServer() {}
 
         // stop asio io_content
-		void StopContext() 
+		void Stop() 
         {
-            this->Shutdown();
-		}
-
-        void Shutdown()
-        {
-            // close acceptor
-            this->io_context.post([this]() {
+			// close acceptor
+			this->io_context.post([this]() {
 				if (this->acceptor_.is_open())
 				{
 					this->acceptor_.close();
 				}
-            });
-            // io service
+				});
+			// io service
 			if (!this->io_context.stopped())
 			{
 				this->io_context.stop();
 			}
-        }
+		}
 
         Room& getRoom() 
         {
