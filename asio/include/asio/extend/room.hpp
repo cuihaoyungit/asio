@@ -90,7 +90,7 @@ namespace asio {
 			{
 				if (obj)
 				{
-					obj->Deliver(msg);
+					obj->Post(msg);
 				}
 			}
 		}

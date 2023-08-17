@@ -27,8 +27,6 @@ namespace asio {
 		{
 			userdata.clear();
 		}
-		virtual void Final() {}
-		virtual void Deliver(const Message& msg) {}
 		virtual void Send(const Message& msg) {}
 		virtual void Post(const Message& msg) {}
 		virtual std::string Ip() { return ""; }

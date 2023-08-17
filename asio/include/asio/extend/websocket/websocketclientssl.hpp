@@ -75,7 +75,7 @@ public:
 
     virtual ~WebSessionSSL()
     {
-        this->Final();
+
     }
 
     // Start the asynchronous operation
@@ -112,10 +112,6 @@ public: // NetObject
     {
         return this->port_;
     }
-    uint64 SocketId() override
-    {
-        return 0;
-    }
     void Close() override
     {
         // Close the WebSocket connection
@@ -136,10 +132,6 @@ public:
         this->ioc_.run();
     }
 private:
-    void Final() override
-    {
-
-    }
     void clear()
     {
         std::lock_guard lock(this->mutex_);

@@ -56,7 +56,7 @@ namespace asio {
 
         virtual ~TcpClient()
         {
-            this->Final();
+
         }
 
         tcp::socket& Socket()
@@ -70,11 +70,6 @@ namespace asio {
         }
 
         void Post(const Message& msg) override
-        {
-            this->write(msg);
-        }
-
-        void Deliver(const Message& msg) override
         {
             this->write(msg);
         }

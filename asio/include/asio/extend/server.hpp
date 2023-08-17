@@ -180,7 +180,7 @@ namespace asio {
                 });
         }
 
-        void Final() override
+        void Final()
         {
             std::lock_guard lock(this->mutex_);
             this->write_msgs_.clear();

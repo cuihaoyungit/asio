@@ -97,12 +97,6 @@ public:
         unsigned short port = 0;
         return std::to_string(port);
     }
-
-    uint64 SocketId() override final
-    {
-        return 0;
-    }
-
     // Get on the correct executor
     void run()
     {

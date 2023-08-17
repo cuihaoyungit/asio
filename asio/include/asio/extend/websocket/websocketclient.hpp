@@ -68,7 +68,7 @@ public:
 
 	virtual ~WebSession()
 	{
-		this->Final();
+
 	}
 private:
 	// Start the asynchronous operation
@@ -124,10 +124,6 @@ public:
 		this->ioc_.run();
 	}
 private:
-	void Final() override
-	{
-
-	}
 	void clear()
 	{
 		std::lock_guard lock(this->mutex_);
