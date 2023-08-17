@@ -1,5 +1,5 @@
-#ifndef __WEBSOCKET_CLIENT_SSL_HPP__
-#define __WEBSOCKET_CLIENT_SSL_HPP__
+#ifndef __WEBSOCKET_SSL_HPP__
+#define __WEBSOCKET_SSL_HPP__
 //
 // Copyright (c) 2016-2019 Vinnie Falco (vinnie dot falco at gmail dot com)
 //
@@ -28,13 +28,6 @@
 #include <memory>
 #include <string>
 
-// step 1
-#include <asio/msgdef/message>
-#include <asio/extend/object>
-#include <asio/extend/typedef>
-#include <asio/extend/worker>
-//using namespace asio;
-
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
@@ -44,12 +37,11 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 //------------------------------------------------------------------------------
 
+#include <asio/extend/object>
+#include <asio/extend/typedef>
 // Sends a WebSocket message and prints the response
-class WebSessionSSL
-    : public asio::NetObject
-    , std::enable_shared_from_this<WebSessionSSL>
+class session : public std::enable_shared_from_this<session>, public asio::NetObject
 {
-    net::io_context ioc_;
     tcp::resolver resolver_;
     websocket::stream<
         beast::ssl_stream<beast::tcp_stream>> ws_;
@@ -62,40 +54,6 @@ class WebSessionSSL
     asio::NetEvent* net_event_;
     friend class WebClientSSLWorker;
 public:
-    // Resolver and socket require an io_context
-    explicit
-        WebSessionSSL(/*net::io_context& ioc,*/asio::NetEvent* event, ssl::context& ctx)
-        : resolver_(net::make_strand(ioc_))
-        , ws_(net::make_strand(ioc_), ctx)
-        , net_event_(event)
-    {
-        // step 2
-        ws_.binary(true);
-    }
-
-    virtual ~WebSessionSSL()
-    {
-
-    }
-
-    // Start the asynchronous operation
-    void run(
-        char const* host,
-        char const* port)
-    {
-        // Save these for later
-        host_ = host;
-        port_ = port;
-
-        // Look up the domain name
-        resolver_.async_resolve(
-            host,
-            port,
-            beast::bind_front_handler(
-                &WebSessionSSL::on_resolve,
-                shared_from_this()));
-    }
-public: // NetObject
     void Send(const asio::Message& msg) override
     {
         this->write(msg);
@@ -118,70 +76,44 @@ public: // NetObject
         if (ws_.is_open()) {
             ws_.async_close(websocket::close_code::normal,
                 beast::bind_front_handler(
-                    &WebSessionSSL::on_close,
-                    this->shared_from_this()));
+                    &session::on_close,
+                    shared_from_this()));
         }
-    }
-    void StopContext()
-    {
-        this->Close();
     }
 public:
-    void Run()
+    // Resolver and socket require an io_context
+    explicit
+        session(net::io_context& ioc, ssl::context& ctx, asio::NetEvent* event)
+        : resolver_(net::make_strand(ioc))
+        , ws_(net::make_strand(ioc), ctx)
+        , net_event_(event)
     {
-        this->ioc_.run();
+        ws_.binary(true);
     }
-private:
-    void clear()
-    {
-        std::lock_guard lock(this->mutex_);
-        this->write_msgs_.clear();
-    }
-    void write(const asio::Message& msg)
-    {
-        std::lock_guard lock(this->mutex_);
-        bool write_in_progress = !write_msgs_.empty();
-        this->write_msgs_.push_back(msg);
-        if (!write_in_progress) {
-            this->do_write();
-        }
-    }
-    void do_write()
-    {
-        // Send the message
-        ws_.async_write(
-            net::buffer(write_msgs_.front().data(),
-                write_msgs_.front().length()),
-            [this](beast::error_code ec, std::size_t bytes_transferred)
-            {
-                boost::ignore_unused(bytes_transferred);
-                if (ec) {
-                    return fail(ec, "write");
-                }
-                else {
-                    if (!write_msgs_.empty()) {
-                        this->write_msgs_.pop_front();
-                    }
 
-                    if (!write_msgs_.empty()) {
-                        do_write();
-                    }
-                }
-            });
-    }
-    void read()
+    // Start the asynchronous operation
+    void
+        run(
+            char const* host,
+            char const* port)
     {
-        // Read a message into our buffer
-        ws_.async_read(
-            buffer_,
+        // Save these for later
+        host_ = host;
+        port_ = port;
+
+        // Look up the domain name
+        resolver_.async_resolve(
+            host,
+            port,
             beast::bind_front_handler(
-                &WebSessionSSL::on_read,
+                &session::on_resolve,
                 shared_from_this()));
     }
-private:
-    void on_resolve(
-        beast::error_code ec,
-        tcp::resolver::results_type results)
+
+    void
+        on_resolve(
+            beast::error_code ec,
+            tcp::resolver::results_type results)
     {
         if (ec)
             return fail(ec, "resolve");
@@ -193,11 +125,12 @@ private:
         beast::get_lowest_layer(ws_).async_connect(
             results,
             beast::bind_front_handler(
-                &WebSessionSSL::on_connect,
+                &session::on_connect,
                 shared_from_this()));
     }
 
-    void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
+    void
+        on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
     {
         if (ec)
             return fail(ec, "connect");
@@ -224,11 +157,12 @@ private:
         ws_.next_layer().async_handshake(
             ssl::stream_base::client,
             beast::bind_front_handler(
-                &WebSessionSSL::on_ssl_handshake,
+                &session::on_ssl_handshake,
                 shared_from_this()));
     }
 
-    void on_ssl_handshake(beast::error_code ec)
+    void
+        on_ssl_handshake(beast::error_code ec)
     {
         if (ec)
             return fail(ec, "ssl_handshake");
@@ -254,19 +188,26 @@ private:
         // Perform the websocket handshake
         ws_.async_handshake(host_, "/",
             beast::bind_front_handler(
-                &WebSessionSSL::on_handshake,
+                &session::on_handshake,
                 shared_from_this()));
     }
 
-    void on_handshake(beast::error_code ec)
+    void
+        on_handshake(beast::error_code ec)
     {
         if (ec)
             return fail(ec, "handshake");
 
-        // websocket connect
+        // Send the message
+        //ws_.async_write(
+        //	net::buffer(text_),
+        //	beast::bind_front_handler(
+        //		&session::on_write,
+        //		shared_from_this()));
+
+        // Net connect
         this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
-        /*
         std::string text = "hello";
         static asio::Message msg;
         msg.body_length(text.length());
@@ -276,43 +217,86 @@ private:
         header.body_len = msg.body_length();
         msg.encode_header(header);
         this->Post(msg);
-        */
 
-        // Send the message
-        //ws_.async_write(
-        //    net::buffer(text_),
-        //    beast::bind_front_handler(
-        //        &WebSessionSSL::on_write,
-        //        shared_from_this()));
-
+        // Read a message
         this->read();
     }
 
-    void on_write(
-        beast::error_code ec,
-        std::size_t bytes_transferred)
+    void
+        on_write(
+            beast::error_code ec,
+            std::size_t bytes_transferred)
     {
         boost::ignore_unused(bytes_transferred);
 
         if (ec)
             return fail(ec, "write");
 
+        if (!write_msgs_.empty()) {
+            this->write_msgs_.pop_front();
+        }
+
+        if (!write_msgs_.empty()) {
+            do_write();
+        }
+
+        // Read a message into our buffer
+        //ws_.async_read(
+        //    buffer_,
+        //    beast::bind_front_handler(
+        //        &session::on_read,
+        //        shared_from_this()));
+    }
+
+    void
+        write(const asio::Message& msg)
+    {
+        std::lock_guard lock(this->mutex_);
+        bool write_in_progress = !write_msgs_.empty();
+        this->write_msgs_.push_back(msg);
+        if (!write_in_progress) {
+            this->do_write();
+        }
+    }
+
+    void
+        do_write()
+    {
+        // Send the message
+        ws_.async_write(
+            net::buffer(write_msgs_.front().data(),
+                write_msgs_.front().length()),
+            beast::bind_front_handler(
+                &session::on_write,
+                shared_from_this()));
+    }
+
+    void
+        read()
+    {
         // Read a message into our buffer
         ws_.async_read(
             buffer_,
             beast::bind_front_handler(
-                &WebSessionSSL::on_read,
+                &session::on_read,
                 shared_from_this()));
     }
 
-    void on_read(
-        beast::error_code ec,
-        std::size_t bytes_transferred)
+    void
+        on_read(
+            beast::error_code ec,
+            std::size_t bytes_transferred)
     {
         boost::ignore_unused(bytes_transferred);
 
         if (ec)
             return fail(ec, "read");
+
+        // Close the WebSocket connection
+        //ws_.async_close(websocket::close_code::normal,
+        //    beast::bind_front_handler(
+        //        &session::on_close,
+        //        shared_from_this()));
 
         // step 4 check
         int header_size = sizeof(asio::MsgHeader);
@@ -321,7 +305,7 @@ private:
         msg->decode_header();
         asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
-        // handle message
+        // Net handle message
         this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), *msg);
 
         // Clear the buffer
@@ -329,53 +313,49 @@ private:
 
         // receive data
         this->read();
-
-        // Close the WebSocket connection
-        //ws_.async_close(websocket::close_code::normal,
-        //    beast::bind_front_handler(
-        //        &WebSessionSSL::on_close,
-        //        shared_from_this()));
     }
 
-    void on_close(beast::error_code ec)
+    void
+        on_close(beast::error_code ec)
     {
         if (ec)
             return fail(ec, "close");
-
-        // disconnect
-        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
 
         // If we get here then the connection is closed gracefully
 
         // The make_printable() function helps print a ConstBufferSequence
         // std::cout << beast::make_printable(buffer_.data()) << std::endl;
-
-        std::cout << "websocket close" << std::endl;
     }
-
+    // 
     // Report a failure
-    void fail(beast::error_code ec, char const* what)
+    void
+        fail(beast::error_code ec, char const* what)
     {
         std::cerr << what << ": " << ec.message() << "\n";
+
+        // Net disconnect
+        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
     }
 };
 
 //------------------------------------------------------------------------------
 
+
 /// <summary>
 /// WebClientSSLWorker thread
 /// </summary>
-class WebClientSSLWorker : public asio::Worker, public asio::NetEvent
+#include <asio/extend/worker>
+using namespace asio;
+class WebSocketSSLWorker : public asio::Worker, public asio::NetEvent
 {
 public:
-    WebClientSSLWorker() {}
-    virtual ~WebClientSSLWorker() {}
+    WebSocketSSLWorker() {}
+    virtual ~WebSocketSSLWorker() {}
     void Stop()
     {
         this->SetAutoReconnect(false);
-        if (this->session_)
-        {
-            this->session_->StopContext();
+        if (this->ws_) {
+            this->ws_->Close();
         }
     }
     void SetAutoReconnect(bool bAutoReconnect)
@@ -388,21 +368,27 @@ public:
         this->port_ = port;
     }
 public:
-    void Post(const asio::Message& msg) override
+    void Post(const Message& msg) override
     {
-        if (this->session_)
+        if (this->ws_)
         {
-            this->session_->Post(msg);
+            this->ws_->Post(msg);
         }
     }
-    void Send(const asio::Message& msg) override
+    void Send(const Message& msg) override
     {
-        if (this->session_)
+        if (this->ws_)
         {
-            this->session_->Post(msg);
+            this->ws_->Send(msg);
         }
     }
 protected:
+    virtual void Connect(NetObject* pNetObj) override {}
+    virtual void Disconnect(NetObject* pNetObj) override {}
+    virtual void HandleMessage(NetObject* pNetObj, const Message& msg) override
+    {
+        printf("%.*s\n", msg.body_length(), msg.body());
+    }
 private:
     void Init() override
     {
@@ -419,25 +405,43 @@ private:
         }
         do
         {
+            // The io_context is required for all I/O
+            net::io_context ioc;
+
             // The SSL context is required, and holds certificates
             ssl::context ctx{ssl::context::tlsv12_client};
 
             // This holds the root certificate used for verification
             load_root_certificates(ctx);
 
-            // Websocket instance
-            auto ws = std::make_shared<WebSessionSSL>(this, ctx);
-            this->session_ = ws;
+            // Launch the asynchronous operation
+            auto ws = std::make_shared<session>(ioc, ctx, this);
+            this->ws_ = ws;
             ws->run(host_.c_str(), port_.c_str());
-            ws->Run();
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            /*
+            typedef std::shared_ptr<session> session_ptr;
+            std::vector<session_ptr> wslist;
+            for (size_t i = 0; i < 10; i++)
+            {
+                std::make_shared<session>(ioc, ctx)->run(host_.c_str(), port_.c_str());
+            }
+            */
+            // Run the I/O service. The call will return when
+            // the socket is closed.
+            ioc.run();
+
+            // Release local scope session reference of io_context
+            this->ws_ = nullptr;
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         } while (this->auto_reconnect_);
     }
 private:
     bool auto_reconnect_ = { false };
-    std::shared_ptr<WebSessionSSL> session_;
     std::string host_;
     std::string port_;
+    std::shared_ptr<session> ws_;
 };
 
-#endif // __WEBSOCKET_CLIENT_SSL_HPP__
+
+
+#endif // __WEBSOCKET_SSL_HPP__
