@@ -26,7 +26,7 @@ namespace asio {
             , auto_reconnect_(false)
             , numbers_reconnect_(0)
             , connect_state_(ConnectState::ST_STOPPED)
-            , net_client_(event)
+            , net_event_(event)
         {
             this->SetConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
@@ -147,7 +147,6 @@ namespace asio {
                 this->clear();
                 this->SetConnect(false);
                 this->connect_state_ = ConnectState::ST_STOPPED;
-				this->net_client_->Disconnect(dynamic_cast<NetObject*>(this));
                 this->reconnect();
                 });
         }
@@ -164,7 +163,7 @@ namespace asio {
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
             {
-                this->net_client_->Reconnect(dynamic_cast<NetObject*>(this));
+                this->net_event_->Reconnect(dynamic_cast<NetObject*>(this));
                 this->do_connect(endpoints_);
             }
         }
@@ -180,13 +179,14 @@ namespace asio {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         this->SetConnect(true);
                         std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
-                        this->net_client_->Connect(dynamic_cast<NetObject*>(this));
+                        this->net_event_->Connect(dynamic_cast<NetObject*>(this));
                         this->numbers_reconnect_ = 0;
                         this->read_msg_.setNetObject(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->do_read_header();
                     }
                     else {
                         this->SetConnect(false);
+                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         std::cout << this->GetConnectName() << ":" << "connection failed." << std::endl;
                         this->reset();
                     }
@@ -206,6 +206,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         this->reset();
                     }
                 });
@@ -219,11 +220,12 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        this->net_client_->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
+                        this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
                         this->do_read_header();
                     }
                     else
                     {
+                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         this->reset();
                     }
                 });
@@ -248,6 +250,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         this->reset();
                     }
                 });
@@ -263,7 +266,7 @@ namespace asio {
         bool auto_reconnect_;
         ConnectState connect_state_;
 		std::mutex mutex_;
-        NetEvent* net_client_;
+        NetEvent* net_event_;
         std::string host_;
         std::string port_;
     };
@@ -345,7 +348,7 @@ namespace asio {
                 auto tc = std::make_shared<TcpClient>(io_context, this, this->host_, this->port_);
                 this->tc_ = tc;
                 tc->SetConnectName(typeid(TcpClientWorker).name());
-                tc->SetAutoReconnect(true);
+                tc->SetAutoReconnect(false);
                 io_context.run();
                 this->tc_ = nullptr;
                 std::this_thread::sleep_for(std::chrono::seconds(2));
