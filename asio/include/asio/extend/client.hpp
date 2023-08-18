@@ -149,6 +149,7 @@ namespace asio {
         void reset()
         {
             this->connect_state_ = ConnectState::ST_STOPPING;
+            /*
             asio::post(io_context_, [this]() {
                 this->socket_.close();
                 this->clear();
@@ -157,6 +158,8 @@ namespace asio {
 				this->net_client_->Disconnect(dynamic_cast<NetObject*>(this));
                 this->reconnect();
                 });
+            */
+            asio::post(io_context_, [this]() { socket_.close(); });
         }
 
     public:
@@ -335,7 +338,7 @@ namespace asio {
                 auto tc = std::make_shared<TcpClient>(io_context, this, this->host_, this->port_);
                 this->tc_ = tc;
                 tc->SetConnectName(typeid(TcpClientWorker).name());
-                tc->SetAutoReconnect(false);
+                tc->SetAutoReconnect(true);
                 io_context.run();
                 this->tc_ = nullptr;
             } while (this->auto_reconnect_);
