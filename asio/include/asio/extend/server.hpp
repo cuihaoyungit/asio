@@ -257,6 +257,11 @@ namespace asio {
 		void Connect(NetObjectPtr pNetObj)    override {}
 		void Disconnect(NetObjectPtr pNetObj) override {}
 		void HandleMessage(Message& msg)      override {}
+    protected:
+        void SetName(const std::string_view& name)
+        {
+            this->name_ = name;
+        }
     private:
         // single thread run
         void Exec() override
@@ -309,6 +314,7 @@ namespace asio {
         Room room_;
         asio::signal_set signals_;
         bool stoped_;
+        std::string name_;
     };
 
     //----------------------------------------------------------------------

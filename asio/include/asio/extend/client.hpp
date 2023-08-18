@@ -310,6 +310,11 @@ namespace asio {
                 this->tc_->Post(msg);
             }
         }
+    protected:
+		void SetName(const std::string_view& name)
+		{
+			this->name_ = name;
+		}
     private:
         void Init() override
         {
@@ -345,9 +350,14 @@ namespace asio {
                         this->Stop();
                 	});
                 */
+                if (this->name_.empty()) 
+                {
+                    this->name_ = typeid(TcpClientWorker).name(); 
+                }
+                // tcp client connect
                 auto tc = std::make_shared<TcpClient>(io_context, this, this->host_, this->port_);
                 this->tc_ = tc;
-                tc->SetConnectName(typeid(TcpClientWorker).name());
+                tc->SetConnectName(this->name_);
                 tc->SetAutoReconnect(false);
                 io_context.run();
                 this->tc_ = nullptr;
@@ -357,6 +367,7 @@ namespace asio {
     private:
         bool auto_reconnect_ = { false };
         TcpClientPtr tc_;
+        std::string name_;
         std::string host_;
         std::string port_;
     };
