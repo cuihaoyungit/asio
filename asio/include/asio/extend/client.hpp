@@ -23,7 +23,6 @@ namespace asio {
         TcpClient(asio::io_context& io_context, NetEvent* event, const std::string &ip, const std::string &port)
             : io_context_(io_context)
             , socket_(io_context)
-            , signals_(io_context)
             , auto_reconnect_(false)
             , numbers_reconnect_(0)
             , connect_state_(ConnectState::ST_STOPPED)
@@ -36,23 +35,7 @@ namespace asio {
             this->endpoints_ = endpoints;
             this->host_ = ip;
             this->port_ = port;
-
-            // ensure one signals handler in application
-			//signals_.add(SIGINT); // ctrl + c
-			//signals_.add(SIGTERM);// kill process
-#if defined(SIGQUIT)
-			signals_.add(SIGQUIT);// posix linux
-#endif // defined(SIGQUIT)
-            // signals
-			signals_.async_wait(
-				[this](std::error_code /*ec*/, int /*signo*/)
-				{
-					// The server is stopped by cancelling all outstanding asynchronous
-					// operations. Once all operations have finished the io_context::run()
-					// call will exit.
-			        this->Stop();
-				});
-            do_connect(endpoints);
+            this->do_connect(endpoints);
         }
 
         virtual ~TcpClient()
@@ -71,7 +54,7 @@ namespace asio {
         }
 
         // warning error 10009 scope NetObject and socket
-        std::string Ip() override
+        std::string Ip()   override
         {
             return this->socket_.remote_endpoint().address().to_string();
         }
@@ -80,14 +63,6 @@ namespace asio {
         {
             return this->port_;
         }
-
-		void Stop()
-        {
-			if (!this->io_context_.stopped())
-			{
-				this->io_context_.stop();
-			}
-		}
 
         void Shutdown()
         {
@@ -107,9 +82,22 @@ namespace asio {
     public:
 		void Close() override
 		{
-			this->disconnect();
+            this->SetAutoReconnect(false);
+            this->connect_state_ = ConnectState::ST_STOPPING;
+            asio::post(io_context_, [this]() 
+                {
+                    this->socket_.close();
+                    this->connect_state_ = ConnectState::ST_STOPPED;
+                });
 		}
     protected:
+        void Stop()
+        {
+            if (!this->io_context_.stopped())
+            {
+                this->io_context_.stop();
+            }
+        }
 	private:
         void clear() // need lock ? 2023-08-10
         {
@@ -135,7 +123,7 @@ namespace asio {
 
 		void disconnect()
 		{
-            auto_reconnect_ = false;
+            this->SetAutoReconnect(false);
 			this->connect_state_ = ConnectState::ST_STOPPING;
 			asio::post(io_context_, [this]() {
 				this->socket_.close();
@@ -149,7 +137,11 @@ namespace asio {
         void reset()
         {
             this->connect_state_ = ConnectState::ST_STOPPING;
-            /*
+            if (!this->auto_reconnect_)
+            {
+                return;
+            }
+            // reconnect
             asio::post(io_context_, [this]() {
                 this->socket_.close();
                 this->clear();
@@ -158,8 +150,6 @@ namespace asio {
 				this->net_client_->Disconnect(dynamic_cast<NetObject*>(this));
                 this->reconnect();
                 });
-            */
-            asio::post(io_context_, [this]() { socket_.close(); });
         }
 
     public:
@@ -265,7 +255,6 @@ namespace asio {
 
     private:
         asio::io_context& io_context_;
-        asio::signal_set signals_;
         tcp::socket socket_;
         Message read_msg_;
         MessageQueue write_msgs_;
@@ -335,12 +324,31 @@ namespace asio {
             do 
             {
                 asio::io_context io_context;
+                /*
+                asio::signal_set signal(io_context);
+                // ensure one signals handler in application
+                signal.add(SIGINT); // ctrl + c
+                signal.add(SIGTERM);// kill process
+#if defined(SIGQUIT)
+                signal.add(SIGQUIT);// posix linux
+#endif // defined(SIGQUIT)
+                // signals
+                signal.async_wait(
+                	[this](std::error_code ec, int signo)
+                	{
+                		// The server is stopped by cancelling all outstanding asynchronous
+                		// operations. Once all operations have finished the io_context::run()
+                		// call will exit.
+                        this->Stop();
+                	});
+                */
                 auto tc = std::make_shared<TcpClient>(io_context, this, this->host_, this->port_);
                 this->tc_ = tc;
                 tc->SetConnectName(typeid(TcpClientWorker).name());
                 tc->SetAutoReconnect(true);
                 io_context.run();
                 this->tc_ = nullptr;
+                std::this_thread::sleep_for(std::chrono::seconds(2));
             } while (this->auto_reconnect_);
         }
     private:
