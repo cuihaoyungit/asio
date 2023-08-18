@@ -303,6 +303,7 @@ private:
 		this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
 	}
 };
+typedef std::shared_ptr<WebSession> WebSessionPtr;
 
 //--------------------------------------------------------------------------------
 
@@ -387,7 +388,7 @@ private:
 	}
 private:
 	bool auto_reconnect_ = { false };
-	std::shared_ptr<WebSession> ws_;
+	WebSessionPtr ws_;
 	std::string host_;
 	std::string port_;
 };

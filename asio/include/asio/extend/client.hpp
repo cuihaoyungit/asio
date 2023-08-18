@@ -20,17 +20,18 @@ namespace asio {
         , public NetObject
     {
     public:
-        TcpClient(NetEvent* event, const std::string &ip, const std::string &port)
-            :socket_(io_context_)
-            ,signals_(io_context_)
-            ,auto_reconnect_(false)
-            ,numbers_reconnect_(0)
-            ,connect_state_(ConnectState::ST_STOPPED)
-            ,net_client_(event)
+        TcpClient(asio::io_context& io_context, NetEvent* event, const std::string &ip, const std::string &port)
+            : io_context_(io_context)
+            , socket_(io_context)
+            , signals_(io_context)
+            , auto_reconnect_(false)
+            , numbers_reconnect_(0)
+            , connect_state_(ConnectState::ST_STOPPED)
+            , net_client_(event)
         {
             this->SetConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
-            tcp::resolver resolver(io_context_);
+            tcp::resolver resolver(io_context);
             auto endpoints = resolver.resolve(ip, port);
             this->endpoints_ = endpoints;
             this->host_ = ip;
@@ -57,11 +58,6 @@ namespace asio {
         virtual ~TcpClient()
         {
 
-        }
-
-        tcp::socket& Socket()
-        {
-            return this->socket_;
         }
 
         void Send(const Message& msg) override 
@@ -113,10 +109,6 @@ namespace asio {
 		{
 			this->disconnect();
 		}
-        void Run()
-        {
-            this->io_context_.run();
-        }
     protected:
 	private:
         void clear() // need lock ? 2023-08-10
@@ -269,7 +261,7 @@ namespace asio {
         }
 
     private:
-        asio::io_context io_context_;
+        asio::io_context& io_context_;
         asio::signal_set signals_;
         tcp::socket socket_;
         Message read_msg_;
@@ -285,6 +277,75 @@ namespace asio {
     };
 	typedef std::shared_ptr<TcpClient> TcpClientPtr;
     //////////////////////////////////////////////////////////////////////////
+
+
+    class TcpClientWorker : public Worker, public NetEvent
+    {
+    public:
+        TcpClientWorker() {}
+        virtual ~TcpClientWorker() {}
+        void Stop()
+        {
+            if (this->tc_) {
+                this->tc_->Close();
+            }
+        }
+        void SetAutoReconnect(bool bAutoReconnect)
+        {
+            this->auto_reconnect_ = bAutoReconnect;
+        }
+        void SetEndpoint(const std::string_view& host, const std::string_view& port)
+        {
+            this->host_ = host;
+            this->port_ = port;
+        }
+    public:
+        void Post(const asio::Message& msg) override
+        {
+            if (this->tc_)
+            {
+                this->tc_->Post(msg);
+            }
+        }
+        void Send(const asio::Message& msg) override
+        {
+            if (this->tc_)
+            {
+                this->tc_->Post(msg);
+            }
+        }
+    private:
+        void Init() override
+        {
+
+        }
+        void Exit() override
+        {
+
+        }
+        void Exec() override
+        {
+            if (this->host_.empty() || this->port_.empty()) {
+                return;
+            }
+
+            asio::io_context io_context;
+            auto tc = std::make_shared<TcpClient>(io_context, this, this->host_, this->port_);
+            this->tc_ = tc;
+            tc->SetConnectName(typeid(TcpClientWorker).name());
+            tc->SetAutoReconnect(false);
+            io_context.run();
+            this->tc_ = nullptr;
+        }
+    private:
+        bool auto_reconnect_ = { false };
+        TcpClientPtr tc_;
+        std::string host_;
+        std::string port_;
+    };
+
+
+
 }
 
 
