@@ -197,10 +197,10 @@ namespace asio {
 
     //----------------------------------------------------------------------
     // Singleton Server Basic class
-    class TcpServer : public Worker, public NetServer
+    class TcpServerWorker : public Worker, public NetServer
     {
     public:
-        explicit TcpServer(const tcp::endpoint& endpoint)
+        explicit TcpServerWorker(const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
             , signals_(io_context)
             , stoped_(false)
@@ -228,11 +228,12 @@ namespace asio {
             this->do_accept();
         }
 
-        virtual ~TcpServer() {}
+        virtual ~TcpServerWorker() {}
 
         // stop asio io_content
 		void Stop() 
         {
+            this->signals_.cancel();
 			// close acceptor
 			this->io_context.post([this]() {
 				if (this->acceptor_.is_open())
