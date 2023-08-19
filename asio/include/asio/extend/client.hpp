@@ -24,7 +24,6 @@ namespace asio {
             : io_context_(io_context)
             , socket_(io_context)
             , auto_reconnect_(false)
-            , numbers_reconnect_(0)
             , connect_state_(ConnectState::ST_STOPPED)
             , net_event_(event)
         {
@@ -73,11 +72,6 @@ namespace asio {
         void SetAutoReconnect(bool bAutoReconnect) 
         {
             this->auto_reconnect_ = bAutoReconnect;
-        }
-        
-        int NumberOfReconnect() const
-        {
-            return this->numbers_reconnect_;
         }
     public:
 		void Close() override
@@ -158,7 +152,6 @@ namespace asio {
             {
                 return;
             }
-			this->numbers_reconnect_++;
             std::cout << this->GetConnectName() <<":"<<"reconnecting" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
@@ -180,7 +173,6 @@ namespace asio {
                         this->SetConnect(true);
                         std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
                         this->net_event_->Connect(dynamic_cast<NetObject*>(this));
-                        this->numbers_reconnect_ = 0;
                         this->read_msg_.setNetObject(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->do_read_header();
                     }
@@ -262,7 +254,6 @@ namespace asio {
         Message read_msg_;
         MessageQueue write_msgs_;
         tcp::resolver::results_type endpoints_;
-        int numbers_reconnect_;
         bool auto_reconnect_;
         ConnectState connect_state_;
 		std::mutex mutex_;
