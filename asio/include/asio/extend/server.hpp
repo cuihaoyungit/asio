@@ -38,11 +38,6 @@ namespace asio {
             this->Final();
         }
 
-        tcp::socket& Socket()
-        {
-            return this->socket_;
-        }
-
         void Close() override
         {
             if (this->socket_.is_open())

@@ -10,6 +10,7 @@ using SnowFlake = snowflake<1534832906275L, std::mutex>;
 #include <memory>
 #include <iostream>
 #include <map>
+#include <cassert>
 
 namespace asio {
 
@@ -27,11 +28,10 @@ namespace asio {
 		{
 			userdata.clear();
 		}
-		virtual void Send(const Message& msg) {}
-		virtual void Post(const Message& msg) {}
-		virtual std::string Ip() { return ""; }
+		virtual void Send(const Message& msg) { assert(!"virtual function."); }
+		virtual void Post(const Message& msg) { assert(!"virtual function."); }
+		virtual std::string Ip()   { return ""; }
 		virtual std::string Port() { return ""; }
-		//virtual uint64 SocketId() { return 0; }
 		virtual void Close() {} // disconnect
 		void SetType(const int type)
 		{
