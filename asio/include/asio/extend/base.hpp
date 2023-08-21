@@ -50,15 +50,15 @@ typedef std::uint8_t        uint8;
 	(Define CEGUIBASE_EXPORTS to export symbols, else they are imported)
 *************************************************************************/
 #if (defined(_MSC_VER) || defined( __WIN32__ ) || defined( _WIN32 ) || defined(_WINDOWS) || defined(_WIN64) || defined( __WIN64__ )) && !defined(ASIO_STATIC)
-#   ifdef ASIO_EXPORTS
-#       define ASEXPORT __declspec(dllexport)
+#   ifdef ASEXPORTS
+#       define EXPORT __declspec(dllexport)
 #   else
-#       define ASEXPORT __declspec(dllimport)
+#       define EXPORT __declspec(dllimport)
 #   endif
 #elif defined(__GNUC__)
-#       define ASEXPORT __attribute__((visibility("default")))
+#       define EXPORT __attribute__((visibility("default")))
 #else
-#		define ASEXPORT
+#		define EXPORT
 #endif
 
 
