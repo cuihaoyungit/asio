@@ -61,7 +61,7 @@ typedef std::uint8_t        uint8;
 #		define EXPORT
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 
 #ifndef EXTERN_C
 #define EXTERN_C            extern "C"
