@@ -61,7 +61,27 @@ typedef std::uint8_t        uint8;
 #		define EXPORT
 #endif
 
+#ifdef __cplusplus
 
+#ifndef EXTERN_C
+#define EXTERN_C            extern "C"
+#endif
+
+#ifndef BEGIN_EXTERN_C
+#define BEGIN_EXTERN_C      extern "C" {
+#endif
+
+#ifndef END_EXTERN_C
+#define END_EXTERN_C        } // extern "C"
+#endif
+
+#else
+
+#define EXTERN_C			extern
+#define BEGIN_EXTERN_C
+#define END_EXTERN_C
+
+#endif
 
 
 #endif // __BASE_HPP__
