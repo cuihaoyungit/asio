@@ -1,6 +1,7 @@
 #ifndef __BASE_HPP__
 #define __BASE_HPP__
 #include <cstdint>
+#include <iostream>
 
 /*************************************************************************
 	Simplification of some 'unsigned' types
@@ -24,7 +25,6 @@ typedef unsigned char       uint8;
 typedef float               float32;
 typedef double              float64;
 
-#include <iostream>
 //Typedefs
 #ifdef _UNICODE
 using String = std::wstring;
@@ -82,6 +82,11 @@ typedef std::uint8_t        uint8;
 #define END_EXTERN_C
 
 #endif
+
+
+#ifndef Interface
+#define Interface class
+#endif // !Interface
 
 
 #endif // __BASE_HPP__
