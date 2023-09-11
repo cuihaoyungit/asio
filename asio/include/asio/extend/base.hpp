@@ -85,7 +85,7 @@ typedef std::uint8_t        uint8;
 
 
 #ifndef Interface
-#define Interface class
+#define MyInterface class
 #endif // !Interface
 
 
