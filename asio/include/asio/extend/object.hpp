@@ -208,7 +208,6 @@ namespace asio {
 		Dispatcher() {}
 		virtual ~Dispatcher() {}
 
-	protected:
 		bool BindMsg(const int& MsgId, TaskCallback fun) 
 		{
 			const auto &it = m_taskList.find(MsgId);
