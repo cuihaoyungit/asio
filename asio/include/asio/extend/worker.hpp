@@ -118,18 +118,13 @@ namespace asio {
 				this->id_ = this->thread_->get_id();
 			}
 			this->Init();
-			this->AfterInit();
 			this->Exec();
-			this->BeforeExit();
 			this->Exit();
 		}
 	protected:
 		virtual void Init() = 0;
 		virtual void Exec() = 0;
 		virtual void Exit() = 0;
-
-		virtual void AfterInit()  {}
-		virtual void BeforeExit() {}
 
 		Worker(const Worker&) = delete;
 		const Worker& operator = (const Worker&) = delete;

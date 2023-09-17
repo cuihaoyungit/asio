@@ -261,6 +261,11 @@ namespace asio {
         // single thread run
         void Exec() override
         {
+            // snowflake algrithem
+			int serverId = this->ServerId() == 0 ? 1 : this->ServerId();
+			int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
+			this->InitUUID(serverId, subId);
+
             // multi thread
 		    // Run the I/O service on the requested number of threads
 			/*
@@ -274,18 +279,6 @@ namespace asio {
 					});
             */
             io_context.run();
-        }
-
-        void AfterInit()  override final
-        {
-            int serverId = this->ServerId() == 0 ? 1 : this->ServerId();
-            int subId = this->ServerSubId() == 0 ? 1 : this->ServerSubId();
-            this->InitUUID(serverId, subId);
-        }
-
-        void BeforeExit() override final
-        {
-
         }
 
         // accept

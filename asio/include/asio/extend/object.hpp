@@ -203,13 +203,12 @@ namespace asio {
 	{
 	public:
 		typedef std::function<void(Message*)> TaskCallback;
-		typedef std::unordered_map<int, TaskCallback> TaskList;
+		typedef std::unordered_map<int, TaskCallback> TaskMap;
 
 		Dispatcher() {}
-		virtual ~Dispatcher() 
-		{
-		}
+		virtual ~Dispatcher() {}
 
+	protected:
 		bool BindMsg(const int& MsgId, TaskCallback fun) 
 		{
 			const auto &it = m_taskList.find(MsgId);
@@ -220,7 +219,7 @@ namespace asio {
 			return false;
 		}
 	
-		TaskList& GetTaskList()
+		TaskMap& GetTaskList()
 		{
 			return m_taskList;
 		}
@@ -235,7 +234,7 @@ namespace asio {
 			return nullptr;
 		}
 	private:
-		TaskList m_taskList;
+		TaskMap m_taskList;
 	};
 
 }
