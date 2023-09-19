@@ -198,17 +198,16 @@ namespace asio {
 
 	//--------------------------------------------------------------
 	// Dispatcher
-	class Router;
 	class Dispatcher
 	{
 	public:
-		typedef std::function<void(Message*)> TaskCallback;
-		typedef std::unordered_map<int, TaskCallback> TaskMap;
+		typedef std::function<void(Message*)> Task;
+		typedef std::unordered_map<int, Task> TaskMap;
 
 		Dispatcher() {}
 		virtual ~Dispatcher() {}
 
-		bool BindMsg(const int& MsgId, TaskCallback fun) 
+		bool BindMsg(const int& MsgId, Task fun) 
 		{
 			const auto &it = m_taskList.find(MsgId);
 			if (it == m_taskList.end()) {
@@ -223,7 +222,7 @@ namespace asio {
 			return m_taskList;
 		}
 
-		TaskCallback FindCallback(const int &key)
+		Task FindCallback(const int &key)
 		{
 			auto it = m_taskList.find(key);
 			if (it != m_taskList.end())
