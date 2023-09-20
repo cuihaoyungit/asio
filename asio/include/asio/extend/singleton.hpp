@@ -125,9 +125,6 @@ template <typename T>
 class DSingleton {
 public:
 	static T* getInstance() {
-		if (!m_instance) {
-			m_instance = new T();
-		}
 		return m_instance;
 	}
 
@@ -138,6 +135,23 @@ public:
 			delete m_instance;
 			m_instance = nullptr;
 		}
+	}
+
+	static T* Create() {
+		if (!m_instance) {
+			m_instance = new T();
+		}
+		return m_instance;
+	}
+
+	// create with args
+	template <typename... Args>
+	static T* CreateArgs(Args &&... args)
+	{
+		if (!m_instance) {
+			m_instance = new T(std::forward<Args>(args)...);
+		}
+		return m_instance;
 	}
 
 	DSingleton(const DSingleton&) = delete;
