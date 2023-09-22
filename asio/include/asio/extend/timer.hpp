@@ -41,6 +41,18 @@ namespace asio {
 		{
 			return clock_type::now() - when_;
 		}
+
+		void reset()
+		{
+			this->when_ = clock_type::now();
+		}
+
+		double fps()
+		{
+			std::chrono::duration<double> deltaTime = this->elapsed();
+			double fps = 1.0 / deltaTime.count();
+			return fps;
+		}
 	};
 	// duration_cast<milliseconds>(t.elapsed()).count() << "ms";
 
