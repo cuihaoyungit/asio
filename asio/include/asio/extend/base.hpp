@@ -45,6 +45,21 @@ typedef std::uint8_t        uint8;
 #endif
 
 
+// win32 basic types
+#if 0
+typedef unsigned long       DWORD;
+typedef unsigned char       BYTE;
+typedef unsigned long       DWORD;
+typedef int                 BOOL;
+typedef unsigned short      WORD;
+typedef float               FLOAT;
+typedef double	            DOUBLE;
+typedef int                 INT;
+typedef unsigned int        UINT;
+typedef long long			INT64;
+typedef unsigned long long  UINT64;
+#endif
+
 /*************************************************************************
 	Dynamic Library import / export control conditional
 	(Define CEGUIBASE_EXPORTS to export symbols, else they are imported)

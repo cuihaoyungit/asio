@@ -4,6 +4,7 @@
 #include <iostream>
 #include <functional>
 #include <mutex>
+#include <sstream>
 #if defined(_WIN32)
 #include <Windows.h>
 #endif
@@ -26,7 +27,10 @@ namespace asio {
 		};
 
 	public:
-		Worker() = default;
+		Worker() {
+			static std::atomic<int> thread_counter;
+			this->tIndex_ = ++thread_counter;
+		}
 
 		virtual ~Worker() {
 #if 0
@@ -60,8 +64,16 @@ namespace asio {
 			this->id_= std::this_thread::get_id();
 		}
 
-		std::thread::id GetThreadId() {
-			return thread_->get_id();
+		std::uint64_t threadId() {
+			std::stringstream ss;
+			ss << this->id_;
+			std::uint64_t uid = std::stoull(ss.str());
+			return uid;
+		}
+
+		int thIndex()
+		{
+			return this->tIndex_;
 		}
 
 		const std::string& Name() {
@@ -113,6 +125,7 @@ namespace asio {
 	private:
 		void RunThread() 
 		{
+			// update thread info
 			if (this->thread_)
 			{
 				this->id_ = this->thread_->get_id();
@@ -132,6 +145,7 @@ namespace asio {
 		std::unique_ptr<std::thread> thread_;
 		std::string name_;
 		std::thread::id id_;
+		std::uint64_t tIndex_;
 	};
 }
 
