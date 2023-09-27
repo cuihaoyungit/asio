@@ -145,7 +145,7 @@ namespace asio {
 		std::unique_ptr<std::thread> thread_;
 		std::string name_;
 		std::thread::id id_;
-		std::uint64_t tIndex_;
+		int tIndex_;
 	};
 }
 
