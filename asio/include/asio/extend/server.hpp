@@ -291,7 +291,6 @@ namespace asio {
                     {
                         std::make_shared<TcpSession>(std::move(socket), room_, dynamic_cast<NetServer*>(this))->Start();
                     }
-
                     this->do_accept();
                 });
         }

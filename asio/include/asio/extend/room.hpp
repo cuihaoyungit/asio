@@ -27,11 +27,12 @@ namespace asio {
 		void Join(NetObjectPtr obj)
 		{
 			obj_list_.insert(obj);
-#if 0
-			for (const auto& msg : recent_msgs_) {
+			/*
+			for (const auto& msg : recent_msgs_)
+			{
 				obj->Deliver(msg);
 			}
-#endif
+			*/
 			const uint64 sessionId = obj->getSessionId();
 			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
