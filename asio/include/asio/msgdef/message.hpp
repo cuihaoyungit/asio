@@ -42,6 +42,7 @@ namespace asio {
 		int body_len        = 0;
 		int crc             = 0;
 		uint64 sId			= 0; // session id
+		uint64 rId          = 0; // user id
 		int time            = 0;
 		ProtoFormat format  = ProtoFormat::Binary;
 		uint8 gateId        = 0;
