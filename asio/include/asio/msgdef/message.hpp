@@ -66,12 +66,12 @@ namespace asio {
 
 	  Message(Message& other)
 	  {
-		  this->connect_object_ = other.connect_object_;
+		  this->object_ = other.object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 	  }
 	  Message(const Message& other) {
-		  this->connect_object_ = other.connect_object_;
+		  this->object_ = other.object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 	  }
@@ -79,7 +79,7 @@ namespace asio {
 	  Message& operator=(Message& other) {
 		  if (this == &other)
 			  return *this;
-		  this->connect_object_ = other.connect_object_;
+		  this->object_ = other.object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 		  return *this;
@@ -87,7 +87,7 @@ namespace asio {
 	  const Message& operator=(const Message& other) {
 		  if (this == &other)
 			  return *this;
-		  this->connect_object_ = other.connect_object_;
+		  this->object_ = other.object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 		  return *this;
@@ -145,11 +145,11 @@ namespace asio {
 	  }
 
 	  void setNetObject(NetObjectPtr obj) {
-		  this->connect_object_ = obj;
+		  this->object_ = obj;
 	  }
 
 	  auto getNetObject() const{
-		  return connect_object_;
+		  return object_;
 	  }
 
 	  void clear() {
@@ -159,7 +159,7 @@ namespace asio {
 	private:
 	  char data_[header_length + max_body_length];
 	  int body_length_;
-	  NetObjectWeakPtr connect_object_;
+	  NetObjectWeakPtr object_;
 	};
 }
 
