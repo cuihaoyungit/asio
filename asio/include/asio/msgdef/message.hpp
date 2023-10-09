@@ -38,17 +38,13 @@ namespace asio {
 	typedef struct _TPkgHeader
 	{
 		int msgId           = 0;
-		int seq             = 0;
 		int body_len        = 0;
 		int crc             = 0;
 		uint64 sId			= 0; // session id
 		uint64 rId          = 0; // user id
-		int time            = 0;
 		ProtoFormat format  = ProtoFormat::Binary;
 		uint8 gateId        = 0;
 		uint8 encry         = 0;
-		uint8 appId         = 0;
-		uint8 destination   = 0; // enum send to destination server type
 	} MsgHeader;
 #pragma pack(pop)
 
