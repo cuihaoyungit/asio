@@ -45,6 +45,8 @@ namespace asio {
 		ProtoFormat format  = ProtoFormat::Binary;
 		uint8 gateId        = 0;
 		uint8 encry         = 0;
+		uint8 appId         = 0;
+		uint8 destination   = 0; // enum send to destination server type
 	} MsgHeader;
 #pragma pack(pop)
 
