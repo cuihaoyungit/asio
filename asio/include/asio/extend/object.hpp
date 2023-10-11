@@ -23,7 +23,14 @@ namespace asio {
 	public:
 		typedef std::unordered_map<std::string, std::string> UserDataList;
 
-		NetObject() noexcept:is_connect_(false), type(0), session_id_(0),proxy_id_(0), user_id_(0) {}
+		NetObject() noexcept
+			:is_connect_(false), 
+			type(0), 
+			session_id_(0), proxy_id_(0), user_id_(0),
+			update_time_(0), is_heartbeat_(false)
+		{
+			this->setUpdateTime(time(nullptr));
+		}
 		virtual ~NetObject()
 		{
 			userdata.clear();
@@ -99,6 +106,22 @@ namespace asio {
 		{
 			this->remote_address_ = ip;
 		}
+		void setUpdateTime(const time_t& time)
+		{
+			this->update_time_ = time;
+		}
+		time_t getUpdateTime()
+		{
+			return this->update_time_;
+		}
+		void setHeartbeat(bool value)
+		{
+			this->is_heartbeat_ = value;
+		}
+		bool isHeartbeat()
+		{
+			return this->is_heartbeat_;
+		}
 	private:
 		bool is_connect_ = {false};
 		int type;
@@ -108,6 +131,8 @@ namespace asio {
 		uint64 user_id_;
 		int32 proxy_id_;
 		std::string remote_address_;
+		time_t update_time_;
+		bool is_heartbeat_;
 	};
 
 	//typedef std::shared_ptr<NetObject> NetObjectPtr;
