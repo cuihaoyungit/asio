@@ -38,8 +38,6 @@ namespace asio {
 #endif
 		}
 
-		virtual void Stop() {}
-
 		bool Startup() {
 			if (!thread_) {
 				thread_ = std::make_unique<std::thread>(std::bind(&Worker::RunThread, this));
