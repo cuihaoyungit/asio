@@ -10,13 +10,13 @@
 #include <asio/extend/typedef.hpp>
 #include <asio/extend/object.hpp>
 #include <asio/extend/worker.hpp>
-#include <asio/extend/room.hpp>
+#include <asio/extend/users.hpp>
 
 namespace asio {
 
     using asio::ip::tcp;
     class NetServerEvent;
-    class Room;
+    class ServerUser;
 
     //----------------------------------------------------------------------
     // Tcp Session Server
@@ -25,9 +25,9 @@ namespace asio {
         , public std::enable_shared_from_this<TcpSession>
     {
     public:
-        explicit TcpSession(tcp::socket socket, Room& room, NetServer* server) noexcept
+        explicit TcpSession(tcp::socket socket, ServerUser& users, NetServer* server) noexcept
             : socket_(std::move(socket)),
-            room_(room),
+            users_(users),
             server_(server)
         {
 
@@ -52,7 +52,7 @@ namespace asio {
             const uint64 sessionId = this->server_->GenerateUUId();
             this->setSessionId(sessionId);
             // server room jion
-            this->room_.Join(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
+            this->users_.Join(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 			this->read_msg_.setNetObject(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
             // connect event
 			this->SetConnect(true);
@@ -123,7 +123,7 @@ namespace asio {
                     else
                     {
 						this->server_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
-                        this->room_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
+                        this->users_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->SetConnect(false);
                     }
                 });
@@ -144,7 +144,7 @@ namespace asio {
                     else
                     {
 						this->server_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
-                        this->room_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
+                        this->users_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->SetConnect(false);
                     }
                 });
@@ -169,7 +169,7 @@ namespace asio {
                     else
                     {
 						this->server_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
-                        this->room_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
+                        this->users_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->SetConnect(false);
                     }
                 });
@@ -183,7 +183,7 @@ namespace asio {
 
     private:
         tcp::socket socket_;
-        Room& room_;
+        ServerUser& users_;
         Message read_msg_;
         MessageQueue write_msgs_;
         NetServer* server_;
@@ -243,9 +243,9 @@ namespace asio {
 			}
 		}
 
-        Room& getRoom() 
+        ServerUser& getRoom() 
         {
-            return this->room_;
+            return this->users_;
         }
 
     public:
@@ -289,7 +289,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        std::make_shared<TcpSession>(std::move(socket), room_, dynamic_cast<NetServer*>(this))->Start();
+                        std::make_shared<TcpSession>(std::move(socket), users_, dynamic_cast<NetServer*>(this))->Start();
                     }
                     this->do_accept();
                 });
@@ -298,7 +298,7 @@ namespace asio {
         // io_service
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
-        Room room_;
+        ServerUser users_;
         asio::signal_set signals_;
         bool stoped_;
         std::string name_;

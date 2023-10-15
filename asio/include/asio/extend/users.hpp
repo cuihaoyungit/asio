@@ -1,5 +1,5 @@
-#ifndef __ROOM_HPP__
-#define __ROOM_HPP__
+#ifndef __USERS_HPP__
+#define __USERS_HPP__
 #include <asio/extend/nocopyobj.hpp>
 #include <asio/extend/object.hpp>
 #include <asio/msgdef/message.hpp>
@@ -12,7 +12,7 @@ namespace asio {
 	// One server one room
 	// Server -> Room
 	class NetObject;
-	class Room : protected NoCopyObj
+	class ServerUser final : protected NoCopyObj
 	{
 	public:
 		typedef std::shared_ptr<NetObject> NetObjectPtr;
@@ -20,9 +20,8 @@ namespace asio {
 
 		typedef std::set<NetObjectPtr> ObjList;
 		typedef std::unordered_map<uint64, NetObjectWeakPtr> SessionObjMap;// session id -> NetObject
-		typedef std::unordered_map<uint64, NetObjectWeakPtr> UserObjMap;   // user id    -> NetObject
-		Room() {}
-		~Room() {}
+		ServerUser() {}
+		~ServerUser() {}
 
 		void Join(NetObjectPtr obj)
 		{
@@ -34,7 +33,6 @@ namespace asio {
 			}
 			*/
 			const uint64 sessionId = obj->getSessionId();
-			obj->setSessionId(sessionId);
 			session_obj_map_[sessionId] = obj;
 		}
 
@@ -56,28 +54,12 @@ namespace asio {
 			return false;
 		}
 
-		// find Object by user id
-		bool FindObjByUserId(NetObjectWeakPtr ptr, const uint64& userId)
-		{
-			auto it = this->user_map_.find(userId);
-			if (it != this->user_map_.end())
-			{
-				ptr = it->second;
-				return true;
-			}
-			return false;
-		}
-
 		ObjList& GetObjList() {
 			return this->obj_list_;
 		}
 
 		SessionObjMap& GetSessionMap() {
 			return this->session_obj_map_;
-		}
-
-		UserObjMap& GetUserObjMap() {
-			return this->user_map_;
 		}
 	private:
 		void Deliver(const Message& msg)
@@ -104,12 +86,9 @@ namespace asio {
 
 		// guid session map
 		SessionObjMap session_obj_map_;
-
-		// user map
-		UserObjMap user_map_;
 	};
 
 
 }
 
-#endif // __ROOM_HPP__
+#endif // __USERS_HPP__

@@ -21,14 +21,14 @@
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/object.hpp>
 #include <asio/extend/typedef.hpp>
-#include <asio/extend/room.hpp>
+#include <asio/extend/users.hpp>
 #include <asio/signal_set.hpp>
 
 namespace asio {
 
 	using asio::ip::tcp;
 	class NetServerEvent;
-	class Room;
+	class ServerUser;
 
 	//----------------------------------------------------------------------
 	// Tcp Session GroupServer
@@ -36,9 +36,9 @@ namespace asio {
 		: public NetObject
 	{
 	public:
-		explicit TcpSession(tcp::socket socket, Room& room, NetServer* server) noexcept
+		explicit TcpSession(tcp::socket socket, ServerUser& users, NetServer* server) noexcept
 			: socket_(std::move(socket)),
-			room_(room),
+			users_(users),
 			server_(server)
 		{
 
@@ -68,7 +68,7 @@ namespace asio {
 			const uint64 sessionId = this->server_->GenerateUUId();
 			this->setSessionId(sessionId);
 			// server room jion
-			room_.Join(this->shared_from_this());
+			users_.Join(this->shared_from_this());
 			read_msg_.setNetObject(this->weak_from_this());
 			// connect event
 			this->SetConnect(true);
@@ -149,7 +149,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(this->shared_from_this());
+						this->users_.Leave(this->shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -170,7 +170,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(this->shared_from_this());
+						this->users_.Leave(this->shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -195,7 +195,7 @@ namespace asio {
 					else
 					{
 						this->server_->Disconnect(shared_from_this());
-						this->room_.Leave(this->shared_from_this());
+						this->users_.Leave(this->shared_from_this());
 						this->SetConnect(false);
 					}
 				});
@@ -209,7 +209,7 @@ namespace asio {
 
 	private:
 		tcp::socket socket_;
-		Room& room_;
+		ServerUser& users_;
 		Message read_msg_;
 		MessageQueue write_msgs_;
 		NetServer* server_;
@@ -268,9 +268,9 @@ namespace asio {
 			port_ = port;
 		}
 
-		Room& getRoom()
+		ServerUser& getRoom()
 		{
-			return this->room_;
+			return this->users_;
 		}
 	private:
 		void do_accept()
@@ -281,7 +281,7 @@ namespace asio {
 				{
 					if (!ec)
 					{
-						std::make_shared<TcpSession>(std::move(socket), room_, server_)->Start();
+						std::make_shared<TcpSession>(std::move(socket), users_, server_)->Start();
 					}
 
 					do_accept();
@@ -322,7 +322,7 @@ namespace asio {
 		asio::io_context io_context_;
 		tcp::acceptor acceptor_;
 		asio::signal_set signals_;
-		Room room_;
+		ServerUser users_;
 		bool stoped_;
 	};
 
