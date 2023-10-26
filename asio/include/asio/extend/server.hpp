@@ -30,7 +30,8 @@ namespace asio {
             users_(users),
             server_(server)
         {
-
+            // test code
+            // this->SetMsgQueueRun(false);
         }
 
         virtual ~TcpSession() 
@@ -98,6 +99,11 @@ namespace asio {
             std::lock_guard lock(this->mutex_);
             bool write_in_progress = !write_msgs_.empty();
             this->write_msgs_.push_back(msg);
+            // cache msg
+            if (!this->IsMsgQueueRunning())
+            {
+                return;
+            }
             if (!write_in_progress)
             {
                 this->do_write();

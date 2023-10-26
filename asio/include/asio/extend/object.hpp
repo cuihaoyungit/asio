@@ -45,7 +45,7 @@ namespace asio {
 		// disconnect
 		virtual void Close() {}
 		// cache msg queue
-		virtual void SetMsgQueueRun(bool bEnable) {}
+		virtual void SetMsgQueueRun(bool bEnable) { this->msg_queue_running_ = bEnable; }
 		// is msg queue running ?
 		virtual bool IsMsgQueueRunning() { return this->msg_queue_running_; }
 		// connect name
