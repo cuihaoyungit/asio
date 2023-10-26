@@ -25,7 +25,6 @@ namespace asio {
 
 		NetObject() noexcept
 			:is_connect_(false), 
-			type(0), 
 			session_id_(0), proxy_id_(0), user_id_(0),
 			update_time_(0), is_heartbeat_(false)
 		{
@@ -40,10 +39,6 @@ namespace asio {
 		virtual std::string Ip()   { return ""; }
 		virtual std::string Port() { return ""; }
 		virtual void Close() {} // disconnect
-		void SetType(const int type)
-		{
-			this->type = type;
-		}
 		void SetConnectName(const std::string &name)
 		{
 			this->connectName = name;
@@ -123,8 +118,7 @@ namespace asio {
 			return this->is_heartbeat_;
 		}
 	private:
-		bool is_connect_ = {false};
-		int type;
+		bool is_connect_;
 		std::string connectName;
 		UserDataList userdata;
 		uint64 session_id_;
@@ -160,29 +154,29 @@ namespace asio {
 	class NetServer
 	{
 	public:
-		NetServer():server_id_(0),server_sub_id_(0), is_pack_session_id_(false) {}
+		NetServer():main_id_(0),sub_id_(0), is_pack_session_id_(false) {}
 		virtual ~NetServer() {}
 		virtual void Connect(NetObjectPtr pNetObj) = 0;
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
 		virtual void HandleMessage(Message& msg) = 0;
 	public:
 		// Server ID card
-		const int ServerId() const
+		const int MainId() const
 		{
-			return server_id_;
+			return main_id_;
 		}
-		void SetServerId(const int id)
+		void SetMainId(const int id)
 		{
-			this->server_id_ = id;
+			this->main_id_ = id;
 		}
 		// Server sub ID card
-		const int ServerSubId() const
+		const int SubId() const
 		{
-			return server_sub_id_;
+			return sub_id_;
 		}
-		void SetServerSubId(const int subId)
+		void SetSubId(const int subId)
 		{
-			this->server_sub_id_ = subId;
+			this->sub_id_ = subId;
 		}
 		bool IsPackSessionId()
 		{
@@ -193,10 +187,10 @@ namespace asio {
 			this->is_pack_session_id_ = bPack;
 		}
 
-		void InitUUID(const int serverId, const int subId)
+		void InitUUID(const int mainId, const int subId)
 		{
 			try {
-				this->uuid_.init(serverId, subId); // default id start [1, 1]
+				this->uuid_.init(mainId, subId); // default id start [1, 1]
 			}
 			catch (const std::exception& ex)
 			{
@@ -209,8 +203,8 @@ namespace asio {
 			return sessionId;
 		}
 	private:
-		int server_id_;
-		int server_sub_id_;
+		int main_id_; // app id
+		int sub_id_;
 		bool is_pack_session_id_;
 	private:
 		// guid snowflake

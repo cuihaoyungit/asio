@@ -20,12 +20,13 @@ namespace asio {
         , public std::enable_shared_from_this<TcpClient>
     {
     public:
-        TcpClient(asio::io_context& io_context, NetEvent* event, const std::string &ip, const std::string &port)
+        TcpClient(asio::io_context& io_context, NetEvent* event, const std::string &ip, const std::string &port) noexcept
             : io_context_(io_context)
             , socket_(io_context)
             , auto_reconnect_(false)
             , connect_state_(ConnectState::ST_STOPPED)
             , net_event_(event)
+            , msg_queue_running_(true)
         {
             this->SetConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
@@ -253,6 +254,7 @@ namespace asio {
         tcp::socket socket_;
         Message read_msg_;
         MessageQueue write_msgs_;
+        bool msg_queue_running_;
         tcp::resolver::results_type endpoints_;
         bool auto_reconnect_;
         ConnectState connect_state_;
