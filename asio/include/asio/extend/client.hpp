@@ -26,7 +26,6 @@ namespace asio {
             , auto_reconnect_(false)
             , connect_state_(ConnectState::ST_STOPPED)
             , net_event_(event)
-            , msg_queue_running_(true)
         {
             this->SetConnect(false);
             this->connect_state_ = ConnectState::ST_STARTING;
@@ -94,7 +93,7 @@ namespace asio {
             }
         }
 	private:
-        void clear() // need lock ? 2023-08-10
+        void clear()
         {
             std::lock_guard lock(this->mutex_);
             this->write_msgs_.clear();
@@ -109,6 +108,11 @@ namespace asio {
                 [this, msg]() {
                 bool write_in_progress = !write_msgs_.empty();
                 this->write_msgs_.push_back(msg);
+                // cache msg
+                if (!this->IsMsgQueueRunning())
+                {
+                    return;
+                }
                 if (!write_in_progress && this->IsConnect())
                 {
                     this->do_write();
@@ -254,7 +258,6 @@ namespace asio {
         tcp::socket socket_;
         Message read_msg_;
         MessageQueue write_msgs_;
-        bool msg_queue_running_;
         tcp::resolver::results_type endpoints_;
         bool auto_reconnect_;
         ConnectState connect_state_;

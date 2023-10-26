@@ -24,9 +24,13 @@ namespace asio {
 		typedef std::unordered_map<std::string, std::string> UserDataList;
 
 		NetObject() noexcept
-			:is_connect_(false), 
-			session_id_(0), proxy_id_(0), user_id_(0),
-			update_time_(0), is_heartbeat_(false)
+			:is_connect_(false)
+			, session_id_(0)
+			, proxy_id_(0)
+			, user_id_(0)
+			, update_time_(0)
+			, is_heartbeat_(false)
+			, msg_queue_running_(true)
 		{
 			this->setUpdateTime(time(nullptr));
 		}
@@ -38,7 +42,13 @@ namespace asio {
 		virtual void Post(const Message& msg) { assert(!"virtual function."); }
 		virtual std::string Ip()   { return ""; }
 		virtual std::string Port() { return ""; }
-		virtual void Close() {} // disconnect
+		// disconnect
+		virtual void Close() {}
+		// cache msg queue
+		virtual void SetMsgQueueRun(bool bEnable) {}
+		// is msg queue running ?
+		virtual bool IsMsgQueueRunning() { return this->msg_queue_running_; }
+		// connect name
 		void SetConnectName(const std::string &name)
 		{
 			this->connectName = name;
@@ -127,6 +137,8 @@ namespace asio {
 		std::string remote_address_;
 		time_t update_time_;
 		bool is_heartbeat_;
+		bool msg_queue_running_;
+
 	};
 
 	//typedef std::shared_ptr<NetObject> NetObjectPtr;
