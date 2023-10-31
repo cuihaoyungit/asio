@@ -67,13 +67,15 @@ namespace asio {
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 	  }
-	  Message(const Message& other) {
+	  Message(const Message& other) 
+	  {
 		  this->object_ = other.object_;
 		  std::memcpy(data_, other.data(), other.length());
 		  this->body_length_ = other.body_length_;
 	  }
 
-	  Message& operator=(Message& other) {
+	  Message& operator=(Message& other)
+	  {
 		  if (this == &other)
 			  return *this;
 		  this->object_ = other.object_;
@@ -81,7 +83,8 @@ namespace asio {
 		  this->body_length_ = other.body_length_;
 		  return *this;
 	  }
-	  const Message& operator=(const Message& other) {
+	  const Message& operator=(const Message& other)
+	  {
 		  if (this == &other)
 			  return *this;
 		  this->object_ = other.object_;
@@ -95,33 +98,41 @@ namespace asio {
 		  this->clear();
 	  }
 
-	  const char* data() const {
+	  const char* data() const
+	  {
 		return data_;
 	  }
 
-	  char* data() {
+	  char* data()
+	  {
 		return data_;
 	  }
 
-	  int length() const {
+	  int length() const
+	  {
 		return header_length + body_length_;
 	  }
 
-	  const char* body() const {
+	  const char* body() const
+	  {
 		return data_ + header_length;
 	  }
 
-	  char* body() {
+	  char* body()
+	  {
 		return data_ + header_length;
 	  }
 
-	  int body_length() const {
+	  int body_length() const
+	  {
 		return body_length_;
 	  }
 
-	  void body_length(int new_length) {
+	  void body_length(int new_length)
+	  {
 		  body_length_ = new_length;
-		  if (body_length_ > max_body_length) { // data length too long
+		  if (body_length_ > max_body_length)  // data length too long
+		  {
 			  body_length_ = max_body_length;
 		  }
 	  }
@@ -129,7 +140,7 @@ namespace asio {
 	  bool decode_header() {
 		  MsgHeader* msg = (MsgHeader*)data_;
 		  body_length_ = msg->body_len;
-		  if (body_length_ > max_body_length)
+		  if (body_length_ > max_body_length)  // range out
 		  {
 			  body_length_ = 0;
 			  return false;
@@ -137,19 +148,23 @@ namespace asio {
 		  return true;
 	  }
 
-	  void encode_header(MsgHeader& msg) {
+	  void encode_header(MsgHeader& msg) 
+	  {
 		  std::memcpy(data_, &msg, header_length);
 	  }
 
-	  void setNetObject(NetObjectPtr obj) {
+	  void setNetObject(NetObjectPtr obj)
+	  {
 		  this->object_ = obj;
 	  }
 
-	  auto getNetObject() const{
+	  auto getNetObject() const
+	  {
 		  return object_;
 	  }
 
-	  void clear() {
+	  void clear()
+	  {
 		  std::memset(data_, 0, header_length + max_body_length);
 		  this->body_length_ = 0;
 	  }
