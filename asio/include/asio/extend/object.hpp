@@ -168,9 +168,9 @@ namespace asio {
 	public:
 		NetServer():main_id_(0),sub_id_(0), is_pack_session_id_(false) {}
 		virtual ~NetServer() {}
-		virtual void Connect(NetObjectPtr pNetObj) = 0;
+		virtual void Connect(NetObjectPtr pNetObj)    = 0;
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
-		virtual void HandleMessage(Message& msg) = 0;
+		virtual void HandleMessage(Message& msg)      = 0;
 	public:
 		// Server ID card
 		const int MainId() const
