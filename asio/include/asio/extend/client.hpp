@@ -183,6 +183,7 @@ namespace asio {
                     }
                     else {
                         this->SetConnect(false);
+                        this->net_event_->Error(0);
                         this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         std::cout << this->GetConnectName() << ":" << "connection failed." << std::endl;
                         this->reset();
@@ -203,6 +204,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->net_event_->Error(0);
                         this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         this->reset();
                     }
@@ -222,6 +224,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->net_event_->Error(0);
                         this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         this->reset();
                     }
@@ -247,6 +250,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->net_event_->Error(0);
                         this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
                         this->reset();
                     }

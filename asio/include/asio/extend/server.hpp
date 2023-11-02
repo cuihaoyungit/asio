@@ -133,6 +133,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->server_->Error(0);
 						this->server_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->users_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->SetConnect(false);
@@ -154,6 +155,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->server_->Error(0);
 						this->server_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->users_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->SetConnect(false);
@@ -179,6 +181,7 @@ namespace asio {
                     }
                     else
                     {
+                        this->server_->Error(0);
 						this->server_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->users_.Leave(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->SetConnect(false);
@@ -242,6 +245,7 @@ namespace asio {
         {
             // workers stop
             work_.reset();
+            // signals
             this->signals_.cancel();
 			// close acceptor
 			this->io_context.post([this]() {

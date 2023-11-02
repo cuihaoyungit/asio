@@ -24,7 +24,7 @@ namespace asio {
 		typedef std::unordered_map<std::string, std::string> UserDataList;
 
 		NetObject() noexcept
-			:is_connect_(false)
+			: is_connect_(false)
 			, session_id_(0)
 			, proxy_id_(0)
 			, user_id_(0)
@@ -159,6 +159,7 @@ namespace asio {
 		virtual void Disconnect(NetObject* pNetObj) = 0;
 		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) = 0;
 		virtual void Reconnect(NetObject* pNetObj) {}
+		virtual void Error(int error) = 0;
 	};
 
 	//--------------------------------------------------------------
@@ -171,6 +172,7 @@ namespace asio {
 		virtual void Connect(NetObjectPtr pNetObj)    = 0;
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
 		virtual void HandleMessage(Message& msg)      = 0;
+		virtual void Error(int error)                 = 0;
 	public:
 		// Server ID card
 		const int MainId() const
