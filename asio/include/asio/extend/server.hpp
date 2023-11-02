@@ -12,6 +12,11 @@
 #include <asio/extend/worker.hpp>
 #include <asio/extend/users.hpp>
 
+// 多线程asio使用研究
+// https://www.cnblogs.com/fnlingnzb-learner/p/10402276.html
+//
+//
+
 namespace asio {
 
     using asio::ip::tcp;
@@ -205,6 +210,7 @@ namespace asio {
             : acceptor_(io_context, endpoint)
             , signals_(io_context)
             , stoped_(false)
+			, work_(new asio::io_service::work(io_context))
         {
             // ensure one signals handler application
 			//signals_.add(SIGINT);
@@ -234,6 +240,8 @@ namespace asio {
         // stop asio io_content
 		void Stop() 
         {
+            // workers stop
+            work_.reset();
             this->signals_.cancel();
 			// close acceptor
 			this->io_context.post([this]() {
@@ -247,6 +255,17 @@ namespace asio {
 			{
 				this->io_context.stop();
 			}
+
+            // wait threads stop
+            /*
+            for (auto& t : this->threads_)
+            {
+                if (t.joinable())
+                {
+                    t.join();
+                }
+            }
+            */
 		}
 
         ServerUser& getRoom() 
@@ -276,7 +295,7 @@ namespace asio {
 		    // Run the I/O service on the requested number of threads
 			/*
             std::vector<std::thread> v;
-			v.reserve(threads - 1);
+			threads_.reserve(threads - 1);
 			for (auto i = threads - 1; i > 0; --i)
 				v.emplace_back(
 					[&ioc]
@@ -304,6 +323,8 @@ namespace asio {
         // io_service
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
+        std::unique_ptr<asio::io_service::work> work_;
+        std::vector<std::thread> threads_;
         ServerUser users_;
         asio::signal_set signals_;
         bool stoped_;
