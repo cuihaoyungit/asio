@@ -15,7 +15,7 @@
 //
 //------------------------------------------------------------------------------
 
-#include "../root_certificates.hpp"
+#include "../ssl/root_certificates.hpp"
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/ssl.hpp>
@@ -212,7 +212,7 @@ public:
         msg.body_length(text.length());
         std::memcpy(msg.body(), text.data(), text.size());
         asio::MsgHeader header;
-        header.seq = 50002;
+        header.msgId = 50002;
         header.body_len = msg.body_length();
         msg.encode_header(header);
         this->Post(msg);
