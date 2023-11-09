@@ -34,7 +34,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 #include <asio/extend/object>
 #include <asio/extend/typedef>
 // Sends a WebSocket message and prints the response
-class WebSession : public std::enable_shared_from_this<WebSession>, public asio::NetObject
+class WebSession : public asio::NetObject, public std::enable_shared_from_this<WebSession>
 {
 	tcp::resolver resolver_;
 	websocket::stream<beast::tcp_stream> ws_;
@@ -227,10 +227,10 @@ private:
 
 		std::string text = "hello";
 		static asio::Message msg;
-		msg.body_length(text.length());
+		msg.body_length(static_cast<int>(text.length()));
 		std::memcpy(msg.body(), text.data(), text.size());
 		asio::MsgHeader header;
-		header.seq = 50002;
+		header.msgId = 50002;
 		header.body_len = msg.body_length();
 		msg.encode_header(header);
 		this->Post(msg);
@@ -297,6 +297,7 @@ private:
 	// Report a failure
 	void fail(beast::error_code ec, char const* what)
 	{
+		this->net_event_->Error(ec.value());
 		std::cerr << what << ": " << ec.message() << "\n";
 
 		// disconnect
