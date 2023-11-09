@@ -314,11 +314,12 @@ private:
     {
         do_accept();
     }
-private:
+protected:
     void Connect(NetObjectPtr pNetObj)    override {}
     void Disconnect(NetObjectPtr pNetObj) override {}
     void HandleMessage(Message& msg)      override {}
     void Error(int error) override {}
+private:
     void Exec() override
     {
         // thread workers
