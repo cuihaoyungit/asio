@@ -32,8 +32,7 @@
 #include <asio/extend/object.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/extend/typedef.hpp>
-//#include <asio/extend/websocket/websocketroom.hpp>
-#include <asio/extend/room.hpp>
+#include <asio/extend/websocket/websocketroom>
 using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -52,10 +51,10 @@ class WebSession
     Message read_msg_;
     MessageQueue write_msgs_;
     std::mutex mutex_;
-    Room &room_;
+    WebSocketRoom &room_;
 public:
     // Take ownership of the socket
-    explicit WebSession(tcp::socket&& socket, Room& room)
+    explicit WebSession(tcp::socket&& socket, WebSocketRoom& room)
         : ws_(std::move(socket))
         , room_(room)
     {
@@ -251,7 +250,7 @@ class WebSocketServer : public Worker, public NetServer
 {
     net::io_context ioc_{1};
     tcp::acceptor acceptor_;
-    Room room_;
+    WebSocketRoom room_;
 public:
     WebSocketServer(
         /*net::io_context& ioc, */
@@ -319,18 +318,20 @@ private:
     void Connect(NetObjectPtr pNetObj)    override {}
     void Disconnect(NetObjectPtr pNetObj) override {}
     void HandleMessage(Message& msg)      override {}
+    void Error(int error) override {}
     void Exec() override
     {
         // thread workers
 		std::vector<std::thread> v;
 		v.reserve(1);
-        for (auto i = threads - 1; i > 0; --i) {
-            v.emplace_back(
-                [&ioc]
-                {
-                    ioc.run();
-                });
-        }
+		int threads = 1;
+		for (auto i = threads - 1; i > 0; --i) {
+			v.emplace_back(
+				[&]
+				{
+					this->ioc_.run();
+				});
+		}
 
         // main thread worker
         this->ioc_.run();
