@@ -254,7 +254,7 @@ class WebSocketServer : public Worker, public NetServer
 public:
     WebSocketServer(
         /*net::io_context& ioc, */
-        tcp::endpoint endpoint)
+        const tcp::endpoint& endpoint)
         : acceptor_(ioc_)
     {
         beast::error_code ec;
@@ -322,6 +322,7 @@ protected:
 private:
     void Exec() override
     {
+        // multi thread
         // thread workers
 		std::vector<std::thread> v;
 		v.reserve(1);
@@ -333,7 +334,6 @@ private:
 					this->ioc_.run();
 				});
 		}
-
         // main thread worker
         this->ioc_.run();
 

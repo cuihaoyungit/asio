@@ -259,17 +259,6 @@ namespace asio {
 			{
 				this->io_context.stop();
 			}
-
-            // wait threads stop
-            /*
-            for (auto& t : this->threads_)
-            {
-                if (t.joinable())
-                {
-                    t.join();
-                }
-            }
-            */
 		}
 
         ServerUser& getRoom() 
@@ -297,17 +286,27 @@ namespace asio {
 
             // multi thread
 		    // Run the I/O service on the requested number of threads
-			/*
             std::vector<std::thread> v;
-			threads_.reserve(threads - 1);
-			for (auto i = threads - 1; i > 0; --i)
-				v.emplace_back(
-					[&ioc]
-					{
-						ioc.run();
-					});
-            */
+            v.reserve(1);
+            int threads = 1;
+            for (auto i = threads - 1; i > 0; --i) {
+                v.emplace_back(
+                    [&]
+                    {
+                        this->io_context.run();
+                    });
+            }
+            // main thread worker
             io_context.run();
+
+            // wait for threads exit
+            for (auto& it : v)
+            {
+                if (it.joinable())
+                {
+                    it.join();
+                }
+            }
         }
 
         // accept
@@ -328,7 +327,6 @@ namespace asio {
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
         std::unique_ptr<asio::io_service::work> work_;
-        std::vector<std::thread> threads_;
         ServerUser users_;
         asio::signal_set signals_;
         bool stoped_;
