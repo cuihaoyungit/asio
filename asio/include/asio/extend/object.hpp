@@ -155,7 +155,7 @@ namespace asio {
 		virtual void Send(const Message& msg) = 0;
 		virtual void Connect(NetObjectPtr pNetObj)    = 0;
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
-		virtual void HandleMessage(Message& msg)= 0;
+		virtual void HandleMessage(const Message& msg)= 0;
 		virtual void Reconnect(NetObjectPtr pNetObj) {}
 		virtual void Error(int error) = 0;
 	};
@@ -169,7 +169,7 @@ namespace asio {
 		virtual ~NetServer() {}
 		virtual void Connect(NetObjectPtr pNetObj)    = 0;
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
-		virtual void HandleMessage(Message& msg)      = 0;
+		virtual void HandleMessage(const Message& msg)= 0;
 		virtual void Error(int error)                 = 0;
 	public:
 		// Server ID card

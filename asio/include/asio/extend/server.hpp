@@ -268,7 +268,7 @@ namespace asio {
     public:
 		void Connect(NetObjectPtr pNetObj)    override {}
 		void Disconnect(NetObjectPtr pNetObj) override {}
-		void HandleMessage(Message& msg)      override {}
+		void HandleMessage(const Message& msg)override {}
     protected:
         void SetName(const std::string_view& name)
         {
