@@ -50,10 +50,12 @@ class WebSession
     Message read_msg_;
     MessageQueue write_msgs_;
     std::mutex mutex_;
+    NetServer* server_;
 public:
     // Take ownership of the socket
-    explicit WebSession(tcp::socket&& socket)
+    explicit WebSession(tcp::socket&& socket, NetServer* server)
         : ws_(std::move(socket))
+        , server_(server)
     {
         // step 2
         ws_.binary(true);
@@ -320,8 +322,7 @@ protected:
 private:
     void Exec() override
     {
-        // multi thread
-        // thread workers
+        // multi thread workers
 		std::vector<std::thread> v;
 		v.reserve(1);
 		int threads = 1;
@@ -372,7 +373,7 @@ private:
         else
         {
             // Create the session and run it
-            std::make_shared<WebSession>(std::move(socket))->run();
+            std::make_shared<WebSession>(std::move(socket), this)->run();
         }
 
         // Accept another connection

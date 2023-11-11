@@ -219,7 +219,7 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        this->net_event_->HandleMessage(read_msg_);
+                        this->net_event_->HandleMessage(this->shared_from_this(), read_msg_);
                         this->do_read_header();
                     }
                     else

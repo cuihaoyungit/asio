@@ -36,7 +36,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 #include <asio/msgdef/message>
 using namespace asio;
 // Sends a WebSocket message and prints the response
-class WebSession : public asio::NetObject, public std::enable_shared_from_this<WebSession>
+class WebClientSession : public asio::NetObject, public std::enable_shared_from_this<WebClientSession>
 {
 	tcp::resolver resolver_;
 	websocket::stream<beast::tcp_stream> ws_;
@@ -71,14 +71,14 @@ public:
 		if (ws_.is_open()) {
 			ws_.async_close(websocket::close_code::normal,
 				beast::bind_front_handler(
-					&WebSession::on_close,
+					&WebClientSession::on_close,
 					shared_from_this()));
 		}
 	}
 public:
 	// Resolver and socket require an io_context
 	explicit
-		WebSession(net::io_context& ioc, asio::NetEvent* event)
+		WebClientSession(net::io_context& ioc, asio::NetEvent* event)
 		: resolver_(net::make_strand(ioc))
 		, ws_(net::make_strand(ioc))
 		, net_event_(event)
@@ -87,7 +87,7 @@ public:
 		ws_.binary(true);
 	}
 
-	virtual ~WebSession() {}
+	virtual ~WebClientSession() {}
 
 	// Start the asynchronous operation
 	void run(
@@ -102,7 +102,7 @@ public:
 			host,
 			port,
 			beast::bind_front_handler(
-				&WebSession::on_resolve,
+				&WebClientSession::on_resolve,
 				shared_from_this()));
 	}
 private:
@@ -154,7 +154,7 @@ private:
 			net::buffer(write_msgs_.front().data(),
 				write_msgs_.front().length()),
 			beast::bind_front_handler(
-				&WebSession::on_write,
+				&WebClientSession::on_write,
 				shared_from_this()));
 	}
 private:
@@ -172,7 +172,7 @@ private:
 		beast::get_lowest_layer(ws_).async_connect(
 			results,
 			beast::bind_front_handler(
-				&WebSession::on_connect,
+				&WebClientSession::on_connect,
 				shared_from_this()));
 	}
 
@@ -207,7 +207,7 @@ private:
 		// Perform the websocket handshake
 		ws_.async_handshake(host_, "/",
 			beast::bind_front_handler(
-				&WebSession::on_handshake,
+				&WebClientSession::on_handshake,
 				shared_from_this()));
 	}
 
@@ -252,7 +252,7 @@ private:
 		ws_.async_read(
 			buffer_,
 			beast::bind_front_handler(
-				&WebSession::on_read,
+				&WebClientSession::on_read,
 				shared_from_this()));
 	}
 
@@ -316,7 +316,7 @@ private:
 		this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 	}
 };
-typedef std::shared_ptr<WebSession> WebSessionPtr;
+typedef std::shared_ptr<WebClientSession> WebClientSessionPtr;
 
 //--------------------------------------------------------------------------------
 
@@ -386,7 +386,7 @@ private:
 			// The io_context is required for all I/O
 			net::io_context ioc;
 
-			auto ws = std::make_shared<WebSession>(ioc, this);
+			auto ws = std::make_shared<WebClientSession>(ioc, this);
 			this->ws_ = ws;
 			ws->run(host_.c_str(), port_.c_str());
 
@@ -401,7 +401,7 @@ private:
 	}
 private:
 	bool auto_reconnect_ = { false };
-	WebSessionPtr ws_;
+	WebClientSessionPtr ws_;
 	std::string host_;
 	std::string port_;
 };

@@ -116,7 +116,7 @@ namespace asio {
     private:
         void do_read_header()
         {
-            auto self(shared_from_this());
+            auto self(this->shared_from_this());
             asio::async_read(socket_,
                 asio::buffer(read_msg_.data(), Message::header_length),
                 [this, self](std::error_code ec, std::size_t /*length*/)
@@ -142,14 +142,14 @@ namespace asio {
 
         void do_read_body()
         {
-            auto self(shared_from_this());
+            auto self(this->shared_from_this());
             asio::async_read(socket_,
                 asio::buffer(read_msg_.body(), read_msg_.body_length()),
                 [this, self](std::error_code ec, std::size_t /*length*/)
                 {
                     if (!ec)
                     {
-                        this->server_->HandleMessage(read_msg_);
+                        this->server_->HandleMessage(this->shared_from_this(), read_msg_);
                         do_read_header();
                     }
                     else
@@ -268,7 +268,7 @@ namespace asio {
     public:
 		void Connect(NetObjectPtr pNetObj)    override {}
 		void Disconnect(NetObjectPtr pNetObj) override {}
-		void HandleMessage(const Message& msg)override {}
+		void HandleMessage(NetObjectPtr pNetObj, const Message& msg)override {}
     protected:
         void SetName(const std::string_view& name)
         {
