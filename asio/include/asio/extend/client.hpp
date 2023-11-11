@@ -161,7 +161,7 @@ namespace asio {
             std::this_thread::sleep_for(std::chrono::seconds(10));
             if (!this->IsConnect())
             {
-                this->net_event_->Reconnect(dynamic_cast<NetObject*>(this));
+                this->net_event_->Reconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                 this->do_connect(endpoints_);
             }
         }
@@ -177,14 +177,14 @@ namespace asio {
                         this->connect_state_ = ConnectState::ST_CONNECTED;
                         this->SetConnect(true);
                         std::cout << this->GetConnectName() << ":" << "connection succeeded." << std::endl;
-                        this->net_event_->Connect(dynamic_cast<NetObject*>(this));
+                        this->net_event_->Connect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->read_msg_.setNetObject(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->do_read_header();
                     }
                     else {
                         this->SetConnect(false);
                         this->net_event_->Error(0);
-                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
+                        this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         std::cout << this->GetConnectName() << ":" << "connection failed." << std::endl;
                         this->reset();
                     }
@@ -205,7 +205,7 @@ namespace asio {
                     else
                     {
                         this->net_event_->Error(0);
-                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
+                        this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->reset();
                     }
                 });
@@ -219,13 +219,13 @@ namespace asio {
                 {
                     if (!ec)
                     {
-                        this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), read_msg_);
+                        this->net_event_->HandleMessage(read_msg_);
                         this->do_read_header();
                     }
                     else
                     {
                         this->net_event_->Error(0);
-                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
+                        this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->reset();
                     }
                 });
@@ -251,7 +251,7 @@ namespace asio {
                     else
                     {
                         this->net_event_->Error(0);
-                        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
+                        this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
                         this->reset();
                     }
                 });

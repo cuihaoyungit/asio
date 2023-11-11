@@ -35,7 +35,6 @@ namespace asio {
             users_(users),
             server_(server)
         {
-            // test code
             // this->SetMsgQueueRun(false);
         }
 

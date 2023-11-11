@@ -151,14 +151,12 @@ namespace asio {
 	public:
 		NetEvent() = default;
 		virtual ~NetEvent() {}
-		//virtual void Init() {}
-		//virtual void Exit() {}
 		virtual void Post(const Message& msg) = 0;
 		virtual void Send(const Message& msg) = 0;
-		virtual void Connect(NetObject* pNetObj) = 0;
-		virtual void Disconnect(NetObject* pNetObj) = 0;
-		virtual void HandleMessage(NetObject* pNetObj, const Message& msg) = 0;
-		virtual void Reconnect(NetObject* pNetObj) {}
+		virtual void Connect(NetObjectPtr pNetObj)    = 0;
+		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
+		virtual void HandleMessage(Message& msg)= 0;
+		virtual void Reconnect(NetObjectPtr pNetObj) {}
 		virtual void Error(int error) = 0;
 	};
 

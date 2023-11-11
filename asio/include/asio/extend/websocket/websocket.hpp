@@ -144,6 +144,7 @@ private:
 			this->do_write();
 		}
 	}
+
 	void do_write()
 	{
 		// Send the message
@@ -214,26 +215,30 @@ private:
 			return fail(ec, "handshake");
 
 
-		// Send the message
+		//// Send the message
+		//std::string text = "hello";
 		//ws_.async_write(
-		//	net::buffer(msg.data(), msg.length()),
+		//	//net::buffer(msg.data(), msg.length()),
+		//	net::buffer(text),
 		//	beast::bind_front_handler(
-		//		&session::on_write,
+		//		&WebSession::on_write,
 		//		shared_from_this()));
-		//
+
 
 		// Net connect
 		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
 
-		std::string text = "hello";
-		static asio::Message msg;
-		msg.body_length(static_cast<int>(text.length()));
-		std::memcpy(msg.body(), text.data(), text.size());
-		asio::MsgHeader header;
-		header.msgId = 50002;
-		header.body_len = msg.body_length();
-		msg.encode_header(header);
-		this->Post(msg);
+		
+		//std::string text = "hello";
+		//static asio::Message msg;
+		//msg.body_length(static_cast<int>(text.length()));
+		//std::memcpy(msg.body(), text.data(), text.size());
+		//asio::MsgHeader header;
+		//header.msgId = 50002;
+		//header.body_len = msg.body_length();
+		//msg.encode_header(header);
+		//this->Post(msg);
+		
 
 		// Read a message
 		this->read();
@@ -269,12 +274,16 @@ private:
 		asio::Message *msg = &this->read_msg_;
 		std::memcpy(msg->data(), buffer_.data().data(), buffer_.size());
 		msg->decode_header();
-		asio::MsgHeader* header((asio::MsgHeader*)msg->data());
+		//asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
 		// Net handle message
 		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), *msg);
 
 		// Clear the buffer
+
+		//std::cout << beast::make_printable(buffer_.data()) << std::endl;
+
+		std::cout << msg->body() << std::endl;
 		buffer_.consume(buffer_.size());
 
 		// receive data
