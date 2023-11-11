@@ -329,27 +329,27 @@ private:
     {
         // multi thread
         // thread workers
-		//std::vector<std::thread> v;
-		//v.reserve(1);
-		//int threads = 1;
-		//for (auto i = threads - 1; i > 0; --i) {
-		//	v.emplace_back(
-		//		[&]
-		//		{
-		//			this->ioc_.run();
-		//		});
-		//}
+		std::vector<std::thread> v;
+		v.reserve(1);
+		int threads = 1;
+		for (auto i = threads - 1; i > 0; --i) {
+			v.emplace_back(
+				[&]
+				{
+					this->ioc_.run();
+				});
+		}
         // main thread worker
         this->ioc_.run();
 
         // wait for threads exit
-        //for (auto &it : v)
-        //{
-        //    if (it.joinable())
-        //    {
-        //        it.join();
-        //    }
-        //}
+		for (auto& it : v)
+		{
+			if (it.joinable())
+			{
+				it.join();
+			}
+		}
     }
     void Init() override
     {
