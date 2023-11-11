@@ -32,7 +32,6 @@
 #include <asio/extend/object.hpp>
 #include <asio/extend/worker.hpp>
 #include <asio/extend/typedef.hpp>
-#include <asio/extend/websocket/websocketroom>
 using namespace asio;
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
@@ -51,23 +50,18 @@ class WebSession
     Message read_msg_;
     MessageQueue write_msgs_;
     std::mutex mutex_;
-    WebSocketRoom &room_;
 public:
     // Take ownership of the socket
-    explicit WebSession(tcp::socket&& socket, WebSocketRoom& room)
+    explicit WebSession(tcp::socket&& socket)
         : ws_(std::move(socket))
-        , room_(room)
     {
         // step 2
         ws_.binary(true);
-        
-        //
-        //this->room_.join(this->shared_from_this());
     }
 
     virtual ~WebSession()
     {
-        //this->room_.leave(this->shared_from_this());
+
     }
 
     void Close() override
@@ -255,7 +249,6 @@ class WebSocketServer : public Worker, public NetServer
 {
     net::io_context ioc_{1};
     tcp::acceptor acceptor_;
-    WebSocketRoom room_;
 public:
     WebSocketServer(
         /*net::io_context& ioc, */
@@ -379,7 +372,7 @@ private:
         else
         {
             // Create the session and run it
-            std::make_shared<WebSession>(std::move(socket), this->room_)->run();
+            std::make_shared<WebSession>(std::move(socket))->run();
         }
 
         // Accept another connection
