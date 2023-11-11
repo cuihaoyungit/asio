@@ -285,7 +285,8 @@ private:
 
 		//std::cout << beast::make_printable(buffer_.data()) << std::endl;
 
-		std::cout << msg->body() << std::endl;
+		//std::cout << msg->body() << std::endl;
+		printf("%.*s\n", msg->body_length(), msg->body());
 		buffer_.consume(buffer_.size());
 
 		// receive data
