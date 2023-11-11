@@ -33,6 +33,8 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 //------------------------------------------------------------------------------
 #include <asio/extend/object>
 #include <asio/extend/typedef>
+#include <asio/msgdef/message>
+using namespace asio;
 // Sends a WebSocket message and prints the response
 class WebSession : public asio::NetObject, public std::enable_shared_from_this<WebSession>
 {
@@ -226,7 +228,7 @@ private:
 
 
 		// Net connect
-		this->net_event_->Connect(dynamic_cast<NetObject*>(this));
+		this->net_event_->Connect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 
 		
 		//std::string text = "hello";
@@ -277,7 +279,7 @@ private:
 		//asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
 		// Net handle message
-		this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), *msg);
+		this->net_event_->HandleMessage(*msg);
 
 		// Clear the buffer
 
@@ -310,7 +312,7 @@ private:
 		std::cerr << what << ": " << ec.message() << "\n";
 
 		// disconnect
-		this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
+		this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 	}
 };
 typedef std::shared_ptr<WebSession> WebSessionPtr;
@@ -358,9 +360,9 @@ public:
 		}
 	}
 protected:
-	virtual void Connect(asio::NetObject* pNetObj) override {}
-	virtual void Disconnect(asio::NetObject* pNetObj) override {}
-	virtual void HandleMessage(asio::NetObject* pNetObj, const asio::Message& msg) override
+	virtual void Connect(NetObjectPtr pNetObj) override {}
+	virtual void Disconnect(NetObjectPtr pNetObj) override {}
+	virtual void HandleMessage(const Message& msg) override
 	{
 		printf("%.*s\n", msg.body_length(), msg.body());
 	}
