@@ -44,7 +44,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 //------------------------------------------------------------------------------
 // Echoes back all received WebSocket messages
 class WebSession
-    : public NetObject
+    : public NetObject, public std::enable_shared_from_this<WebSession>
 {
     websocket::stream<beast::tcp_stream> ws_;
     beast::flat_buffer buffer_;
@@ -62,12 +62,12 @@ public:
         ws_.binary(true);
         
         //
-        //this->room_.Join(this->shared_from_this());
+        //this->room_.join(this->shared_from_this());
     }
 
     virtual ~WebSession()
     {
-        //this->room_.Leave(this->shared_from_this());
+        //this->room_.leave(this->shared_from_this());
     }
 
     void Close() override
@@ -106,7 +106,7 @@ public:
         net::dispatch(ws_.get_executor(),
             beast::bind_front_handler(
                 &WebSession::on_run,
-                /*shared_from_this()*/this));
+                this->shared_from_this()));
     }
 
     // Start the asynchronous operation
@@ -129,7 +129,7 @@ public:
         ws_.async_accept(
             beast::bind_front_handler(
                 &WebSession::on_accept,
-                /*shared_from_this()*/this));
+                this->shared_from_this()));
     }
 
     void on_accept(beast::error_code ec)
@@ -150,7 +150,7 @@ public:
             buffer_,
             beast::bind_front_handler(
                 &WebSession::on_read,
-                /*shared_from_this()*/this));
+                this->shared_from_this()));
     }
 
     void on_read(
@@ -167,19 +167,24 @@ public:
             return fail(ec, "read");
 
         // step 3 read complete
-        int header_size = sizeof(asio::MsgHeader);
-        asio::Message msg;
-        std::memcpy(msg.data(), buffer_.data().data(), buffer_.size());
-        msg.decode_header();
-        asio::MsgHeader* header((asio::MsgHeader*)msg.data());
+		int header_size = sizeof(asio::MsgHeader);
+		asio::Message msg;
+		std::memcpy(msg.data(), buffer_.data().data(), buffer_.size());
+		msg.decode_header();
+		asio::MsgHeader* header((asio::MsgHeader*)msg.data());
+
+
+		printf("%.*s\n", msg.body_length(), msg.body());
+		// Clear the buffer
+		buffer_.consume(buffer_.size());
 
         // Echo the message
-        //ws_.text(ws_.got_text());
-        //ws_.async_write(
-        //    buffer_.data(),
-        //    beast::bind_front_handler(
-        //        &WebSession::on_write,
-        //        /*shared_from_this()*/this));
+		//ws_.text(ws_.got_text());
+		//ws_.async_write(
+		//	buffer_.data(),
+		//	beast::bind_front_handler(
+		//		&WebSession::on_write,
+		//		this->shared_from_this()));
 
         this->do_read();
     }
@@ -315,9 +320,9 @@ private:
         do_accept();
     }
 protected:
-    void Connect(NetObjectPtr pNetObj)    override {}
-    void Disconnect(NetObjectPtr pNetObj) override {}
-    void HandleMessage(Message& msg)      override {}
+    void Connect(NetObjectPtr pNetObj)     override {}
+    void Disconnect(NetObjectPtr pNetObj)  override {}
+    void HandleMessage(const Message& msg) override {}
     void Error(int error) override {}
 private:
     void Exec() override

@@ -5,7 +5,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_set>
-
+#include <set>
 // Forward declaration
 namespace asio {
     class NetObject;
@@ -23,6 +23,9 @@ class WebSocketRoom
     // Keep a list of all the connected clients
     //std::unordered_set<std::weak_ptr<asio::NetObject>> sessions_;
 
+    //std::unordered_set<std::weak_ptr<asio::NetObject>> sessions_;
+
+    std::set<std::shared_ptr<asio::NetObject>> sessions_;
 public:
     explicit WebSocketRoom() {}
 
@@ -32,16 +35,17 @@ public:
         return doc_root_;
     }
 
-    //void join(std::weak_ptr<asio::NetObject> session)
-    //{
-    //    std::lock_guard<std::mutex> lock(mutex_);
-    //    sessions_.insert(session);
-    //}
-    //void leave(std::weak_ptr<asio::NetObject> session)
-    //{
-    //    std::lock_guard<std::mutex> lock(mutex_);
-    //    sessions_.erase(session);
-    //}
+	void join(std::shared_ptr<asio::NetObject> session)
+	{
+		std::lock_guard<std::mutex> lock(mutex_);
+		sessions_.insert(session);
+	}
+	void leave(std::shared_ptr<asio::NetObject> session)
+	{
+		std::lock_guard<std::mutex> lock(mutex_);
+        
+		sessions_.erase(session);
+	}
     //void send(asio::Message& message)
     //{
     //    // Put the message in a shared pointer so we can re-use it for each client
