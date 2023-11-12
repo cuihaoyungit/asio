@@ -317,7 +317,7 @@ private:
 protected:
     void Connect(NetObjectPtr pNetObj)     override {}
     void Disconnect(NetObjectPtr pNetObj)  override {}
-    void HandleMessage(const Message& msg) override {}
+    void HandleMessage(NetObjectPtr pNetObj, const Message& msg) override {}
     void Error(int error) override {}
 private:
     void Exec() override

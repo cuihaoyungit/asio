@@ -279,7 +279,7 @@ private:
 		//asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
 		// Net handle message
-		this->net_event_->HandleMessage(*msg);
+		this->net_event_->HandleMessage(this->shared_from_this(), *msg);
 
 		// Clear the buffer
 
@@ -363,7 +363,7 @@ public:
 protected:
 	virtual void Connect(NetObjectPtr pNetObj) override {}
 	virtual void Disconnect(NetObjectPtr pNetObj) override {}
-	virtual void HandleMessage(const Message& msg) override
+	virtual void HandleMessage(NetObjectPtr pNetObj, const Message& msg) override
 	{
 		printf("%.*s\n", msg.body_length(), msg.body());
 	}
