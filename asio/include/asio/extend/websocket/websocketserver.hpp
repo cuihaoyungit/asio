@@ -45,9 +45,10 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 class WebSession
     : public NetObject, public std::enable_shared_from_this<WebSession>
 {
+private:
     websocket::stream<beast::tcp_stream> ws_;
     beast::flat_buffer buffer_;
-    Message read_msg_;
+	Message read_msg_;
     MessageQueue write_msgs_;
     std::mutex mutex_;
     NetServer* server_;
@@ -133,8 +134,9 @@ public:
         if (ec)
             return fail(ec, "accept");
 
-        //
-        //this->room_.Join(this->shared_from_this());
+        // Connect
+        this->server_->Connect(this->shared_from_this());
+
         // Read a message
         this->do_read();
     }
@@ -163,15 +165,28 @@ public:
             return fail(ec, "read");
 
         // step 3 read complete
-		int header_size = sizeof(asio::MsgHeader);
-		asio::Message msg;
-		std::memcpy(msg.data(), buffer_.data().data(), buffer_.size());
-		msg.decode_header();
-		asio::MsgHeader* header((asio::MsgHeader*)msg.data());
+        // check max buff length valid
+        if (this->buffer_.size() > this->read_msg_.max_length())
+        {
+			// Close the WebSocket connection
+			ws_.async_close(websocket::close_code::normal,
+				beast::bind_front_handler(
+					&WebSession::on_close,
+					this->shared_from_this()));
+            return;
+        }
 
+        // Copy data into message
+		std::memcpy(this->read_msg_.data(), buffer_.data().data(), buffer_.size());
+		this->read_msg_.decode_header();
+		asio::MsgHeader* header((asio::MsgHeader*)this->read_msg_.data());
 
-		printf("%.*s\n", msg.body_length(), msg.body());
-		// Clear the buffer
+        // Handle message
+        this->server_->HandleMessage(this->shared_from_this(), this->read_msg_);
+
+		//printf("%.*s\n", this->read_msg_.body_length(), this->read_msg_.body());
+		
+        // Clear the buffer
 		buffer_.consume(buffer_.size());
 
         // Echo the message
@@ -237,10 +252,24 @@ public:
     // Report a failure
     void fail(beast::error_code ec, char const* what)
     {
-        //this->room_.Leave(this->shared_from_this());
+        // Disconnect
+        this->server_->Disconnect(this->shared_from_this());
         std::cerr << what << ": " << ec.message() << "\n";
     }
-    private:
+
+	void on_close(beast::error_code ec)
+	{
+		if (ec)
+			return fail(ec, "close");
+
+        // Disconnect
+        this->server_->Disconnect(this->shared_from_this());
+		// If we get here then the connection is closed gracefully
+
+		// The make_printable() function helps print a ConstBufferSequence
+		//std::cout << beast::make_printable(buffer_.data()) << std::endl;
+	}
+private:
 
 };
 

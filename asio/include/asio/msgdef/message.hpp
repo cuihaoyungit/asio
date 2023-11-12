@@ -113,6 +113,11 @@ namespace asio {
 		return header_length + body_length_;
 	  }
 
+	  int max_length()
+	  {
+		  return header_length + max_body_length;
+	  }
+
 	  const char* body() const
 	  {
 		return data_ + header_length;
