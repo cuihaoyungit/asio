@@ -38,8 +38,11 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 //------------------------------------------------------------------------------
 #include <asio/extend/object>
 #include <asio/extend/typedef>
+#include <asio/extend/worker>
+using namespace asio;
 // Sends a WebSocket message and prints the response
-class WebSessionSSL : public std::enable_shared_from_this<WebSessionSSL>, public asio::NetObject
+class WebSessionSSL 
+    : public asio::NetObject, public std::enable_shared_from_this<WebSessionSSL>
 {
     tcp::resolver resolver_;
     websocket::stream<
@@ -76,7 +79,7 @@ public:
             ws_.async_close(websocket::close_code::normal,
                 beast::bind_front_handler(
                     &WebSessionSSL::on_close,
-                    shared_from_this()));
+                    this->shared_from_this()));
         }
     }
 public:
@@ -91,8 +94,7 @@ public:
     }
 
     // Start the asynchronous operation
-    void
-        run(
+    void run(
             char const* host,
             char const* port)
     {
@@ -106,11 +108,10 @@ public:
             port,
             beast::bind_front_handler(
                 &WebSessionSSL::on_resolve,
-                shared_from_this()));
+                this->shared_from_this()));
     }
 
-    void
-        on_resolve(
+    void on_resolve(
             beast::error_code ec,
             tcp::resolver::results_type results)
     {
@@ -125,11 +126,10 @@ public:
             results,
             beast::bind_front_handler(
                 &WebSessionSSL::on_connect,
-                shared_from_this()));
+                this->shared_from_this()));
     }
 
-    void
-        on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
+    void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
     {
         if (ec)
             return fail(ec, "connect");
@@ -157,11 +157,10 @@ public:
             ssl::stream_base::client,
             beast::bind_front_handler(
                 &WebSessionSSL::on_ssl_handshake,
-                shared_from_this()));
+                this->shared_from_this()));
     }
 
-    void
-        on_ssl_handshake(beast::error_code ec)
+    void on_ssl_handshake(beast::error_code ec)
     {
         if (ec)
             return fail(ec, "ssl_handshake");
@@ -188,11 +187,10 @@ public:
         ws_.async_handshake(host_, "/",
             beast::bind_front_handler(
                 &WebSessionSSL::on_handshake,
-                shared_from_this()));
+                this->shared_from_this()));
     }
 
-    void
-        on_handshake(beast::error_code ec)
+    void on_handshake(beast::error_code ec)
     {
         if (ec)
             return fail(ec, "handshake");
@@ -205,11 +203,11 @@ public:
         //		shared_from_this()));
 
         // Net connect
-        this->net_event_->Connect(dynamic_cast<NetObject*>(this));
+        this->net_event_->Connect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 
         std::string text = "hello";
         static asio::Message msg;
-        msg.body_length(text.length());
+        msg.body_length(static_cast<int>(text.length()));
         std::memcpy(msg.body(), text.data(), text.size());
         asio::MsgHeader header;
         header.msgId = 50002;
@@ -221,8 +219,7 @@ public:
         this->read();
     }
 
-    void
-        on_write(
+    void on_write(
             beast::error_code ec,
             std::size_t bytes_transferred)
     {
@@ -247,8 +244,7 @@ public:
         //        shared_from_this()));
     }
 
-    void
-        write(const asio::Message& msg)
+    void write(const asio::Message& msg)
     {
         std::lock_guard lock(this->mutex_);
         bool write_in_progress = !write_msgs_.empty();
@@ -258,8 +254,7 @@ public:
         }
     }
 
-    void
-        do_write()
+    void do_write()
     {
         // Send the message
         ws_.async_write(
@@ -267,22 +262,20 @@ public:
                 write_msgs_.front().length()),
             beast::bind_front_handler(
                 &WebSessionSSL::on_write,
-                shared_from_this()));
+                this->shared_from_this()));
     }
 
-    void
-        read()
+    void read()
     {
         // Read a message into our buffer
         ws_.async_read(
             buffer_,
             beast::bind_front_handler(
                 &WebSessionSSL::on_read,
-                shared_from_this()));
+                this->shared_from_this()));
     }
 
-    void
-        on_read(
+    void on_read(
             beast::error_code ec,
             std::size_t bytes_transferred)
     {
@@ -305,7 +298,7 @@ public:
         asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
         // Net handle message
-        this->net_event_->HandleMessage(dynamic_cast<NetObject*>(this), *msg);
+        this->net_event_->HandleMessage(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()), *msg);
 
         // Clear the buffer
         buffer_.consume(buffer_.size());
@@ -314,8 +307,7 @@ public:
         this->read();
     }
 
-    void
-        on_close(beast::error_code ec)
+    void on_close(beast::error_code ec)
     {
         if (ec)
             return fail(ec, "close");
@@ -327,13 +319,12 @@ public:
     }
     // 
     // Report a failure
-    void
-        fail(beast::error_code ec, char const* what)
+    void fail(beast::error_code ec, char const* what)
     {
         std::cerr << what << ": " << ec.message() << "\n";
 
         // Net disconnect
-        this->net_event_->Disconnect(dynamic_cast<NetObject*>(this));
+        this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
     }
 };
 
@@ -342,7 +333,6 @@ public:
 /// <summary>
 /// WebClientSSLWorker thread
 /// </summary>
-#include <asio/extend/worker>
 class WebSocketSSLWorker : public asio::Worker, public asio::NetEvent
 {
 public:
@@ -380,9 +370,9 @@ public:
         }
     }
 protected:
-    virtual void Connect(asio::NetObject* pNetObj) override {}
-    virtual void Disconnect(asio::NetObject* pNetObj) override {}
-    virtual void HandleMessage(asio::NetObject* pNetObj, const asio::Message& msg) override
+    virtual void Connect(NetObjectPtr pNetObj) override {}
+    virtual void Disconnect(NetObjectPtr pNetObj) override {}
+    virtual void HandleMessage(NetObjectPtr pNetObj, const Message& msg) override
     {
         printf("%.*s\n", msg.body_length(), msg.body());
     }
