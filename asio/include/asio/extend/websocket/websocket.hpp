@@ -72,7 +72,7 @@ public:
 			ws_.async_close(websocket::close_code::normal,
 				beast::bind_front_handler(
 					&WebClientSession::on_close,
-					shared_from_this()));
+					this->shared_from_this()));
 		}
 	}
 public:
@@ -103,7 +103,7 @@ public:
 			port,
 			beast::bind_front_handler(
 				&WebClientSession::on_resolve,
-				shared_from_this()));
+				this->shared_from_this()));
 	}
 private:
 	void clear()
@@ -155,7 +155,7 @@ private:
 				write_msgs_.front().length()),
 			beast::bind_front_handler(
 				&WebClientSession::on_write,
-				shared_from_this()));
+				this->shared_from_this()));
 	}
 private:
 	void on_resolve(
@@ -173,7 +173,7 @@ private:
 			results,
 			beast::bind_front_handler(
 				&WebClientSession::on_connect,
-				shared_from_this()));
+				this->shared_from_this()));
 	}
 
 	void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep)
@@ -208,14 +208,13 @@ private:
 		ws_.async_handshake(host_, "/",
 			beast::bind_front_handler(
 				&WebClientSession::on_handshake,
-				shared_from_this()));
+				this->shared_from_this()));
 	}
 
 	void on_handshake(beast::error_code ec)
 	{
 		if (ec)
 			return fail(ec, "handshake");
-
 
 		//// Send the message
 		//std::string text = "hello";
@@ -224,13 +223,11 @@ private:
 		//	net::buffer(text),
 		//	beast::bind_front_handler(
 		//		&WebSession::on_write,
-		//		shared_from_this()));
-
+		//		this->shared_from_this()));
 
 		// Net connect
 		this->net_event_->Connect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 
-		
 		//std::string text = "hello";
 		//static asio::Message msg;
 		//msg.body_length(static_cast<int>(text.length()));
@@ -241,7 +238,6 @@ private:
 		//msg.encode_header(header);
 		//this->Post(msg);
 		
-
 		// Read a message
 		this->read();
 	}
@@ -253,7 +249,7 @@ private:
 			buffer_,
 			beast::bind_front_handler(
 				&WebClientSession::on_read,
-				shared_from_this()));
+				this->shared_from_this()));
 	}
 
 	void on_read(
@@ -266,27 +262,26 @@ private:
 			return fail(ec, "read");
 
 		// Close the WebSocket connection
-		//	ws_.async_close(websocket::close_code::normal,
-		//		beast::bind_front_handler(
-		//			&WebSession::on_close,
-		//			shared_from_this()));
-		
 		// step 4 check
-		int header_size = sizeof(asio::MsgHeader);
+		//int header_size = sizeof(asio::MsgHeader);
 		asio::Message *msg = &this->read_msg_;
 		std::memcpy(msg->data(), buffer_.data().data(), buffer_.size());
-		msg->decode_header();
+		if (!msg->decode_header())
+		{
+			ws_.async_close(websocket::close_code::normal,
+			beast::bind_front_handler(
+				&WebClientSession::on_close,
+				this->shared_from_this()));
+			return;
+		}
 		//asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
 		// Net handle message
-		this->net_event_->HandleMessage(this->shared_from_this(), *msg);
+		this->net_event_->HandleMessage(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()), *msg);
+
+		//printf("%.*s\n", msg->body_length(), msg->body());
 
 		// Clear the buffer
-
-		//std::cout << beast::make_printable(buffer_.data()) << std::endl;
-
-		//std::cout << msg->body() << std::endl;
-		printf("%.*s\n", msg->body_length(), msg->body());
 		buffer_.consume(buffer_.size());
 
 		// receive data
@@ -297,6 +292,8 @@ private:
 	{
 		if (ec)
 			return fail(ec, "close");
+
+		this->net_event_->Disconnect(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()));
 
 		// If we get here then the connection is closed gracefully
 

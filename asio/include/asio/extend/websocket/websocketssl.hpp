@@ -291,11 +291,14 @@ public:
         //        shared_from_this()));
 
         // step 4 check
-        int header_size = sizeof(asio::MsgHeader);
-        asio::Message* msg = &this->read_msg_;
-        std::memcpy(msg->data(), buffer_.data().data(), buffer_.size());
-        msg->decode_header();
-        asio::MsgHeader* header((asio::MsgHeader*)msg->data());
+		asio::Message* msg = &this->read_msg_;
+		std::memcpy(msg->data(), buffer_.data().data(), buffer_.size());
+        if (!msg->decode_header())
+        {
+            fail(ec, "error msg header");
+            return;
+        }
+		//asio::MsgHeader* header((asio::MsgHeader*)msg->data());
 
         // Net handle message
         this->net_event_->HandleMessage(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()), *msg);
