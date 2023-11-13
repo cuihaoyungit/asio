@@ -303,18 +303,24 @@ private:
 
 //------------------------------------------------------------------------------
 // Accepts incoming connections and launches the sessions
+static auto const address = "0.0.0.0";// net::ip::make_address(argv[1]);
+static auto const port = "8001";// static_cast<unsigned short>(std::atoi(argv[2]));
+static auto const threads = 1;// std::max<int>(1, std::atoi(argv[3]));
+
 class WebSocketServerSSL : public Worker, public NetServer
 {
 private:
-    net::io_context ioc_{1};
-	// The SSL context is required, and holds certificates
-	ssl::context ctx_{ ssl::context::tlsv12 };
-    tcp::acceptor acceptor_;
+	net::io_context& ioc_;
+	ssl::context& ctx_;
+	tcp::acceptor acceptor_;
 public:
     WebSocketServerSSL(
-        /*net::io_context& ioc, */
+		net::io_context& ioc,
+		ssl::context& ctx,
         const tcp::endpoint& endpoint)
-        : acceptor_(net::make_strand(ioc_))
+		: ioc_(ioc)
+		, ctx_(ctx)
+		, acceptor_(net::make_strand(ioc))
     {
         beast::error_code ec;
 
@@ -381,35 +387,21 @@ protected:
 private:
     void Exec() override
     {
-		// The SSL context is required, and holds certificates
-		ssl::context ctx{ ssl::context::tlsv12 };
+        //this->run();
 
 		// This holds the self-signed certificate used by the server
-		load_server_certificate(ctx);
+		//load_server_certificate(ctx_);
 
 		// Run the I/O service on the requested number of threads
 		std::vector<std::thread> v;
-        int threads = 1;
 		v.reserve(threads - 1);
-        for (auto i = threads - 1; i > 0; --i) {
-            v.emplace_back(
-                [&]
-                {
-                    this->ioc_.run();
-                });
-        }
-
-        // main thread worker
-        this->ioc_.run();
-
-        // wait for threads exit
-		for (auto& it : v)
-		{
-			if (it.joinable())
-			{
-				it.join();
-			}
-		}
+		for (auto i = threads - 1; i > 0; --i)
+			v.emplace_back(
+				[&]
+				{
+					this->ioc_.run();
+				});
+		this->ioc_.run();
     }
     void Init() override
     {
