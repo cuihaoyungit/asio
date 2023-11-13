@@ -41,8 +41,8 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 #include <asio/extend/worker>
 using namespace asio;
 // Sends a WebSocket message and prints the response
-class WebSessionSSL 
-    : public asio::NetObject, public std::enable_shared_from_this<WebSessionSSL>
+class WebClientSessionSSL 
+    : public asio::NetObject, public std::enable_shared_from_this<WebClientSessionSSL>
 {
     tcp::resolver resolver_;
     websocket::stream<
@@ -78,14 +78,14 @@ public:
         if (ws_.is_open()) {
             ws_.async_close(websocket::close_code::normal,
                 beast::bind_front_handler(
-                    &WebSessionSSL::on_close,
+                    &WebClientSessionSSL::on_close,
                     this->shared_from_this()));
         }
     }
 public:
     // Resolver and socket require an io_context
     explicit
-        WebSessionSSL(net::io_context& ioc, ssl::context& ctx, asio::NetEvent* event)
+        WebClientSessionSSL(net::io_context& ioc, ssl::context& ctx, asio::NetEvent* event)
         : resolver_(net::make_strand(ioc))
         , ws_(net::make_strand(ioc), ctx)
         , net_event_(event)
@@ -107,7 +107,7 @@ public:
             host,
             port,
             beast::bind_front_handler(
-                &WebSessionSSL::on_resolve,
+                &WebClientSessionSSL::on_resolve,
                 this->shared_from_this()));
     }
 
@@ -125,7 +125,7 @@ public:
         beast::get_lowest_layer(ws_).async_connect(
             results,
             beast::bind_front_handler(
-                &WebSessionSSL::on_connect,
+                &WebClientSessionSSL::on_connect,
                 this->shared_from_this()));
     }
 
@@ -156,7 +156,7 @@ public:
         ws_.next_layer().async_handshake(
             ssl::stream_base::client,
             beast::bind_front_handler(
-                &WebSessionSSL::on_ssl_handshake,
+                &WebClientSessionSSL::on_ssl_handshake,
                 this->shared_from_this()));
     }
 
@@ -186,7 +186,7 @@ public:
         // Perform the websocket handshake
         ws_.async_handshake(host_, "/",
             beast::bind_front_handler(
-                &WebSessionSSL::on_handshake,
+                &WebClientSessionSSL::on_handshake,
                 this->shared_from_this()));
     }
 
@@ -261,7 +261,7 @@ public:
             net::buffer(write_msgs_.front().data(),
                 write_msgs_.front().length()),
             beast::bind_front_handler(
-                &WebSessionSSL::on_write,
+                &WebClientSessionSSL::on_write,
                 this->shared_from_this()));
     }
 
@@ -271,7 +271,7 @@ public:
         ws_.async_read(
             buffer_,
             beast::bind_front_handler(
-                &WebSessionSSL::on_read,
+                &WebClientSessionSSL::on_read,
                 this->shared_from_this()));
     }
 
@@ -321,6 +321,8 @@ public:
     // Report a failure
     void fail(beast::error_code ec, char const* what)
     {
+        this->net_event_->Error(ec.value());
+
         std::cerr << what << ": " << ec.message() << "\n";
 
         // Net disconnect
@@ -376,6 +378,7 @@ protected:
     {
         printf("%.*s\n", msg.body_length(), msg.body());
     }
+    virtual void Error(int error) override {}
 private:
     void Init() override
     {
@@ -402,7 +405,7 @@ private:
             load_root_certificates(ctx);
 
             // Launch the asynchronous operation
-            auto ws = std::make_shared<WebSessionSSL>(ioc, ctx, this);
+            auto ws = std::make_shared<WebClientSessionSSL>(ioc, ctx, this);
             this->ws_ = ws;
             ws->run(host_.c_str(), port_.c_str());
             /*
@@ -419,14 +422,14 @@ private:
 
             // Release local scope session reference of io_context
             this->ws_ = nullptr;
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::seconds(3));
         } while (this->auto_reconnect_);
     }
 private:
     bool auto_reconnect_ = { false };
     std::string host_;
     std::string port_;
-    std::shared_ptr<WebSessionSSL> ws_;
+    std::shared_ptr<WebClientSessionSSL> ws_;
 };
 
 //-------------------------------------------------------------------------
