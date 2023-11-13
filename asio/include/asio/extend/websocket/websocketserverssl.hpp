@@ -15,6 +15,7 @@
 //
 //------------------------------------------------------------------------------
 
+#include "../ssl/server_certificate.hpp"
 #include <boost/beast/core.hpp>
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/websocket.hpp>
@@ -301,8 +302,6 @@ private:
 };
 
 //------------------------------------------------------------------------------
-#include "../ssl/server_certificate.hpp"
-
 // Accepts incoming connections and launches the sessions
 class WebSocketServerSSL : public Worker, public NetServer
 {
