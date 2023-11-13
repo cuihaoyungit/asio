@@ -1,5 +1,5 @@
-#ifndef __WEBSOCKET_SERVER_HPP__
-#define __WEBSOCKET_SERVER_HPP__
+#ifndef __WEBSOCKET_SERVER_SSL_HPP__
+#define __WEBSOCKET_SERVER_SSL_HPP__
 //
 // Copyright (c) 2016-2019 Vinnie Falco (vinnie dot falco at gmail dot com)
 //
@@ -16,9 +16,11 @@
 //------------------------------------------------------------------------------
 
 #include <boost/beast/core.hpp>
+#include <boost/beast/ssl.hpp>
 #include <boost/beast/websocket.hpp>
-#include <boost/asio/dispatch.hpp>
+#include <boost/beast/websocket/ssl.hpp>
 #include <boost/asio/strand.hpp>
+#include <boost/asio/dispatch.hpp>
 #include <algorithm>
 #include <cstdlib>
 #include <functional>
@@ -27,6 +29,14 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+namespace beast = boost::beast;         // from <boost/beast.hpp>
+namespace http = beast::http;           // from <boost/beast/http.hpp>
+namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
+namespace net = boost::asio;            // from <boost/asio.hpp>
+namespace ssl = boost::asio::ssl;       // from <boost/asio/ssl.hpp>
+using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+
 // step 1
 #include <asio/msgdef/message.hpp>
 #include <asio/extend/object.hpp>
@@ -34,19 +44,14 @@
 #include <asio/extend/typedef.hpp>
 using namespace asio;
 
-namespace beast = boost::beast;         // from <boost/beast.hpp>
-namespace http = beast::http;           // from <boost/beast/http.hpp>
-namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
-namespace net = boost::asio;            // from <boost/asio.hpp>
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
-
 //------------------------------------------------------------------------------
 // Echoes back all received WebSocket messages
-class WebSession
-    : public NetObject, public std::enable_shared_from_this<WebSession>
+class WebSessionSSL
+    : public NetObject, public std::enable_shared_from_this<WebSessionSSL>
 {
 private:
-    websocket::stream<beast::tcp_stream> ws_;
+	websocket::stream<
+		beast::ssl_stream<beast::tcp_stream>> ws_;
     beast::flat_buffer buffer_;
 	Message read_msg_;
     MessageQueue write_msgs_;
@@ -54,15 +59,15 @@ private:
     NetServer* server_;
 public:
     // Take ownership of the socket
-    explicit WebSession(tcp::socket&& socket, NetServer* server)
-        : ws_(std::move(socket))
+    explicit WebSessionSSL(tcp::socket&& socket, ssl::context& ctx, NetServer* server)
+        : ws_(std::move(socket), ctx)
         , server_(server)
     {
         // step 2
         ws_.binary(true);
     }
 
-    virtual ~WebSession()
+    virtual ~WebSessionSSL()
     {
 
     }
@@ -96,38 +101,60 @@ public:
     // Get on the correct executor
     void run()
     {
-        // We need to be executing within a strand to perform async operations
-        // on the I/O objects in this session. Although not strictly necessary
-        // for single-threaded contexts, this example code is written to be
-        // thread-safe by default.
-        net::dispatch(ws_.get_executor(),
-            beast::bind_front_handler(
-                &WebSession::on_run,
-                this->shared_from_this()));
+		// We need to be executing within a strand to perform async operations
+		// on the I/O objects in this session. Although not strictly necessary
+		// for single-threaded contexts, this example code is written to be
+		// thread-safe by default.
+		net::dispatch(ws_.get_executor(),
+			beast::bind_front_handler(
+				&WebSessionSSL::on_run,
+				this->shared_from_this()));
     }
 
     // Start the asynchronous operation
     void on_run()
     {
-        // Set suggested timeout settings for the websocket
-        ws_.set_option(
-            websocket::stream_base::timeout::suggested(
-                beast::role_type::server));
+		// Set the timeout.
+		beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(30));
 
-        // Set a decorator to change the Server of the handshake
-        ws_.set_option(websocket::stream_base::decorator(
-            [](websocket::response_type& res)
-            {
-                res.set(http::field::server,
-                std::string(BOOST_BEAST_VERSION_STRING) +
-                " websocket-server-async");
-            }));
-        // Accept the websocket handshake
-        ws_.async_accept(
-            beast::bind_front_handler(
-                &WebSession::on_accept,
-                this->shared_from_this()));
+		// Perform the SSL handshake
+		ws_.next_layer().async_handshake(
+			ssl::stream_base::server,
+			beast::bind_front_handler(
+				&WebSessionSSL::on_handshake,
+				this->shared_from_this()));
     }
+
+	void
+		on_handshake(beast::error_code ec)
+	{
+		if (ec)
+			return fail(ec, "handshake");
+
+		// Turn off the timeout on the tcp_stream, because
+		// the websocket stream has its own timeout system.
+		beast::get_lowest_layer(ws_).expires_never();
+
+		// Set suggested timeout settings for the websocket
+		ws_.set_option(
+			websocket::stream_base::timeout::suggested(
+				beast::role_type::server));
+
+		// Set a decorator to change the Server of the handshake
+		ws_.set_option(websocket::stream_base::decorator(
+			[](websocket::response_type& res)
+			{
+				res.set(http::field::server,
+				std::string(BOOST_BEAST_VERSION_STRING) +
+				" websocket-server-async-ssl");
+			}));
+
+		// Accept the websocket handshake
+		ws_.async_accept(
+			beast::bind_front_handler(
+				&WebSessionSSL::on_accept,
+				this->shared_from_this()));
+	}
 
     void on_accept(beast::error_code ec)
     {
@@ -147,7 +174,7 @@ public:
         ws_.async_read(
             buffer_,
             beast::bind_front_handler(
-                &WebSession::on_read,
+                &WebSessionSSL::on_read,
                 this->shared_from_this()));
     }
 
@@ -171,7 +198,7 @@ public:
 			// Close the WebSocket connection
 			ws_.async_close(websocket::close_code::normal,
 				beast::bind_front_handler(
-					&WebSession::on_close,
+					&WebSessionSSL::on_close,
 					this->shared_from_this()));
             return;
         }
@@ -274,17 +301,21 @@ private:
 };
 
 //------------------------------------------------------------------------------
+#include "../ssl/server_certificate.hpp"
 
 // Accepts incoming connections and launches the sessions
-class WebSocketServer : public Worker, public NetServer
+class WebSocketServerSSL : public Worker, public NetServer
 {
+private:
     net::io_context ioc_{1};
+	// The SSL context is required, and holds certificates
+	ssl::context ctx_{ ssl::context::tlsv12 };
     tcp::acceptor acceptor_;
 public:
-    WebSocketServer(
+    WebSocketServerSSL(
         /*net::io_context& ioc, */
         const tcp::endpoint& endpoint)
-        : acceptor_(ioc_)
+        : acceptor_(net::make_strand(ioc_))
     {
         beast::error_code ec;
 
@@ -325,7 +356,7 @@ public:
         this->run();
     }
 
-    virtual ~WebSocketServer()
+    virtual ~WebSocketServerSSL()
     {
 
     }
@@ -351,17 +382,24 @@ protected:
 private:
     void Exec() override
     {
-        // multi thread workers
+		// The SSL context is required, and holds certificates
+		ssl::context ctx{ ssl::context::tlsv12 };
+
+		// This holds the self-signed certificate used by the server
+		load_server_certificate(ctx);
+
+		// Run the I/O service on the requested number of threads
 		std::vector<std::thread> v;
-		v.reserve(1);
-		int threads = 1;
-		for (auto i = threads - 1; i > 0; --i) {
-			v.emplace_back(
-				[&]
-				{
-					this->ioc_.run();
-				});
-		}
+        int threads = 1;
+		v.reserve(threads - 1);
+        for (auto i = threads - 1; i > 0; --i) {
+            v.emplace_back(
+                [&]
+                {
+                    this->ioc_.run();
+                });
+        }
+
         // main thread worker
         this->ioc_.run();
 
@@ -389,7 +427,7 @@ private:
         acceptor_.async_accept(
             net::make_strand(ioc_),
             beast::bind_front_handler(
-                &WebSocketServer::on_accept,
+                &WebSocketServerSSL::on_accept,
                 /*shared_from_this()*/this));
     }
 
@@ -402,7 +440,7 @@ private:
         else
         {
             // Create the session and run it
-            std::make_shared<WebSession>(std::move(socket), this)->run();
+            std::make_shared<WebSessionSSL>(std::move(socket), ctx_, this)->run();
         }
 
         // Accept another connection
@@ -418,4 +456,4 @@ private:
 
 
 
-#endif // __WEBSOCKET_SERVER_HPP__
+#endif // __WEBSOCKET_SERVER_SSL_HPP__

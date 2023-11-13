@@ -416,7 +416,7 @@ private:
             std::vector<session_ptr> wslist;
             for (size_t i = 0; i < 10; i++)
             {
-                std::make_shared<session>(ioc, ctx)->run(host_.c_str(), port_.c_str());
+                std::make_shared<WebClientSessionSSL>(ioc, ctx, this)->run(host_.c_str(), port_.c_str());
             }
             */
             // Run the I/O service. The call will return when
