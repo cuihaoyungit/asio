@@ -216,7 +216,7 @@ private:
 		if (ec)
 			return fail(ec, "handshake");
 
-		//// Send the message
+		// Send the message
 		//std::string text = "hello";
 		//ws_.async_write(
 		//	//net::buffer(msg.data(), msg.length()),
