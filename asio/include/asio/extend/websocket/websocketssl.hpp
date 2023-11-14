@@ -338,11 +338,11 @@ public:
 /// <summary>
 /// WebClientSSLWorker thread
 /// </summary>
-class WebSocketSSLWorker : public asio::Worker, public asio::NetEvent
+class WebSocketSSLClient : public asio::Worker, public asio::NetEvent
 {
 public:
-    WebSocketSSLWorker() {}
-    virtual ~WebSocketSSLWorker() {}
+    WebSocketSSLClient() {}
+    virtual ~WebSocketSSLClient() {}
     void Stop()
     {
         this->SetAutoReconnect(false);

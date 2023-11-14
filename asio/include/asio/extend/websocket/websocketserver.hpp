@@ -351,6 +351,11 @@ protected:
 private:
     void Exec() override
     {
+		// snowflake algrithem
+		int mainId = this->MainId() == 0 ? 1 : this->MainId();
+		int subId = this->SubId()   == 0 ? 1 : this->SubId();
+		this->InitUUID(mainId, subId);
+
         // multi thread workers
 		std::vector<std::thread> v;
 		v.reserve(1);

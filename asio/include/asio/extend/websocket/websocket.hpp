@@ -321,11 +321,11 @@ typedef std::shared_ptr<WebClientSession> WebClientSessionPtr;
 /// WebClientWorker thread
 /// </summary>
 #include <asio/extend/worker>
-class WebSocketWorker : public asio::Worker, public asio::NetEvent
+class WebSocketClient : public asio::Worker, public asio::NetEvent
 {
 public:
-	WebSocketWorker() {}
-	virtual ~WebSocketWorker() {}
+	WebSocketClient() {}
+	virtual ~WebSocketClient() {}
 	void Stop()
 	{
 		this->SetAutoReconnect(false);
@@ -358,6 +358,11 @@ public:
 		}
 	}
 protected:
+	void SetName(const std::string_view& name)
+	{
+		this->name_ = name;
+	}
+protected:
 	virtual void Connect(NetObjectPtr pNetObj) override {}
 	virtual void Disconnect(NetObjectPtr pNetObj) override {}
 	virtual void HandleMessage(NetObjectPtr pNetObj, const Message& msg) override
@@ -383,6 +388,11 @@ private:
 			// The io_context is required for all I/O
 			net::io_context ioc;
 
+			if (this->name_.empty())
+			{
+				this->name_ = typeid(WebSocketClient).name();
+			}
+			//
 			auto ws = std::make_shared<WebClientSession>(ioc, this);
 			this->ws_ = ws;
 			ws->run(host_.c_str(), port_.c_str());
@@ -399,6 +409,7 @@ private:
 private:
 	bool auto_reconnect_ = { false };
 	WebClientSessionPtr ws_;
+	std::string name_;
 	std::string host_;
 	std::string port_;
 };
