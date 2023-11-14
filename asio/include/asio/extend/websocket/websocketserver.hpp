@@ -85,7 +85,12 @@ public:
     // warning error 10009 scope NetObject and socket
     std::string Ip() override
     {
-        return this->ws_.next_layer().socket().remote_endpoint().address().to_string();
+		boost::system::error_code ec;
+		boost::asio::ip::tcp::endpoint endpoint = this->ws_.next_layer().socket().remote_endpoint(ec);
+		if (ec) {
+			return endpoint.address().to_string();
+		}
+        return "";
     }
 
     std::string Port() override
