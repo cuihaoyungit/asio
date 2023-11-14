@@ -303,9 +303,9 @@ private:
 
 //------------------------------------------------------------------------------
 // Accepts incoming connections and launches the sessions
-static auto const address = "0.0.0.0";// net::ip::make_address(argv[1]);
-static auto const port = "8001";// static_cast<unsigned short>(std::atoi(argv[2]));
-static auto const threads = 1;// std::max<int>(1, std::atoi(argv[3]));
+// static auto const address = "0.0.0.0";// net::ip::make_address(argv[1]);
+// static auto const port = "8001";// static_cast<unsigned short>(std::atoi(argv[2]));
+// static auto const threads = 1;// std::max<int>(1, std::atoi(argv[3]));
 
 class WebSocketServerSSL : public Worker, public NetServer
 {
@@ -313,14 +313,16 @@ private:
 	net::io_context& ioc_;
 	ssl::context& ctx_;
 	tcp::acceptor acceptor_;
+    int threads_;
 public:
     WebSocketServerSSL(
 		net::io_context& ioc,
 		ssl::context& ctx,
-        const tcp::endpoint& endpoint)
+        const tcp::endpoint& endpoint, int threads)
 		: ioc_(ioc)
 		, ctx_(ctx)
 		, acceptor_(net::make_strand(ioc))
+        , threads_(threads)
     {
         beast::error_code ec;
 
@@ -394,13 +396,14 @@ private:
 
 		// Run the I/O service on the requested number of threads
 		std::vector<std::thread> v;
-		v.reserve(threads - 1);
-		for (auto i = threads - 1; i > 0; --i)
-			v.emplace_back(
-				[&]
-				{
-					this->ioc_.run();
-				});
+		v.reserve(threads_ - 1);
+        for (auto i = threads_ - 1; i > 0; --i) {
+            v.emplace_back(
+                [&]
+                {
+                    this->ioc_.run();
+                });
+        }
 		this->ioc_.run();
     }
     void Init() override
