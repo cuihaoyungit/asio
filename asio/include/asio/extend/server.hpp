@@ -205,10 +205,10 @@ namespace asio {
 
     //----------------------------------------------------------------------
     // Singleton Server Basic class
-    class TcpServerWorker : public Worker, public NetServer
+    class TcpSocketServer : public Worker, public NetServer
     {
     public:
-        explicit TcpServerWorker(const tcp::endpoint& endpoint)
+        explicit TcpSocketServer(const tcp::endpoint& endpoint)
             : acceptor_(io_context, endpoint)
             , signals_(io_context)
             , stoped_(false)
@@ -237,7 +237,7 @@ namespace asio {
             this->do_accept();
         }
 
-        virtual ~TcpServerWorker() {}
+        virtual ~TcpSocketServer() {}
 
         // stop asio io_content
 		void Stop() 

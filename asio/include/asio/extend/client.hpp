@@ -274,11 +274,11 @@ namespace asio {
     //////////////////////////////////////////////////////////////////////////
 
 
-    class TcpClientWorker : public Worker, public NetEvent
+    class TcpSocketClient : public Worker, public NetEvent
     {
     public:
-        TcpClientWorker() {}
-        virtual ~TcpClientWorker() {}
+        TcpSocketClient() {}
+        virtual ~TcpSocketClient() {}
         void Stop()
         {
             this->SetAutoReconnect(false);
@@ -352,7 +352,7 @@ namespace asio {
                 */
                 if (this->name_.empty()) 
                 {
-                    this->name_ = typeid(TcpClientWorker).name(); 
+                    this->name_ = typeid(TcpSocketClient).name(); 
                 }
                 // tcp client connect
                 auto tc = std::make_shared<TcpClient>(io_context, this, this->host_, this->port_);
