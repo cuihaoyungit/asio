@@ -91,7 +91,7 @@ public:
     // warning error 10009 scope NetObject and socket
     std::string Ip() override
     {
-        return "";
+        return this->ws_.next_layer().next_layer().socket().remote_endpoint().address().to_string();
     }
 
     std::string Port() override
@@ -303,10 +303,6 @@ private:
 
 //------------------------------------------------------------------------------
 // Accepts incoming connections and launches the sessions
-// static auto const address = "0.0.0.0";// net::ip::make_address(argv[1]);
-// static auto const port = "8001";// static_cast<unsigned short>(std::atoi(argv[2]));
-// static auto const threads = 1;// std::max<int>(1, std::atoi(argv[3]));
-
 class WebSocketServerSSL : public Worker, public NetServer
 {
 private:
