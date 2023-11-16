@@ -369,7 +369,7 @@ public:
 
     }
     // stop asio io_content
-    void StopContext()
+    void Stop()
     {
         if (!this->ioc_.stopped())
         {
