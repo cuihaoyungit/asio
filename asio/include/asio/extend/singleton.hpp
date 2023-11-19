@@ -4,16 +4,17 @@
 
 //------------------------------------------------------------------
 // dynamic create object
-/*
+// reference from da san shi company code
 template<class T>
-class DSingleton
+class DSSSingleton
 {
 private:
-	DSingleton() {};
-	~DSingleton() {};
+	DSSSingleton() {};
+	virtual ~DSSSingleton() {};
 private:
-	DSingleton(const DSingleton&) = delete;
-	DSingleton& operator = (const DSingleton&) = delete;
+	DSSSingleton(DSSSingleton&&) = delete;
+	DSSSingleton(const DSSSingleton&) = delete;
+	DSSSingleton& operator = (const DSSSingleton&) = delete;
 	static T* instance;
 	static std::mutex mtx;
 public:
@@ -35,6 +36,9 @@ public:
 			instance = nullptr;
 		}
 	}
+
+	T& operator()() const { return *Instance(); }
+	T* operator->() const { return Instance(); }
 private:
 	inline static void Create()
 	{
@@ -46,15 +50,18 @@ private:
 	}
 };
 template<class T>
-T* DSingleton<T>::instance = nullptr;
+T* DSSSingleton<T>::instance = nullptr;
 template<class T>
-std::mutex DSingleton<T>::mtx;
+std::mutex DSSSingleton<T>::mtx;
 
-*/
+
 //----------------------------------------------------------------------
 //Safe thread dynamic create object
 template <typename T>
 class SafeSingleton {
+public:
+	T& operator()() const { return *getInstance(); }
+	T* operator->() const { return getInstance(); }
 public:
 	static T* getInstance() {
 		if (!m_instance) {
@@ -77,12 +84,12 @@ public:
 		}
 	}
 
+	SafeSingleton(SafeSingleton&&) = delete;
 	SafeSingleton(const SafeSingleton&) = delete;
 	SafeSingleton& operator=(const SafeSingleton&) = delete;
-
 protected:
 	SafeSingleton() {}
-	~SafeSingleton() {}
+	virtual ~SafeSingleton() {}
 
 private:
 	static T* m_instance;
@@ -117,6 +124,8 @@ public:
 		static T instance;
 		return instance;
 	}
+	T& operator()() const { return Instance(); }
+	T* operator->() const { return &Instance(); }
 };
 
 //-------------------------------------------------------------------------
@@ -127,6 +136,8 @@ public:
 	static T* getInstance() {
 		return m_instance;
 	}
+	T& operator()() const { return getInstance(); }
+	T* operator->() const { return &getInstance(); }
 
 	static void Delete()
 	{
@@ -154,9 +165,9 @@ public:
 		return m_instance;
 	}
 
+	DSingleton(DSingleton&&) = delete;
 	DSingleton(const DSingleton&) = delete;
 	DSingleton& operator=(const DSingleton&) = delete;
-
 protected:
 	DSingleton() {}
 	virtual ~DSingleton() {}
@@ -179,14 +190,14 @@ protected:
 	// TODO: This super-nasty piece of nastiness was put in for continued
 	// TODO: compatability with MSVC++ and MinGW - the latter apparently
 	// TODO: needs this.
-	static T* ms_Singleton = nullptr;
+	static T* ms_Singleton;
 public:
 	PSingleton(void)
 	{
 		assert(!ms_Singleton);
 		ms_Singleton = static_cast<T*>(this);
 	}
-	~PSingleton(void)
+	virtual ~PSingleton(void)
 	{
 		assert(ms_Singleton);  
 		ms_Singleton = nullptr;
@@ -201,10 +212,16 @@ public:
 		return (ms_Singleton);
 	}
 
+	T& operator()() const { return getSingleton(); }
+	T* operator->() const { return getSingletonPtr(); }
 private:
+	PSingleton(PSingleton&&) = delete;
+	PSingleton(const PSingleton&) = delete;
 	PSingleton& operator=(const PSingleton&) { return this; }
-	PSingleton(const PSingleton&) {}
 };
+
+template <typename T>
+T* PSingleton<T>::ms_Singleton = nullptr;
 
 //----------------------------------------------------------------------
 
