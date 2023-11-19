@@ -136,8 +136,8 @@ public:
 	static T* getInstance() {
 		return m_instance;
 	}
-	T& operator()() const { return getInstance(); }
-	T* operator->() const { return &getInstance(); }
+	T& operator()() const { return *getInstance(); }
+	T* operator->() const { return getInstance(); }
 
 	static void Delete()
 	{
