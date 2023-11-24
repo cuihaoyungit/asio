@@ -77,7 +77,10 @@ namespace asio {
 		}
 		void SetConnect(const bool bConnect)
 		{
-			this->is_connect_ = bConnect;
+			if (this->is_connect_ != bConnect)
+			{
+				this->is_connect_ = bConnect;
+			}
 		}
 		void setSessionId(const uint64& sessionId)
 		{
