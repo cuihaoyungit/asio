@@ -71,6 +71,14 @@ namespace asio {
 			}
 			return false;
 		}
+		std::optional<std::string> UserData(const std::string& key)
+		{
+			if (this->userdata.contains(key))
+			{
+				return this->userdata[key];
+			}
+			return std::nullopt;
+		}
 		bool IsConnect()
 		{
 			return is_connect_;
