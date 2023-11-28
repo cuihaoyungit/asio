@@ -11,6 +11,7 @@ using SnowFlake = snowflake<1534832906275L, std::mutex>;
 #include <iostream>
 #include <map>
 #include <cassert>
+#include <optional>
 
 namespace asio {
 
@@ -73,9 +74,10 @@ namespace asio {
 		}
 		std::optional<std::string> UserData(const std::string& key)
 		{
-			if (this->userdata.contains(key))
+			auto it = userdata.find(key);
+			if (it != userdata.end())
 			{
-				return this->userdata[key];
+				return it->second;
 			}
 			return std::nullopt;
 		}
