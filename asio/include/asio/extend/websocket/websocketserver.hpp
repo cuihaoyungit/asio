@@ -184,7 +184,7 @@ public:
         // Copy data into message
 		std::memcpy(this->read_msg_.data(), buffer_.data().data(), buffer_.size());
 		this->read_msg_.decode_header();
-		asio::MsgHeader* header((asio::MsgHeader*)this->read_msg_.data());
+		asio::MsgHeader* header = ((asio::MsgHeader*)this->read_msg_.data());
 
         // Handle message
         this->server_->HandleMessage(std::dynamic_pointer_cast<NetObject>(this->shared_from_this()), this->read_msg_);
