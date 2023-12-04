@@ -27,9 +27,10 @@ namespace asio {
 #pragma pack(push, 1)
 	enum ProtoFormat
 	{
-		Binary   = 0, // Binary
-		QtStream = 1, // QtStream
-		ProtoBuf = 2  // Protobuf
+		eProtoBuf = 0, // Protobuf
+		eBinary   = 1, // Binary
+		eQtStream = 2, // QtStream
+		eByteBuff = 3  // ByteBuff
 	};
 #pragma pack(pop)
 
@@ -41,7 +42,7 @@ namespace asio {
 		int body_len       = 0;
 		uint64 sId		   = 0; // session id
 		int crc            = 0;
-		uint8 format       = ProtoFormat::Binary;
+		uint8 format       = ProtoFormat::eProtoBuf;
 		uint8 gateId       = 0;
 		uint8 crypto       = 0;
 		uint8 appId        = 0;
