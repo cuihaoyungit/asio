@@ -7,6 +7,56 @@
 
 [section:history Revision History]
 
+[heading Asio 1.29.0]
+
+* Changed to require C++11 as the minimum language standard.
+
+* Removed deprecated functionality from the `asio::execution` namespace.
+
+* Removed deprecated invocation and allocation hooks.
+
+* Added compatibility between Asio's placeholders and `std::bind`.
+
+* Added `try_send_via_dispatch` and `try_send_n_via_dispatch` functions to
+  channels.
+
+* Improved C++11 support for multi-signature channels.
+
+* Fixed compatibility between channel asynchronous operations and
+  `any_completion_handler`.
+
+* Added missing equality operators for mixed property types belonging to the
+  same category.
+
+* Fixed an issue where `spawn`-based stackful coroutines would terminate the
+  program when used with asynchronous operations that have a completion
+  signature starting with `std::exception_ptr`.
+
+[heading Asio 1.28.2]
+
+* Fixed the completion token adapters `bind_allocator`, `bind_cancellation_slot`
+  and `bind_immediate_executor` to not require a `return_type` type alias in
+  the adapted `async_result` specialisation.
+
+* Fixed a potental crash due to an object lifetime issue in the `co_spawn`
+  operation's cancellation support.
+
+* Enabled compiler-supported thread locals on more target platforms, using the
+  `thread_local` keyword if available.
+
+* Fixed the documentation of the per-operation cancellation behaviour for
+  `experimental::co_composed` to correctly state that terminal cancellation is
+  enabled by default.
+
+* Documented the per-operation cancellation behaviour of `async_compose`.
+
+* Added `bind_immediate_executor` to the `Completion Token Adapters` overview.
+
+* Added an example illustrating how to use an `experimental channel` for
+  mutual exclusion between cooperating asynchronous actors.
+
+* Added an example showing how to write a minimal completion executor.
+
 [heading Asio 1.28.1]
 
 * Added missing compatibility with `associated_immediate_executor` to
