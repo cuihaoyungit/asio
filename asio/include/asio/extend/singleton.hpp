@@ -45,7 +45,7 @@ private:
 		std::lock_guard<std::mutex> lock(mtx);
 		if (!instance)
 		{
-			instance = new T;
+			instance = new(std::nothrow) T;
 		}
 	}
 };
@@ -68,7 +68,7 @@ public:
 			std::lock_guard<std::mutex> lock(m_mutex);
 
 			if (!m_instance) {
-				m_instance = new T();
+				m_instance = new(std::nothrow) T();
 			}
 		}
 		return m_instance;
@@ -150,7 +150,7 @@ public:
 
 	static T* Create() {
 		if (!m_instance) {
-			m_instance = new T();
+			m_instance = new(std::nothrow) T();
 		}
 		return m_instance;
 	}
@@ -160,7 +160,7 @@ public:
 	static T* CreateArgs(Args &&... args)
 	{
 		if (!m_instance) {
-			m_instance = new T(std::forward<Args>(args)...);
+			m_instance = new(std::nothrow) T(std::forward<Args>(args)...);
 		}
 		return m_instance;
 	}
