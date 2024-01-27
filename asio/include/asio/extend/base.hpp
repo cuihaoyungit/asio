@@ -98,10 +98,13 @@ typedef unsigned long long  UINT64;
 
 #endif
 
-
+// Interface
 #ifndef Interface
 #define MyInterface class
 #endif // !Interface
+
+// SharedPoint
+#define SHARD(obj) std::shared_ptr<obj>
 
 
 /// @name namespace cocos2d
@@ -128,5 +131,87 @@ typedef unsigned long long  UINT64;
 #define CC_SAFE_RELEASE_NULL(p)     do { if(p) { (p)->release(); (p) = nullptr; } } while(0)
 #define CC_SAFE_RETAIN(p)           do { if(p) { (p)->retain(); } } while(0)
 #define CC_BREAK_IF(cond)           if(cond) break
+
+
+#ifndef ASIO_TRY
+#   define ASIO_TRY try
+#endif
+#ifndef ASIO_CATCH
+#   define ASIO_CATCH(e) catch (e)
+#endif
+#ifndef ASIO_THROW
+#   define ASIO_THROW(e) throw e
+#endif
+#ifndef ASIO_RETHROW
+#   define ASIO_RETHROW throw
+#endif
+
+
+#if defined(__GNUC__) && ((__GNUC__ >= 5) || ((__GNUG__ == 4) && (__GNUC_MINOR__ >= 4))) \
+    || (defined(__clang__) && (__clang_major__ >= 3)) || (_MSC_VER >= 1800)
+#define CC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
+    TypeName(const TypeName &) = delete; \
+    TypeName &operator =(const TypeName &) = delete;
+#else
+#define CC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
+    TypeName(const TypeName &); \
+    TypeName &operator =(const TypeName &);
+#endif
+
+
+
+/** @def CREATE_FUNC(__TYPE__)
+ * Define a create function for a specific type, such as Layer.
+ *
+ * @param __TYPE__  class type to add create(), such as Layer.
+ */
+#define CREATE_FUNC(__TYPE__) \
+static __TYPE__* create() \
+{ \
+    __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
+    if (pRet && pRet->init()) \
+    { \
+        pRet->autorelease(); \
+        return pRet; \
+    } \
+    else \
+    { \
+        delete pRet; \
+        pRet = nullptr; \
+        return nullptr; \
+    } \
+}
+
+ /** @def NODE_FUNC(__TYPE__)
+  * Define a node function for a specific type, such as Layer.
+  *
+  * @param __TYPE__  class type to add node(), such as Layer.
+  * @deprecated  This interface will be deprecated sooner or later.
+  */
+#define NODE_FUNC(__TYPE__) \
+CC_DEPRECATED_ATTRIBUTE static __TYPE__* node() \
+{ \
+    __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
+    if (pRet && pRet->init()) \
+    { \
+        pRet->autorelease(); \
+        return pRet; \
+    } \
+    else \
+    { \
+        delete pRet; \
+        pRet = NULL; \
+        return NULL; \
+    } \
+}
+
+
+  // new callbacks based on C++11
+#define FUN_CALLBACK_0(__selector__,__target__, ...) std::bind(&__selector__,__target__, ##__VA_ARGS__)
+#define FUN_CALLBACK_1(__selector__,__target__, ...) std::bind(&__selector__,__target__, std::placeholders::_1, ##__VA_ARGS__)
+#define FUN_CALLBACK_2(__selector__,__target__, ...) std::bind(&__selector__,__target__, std::placeholders::_1, std::placeholders::_2, ##__VA_ARGS__)
+#define FUN_CALLBACK_3(__selector__,__target__, ...) std::bind(&__selector__,__target__, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)
+
+
 
 #endif // __BASE_HPP__
