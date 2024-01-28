@@ -65,15 +65,19 @@ typedef unsigned long long  UINT64;
 	(Define CEGUIBASE_EXPORTS to export symbols, else they are imported)
 *************************************************************************/
 #if (defined(_MSC_VER) || defined( __WIN32__ ) || defined( _WIN32 ) || defined(_WINDOWS) || defined(_WIN64) || defined( __WIN64__ )) && !defined(ASIO_STATIC)
-#   ifdef ASEXPORTS
-#       define EXPORT __declspec(dllexport)
-#   else
-#       define EXPORT __declspec(dllimport)
-#   endif
+    #if defined(ASIO_STATIC)    
+        #define EXPORT
+    #else
+        #ifdef ASEXPORTS
+            #define EXPORT __declspec(dllexport)
+        #else
+            #define EXPORT __declspec(dllimport)
+        #endif
+    #endif
 #elif defined(__GNUC__)
-#       define EXPORT __attribute__((visibility("default")))
+    #define EXPORT __attribute__((visibility("default")))
 #else
-#		define EXPORT
+    #define EXPORT
 #endif
 
 #if defined(__cplusplus)
