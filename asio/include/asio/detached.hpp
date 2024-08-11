@@ -38,7 +38,7 @@ namespace asio {
 class detached_t
 {
 public:
-  /// Constructor. 
+  /// Constructor.
   constexpr detached_t()
   {
   }
@@ -94,7 +94,7 @@ public:
 /**
  * See the documentation for asio::detached_t for a usage example.
  */
-constexpr detached_t detached;
+ASIO_INLINE_VARIABLE constexpr detached_t detached;
 
 } // namespace asio
 
