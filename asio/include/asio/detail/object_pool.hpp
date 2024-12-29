@@ -81,6 +81,14 @@ public:
     }
   }
 
+  // Constructor.
+  template <typename... Args>
+  object_pool(Args... args)
+      : live_list_(0),
+        free_list_(0)
+  {
+  }
+
   // Destructor destroys all objects.
   ~object_pool()
   {
