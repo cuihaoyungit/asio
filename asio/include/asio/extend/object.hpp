@@ -170,7 +170,7 @@ namespace asio {
 		virtual void Disconnect(NetObjectPtr pNetObj) = 0;
 		virtual void HandleMessage(NetObjectPtr pNetObj, const Message& msg)= 0;
 		virtual void Reconnect(NetObjectPtr pNetObj) {}
-		virtual void Error(int error) = 0;
+		virtual void Error(int error) {}
 	};
 
 	//--------------------------------------------------------------
