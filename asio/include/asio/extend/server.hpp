@@ -212,7 +212,7 @@ namespace asio {
             : acceptor_(io_context, endpoint)
             , signals_(io_context)
             , stoped_(false)
-			, work_(new asio::io_service::work(io_context))
+			//, work_(new asio::io_service::work(io_context))
         {
             // ensure one signals handler application
 			//signals_.add(SIGINT);
@@ -243,16 +243,18 @@ namespace asio {
 		void Stop() 
         {
             // workers stop
-            work_.reset();
+            // work_.reset();
             // signals
             this->signals_.cancel();
 			// close acceptor
+            /*
 			this->io_context.post([this]() {
-				if (this->acceptor_.is_open())
-				{
-					this->acceptor_.close();
-				}
+				    if (this->acceptor_.is_open())
+				    {
+					    this->acceptor_.close();
+				    }
 				});
+            */
 			// io service
 			if (!this->io_context.stopped())
 			{
@@ -325,7 +327,7 @@ namespace asio {
         // io_service
 		asio::io_context io_context;
         tcp::acceptor acceptor_;
-        std::unique_ptr<asio::io_service::work> work_;
+        //std::unique_ptr<asio::io_service::work> work_;
         ServerUser users_;
         asio::signal_set signals_;
         bool stoped_;
